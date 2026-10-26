@@ -49,6 +49,29 @@ export async function moderationRoutes(request,env){
   const object=await env.MEDIA.get(row.object_key);if(!object)return catalogJson({error:'not_found'},404);return new Response(object.body,{headers:{'content-type':row.mime,'content-length':String(row.size),'x-content-type-options':'nosniff','cache-control':'no-store','access-control-allow-origin':(approved||productApproved||salonAd||generalAd)?'*':url.origin,'content-security-policy':"default-src 'none'; sandbox"}})
  }
  if(!actor)return catalogJson({error:'login_required'},401);
+ if(path.startsWith('/api/catalog/admin/bookings')&&request.method==='GET'){
+  if(actor.role!=='admin')return catalogJson({error:'admin_required'},403);
+  if(!env.LEGACY_DB)return catalogJson({error:'booking_source_unavailable'},503);
+  const legacy=env.LEGACY_DB;
+  if(path==='/api/catalog/admin/bookings'){
+   const salons=(await legacy.prepare("SELECT s.id,s.name,COUNT(b.id) AS bookingCount,MAX(b.created_at) AS latestBooking,SUM(CASE WHEN b.status IN ('pending','confirmed') THEN 1 ELSE 0 END) AS activeCount FROM salons s JOIN bookings b ON b.salon_id=s.id WHERE b.is_demo=0 AND s.is_demo=0 GROUP BY s.id,s.name ORDER BY latestBooking DESC,s.id").all()).results;
+   return catalogJson({salons});
+  }
+  if(path==='/api/catalog/admin/bookings/salon'){
+   const salonId=url.searchParams.get('salonId')||'',offset=Number(url.searchParams.get('offset')||0);
+   if(!salonId||salonId.length>128||!Number.isSafeInteger(offset)||offset<0)return catalogJson({error:'invalid_query'},400);
+   const salon=await legacy.prepare('SELECT id,name FROM salons WHERE id=? AND is_demo=0').bind(salonId).first();if(!salon)return catalogJson({error:'not_found'},404);
+   const bookings=(await legacy.prepare('SELECT b.id,b.starts_at AS startsAt,b.status FROM bookings b WHERE b.salon_id=? AND b.is_demo=0 ORDER BY b.created_at DESC,b.id LIMIT 51 OFFSET ?').bind(salonId,offset).all()).results;
+   return catalogJson({salon,bookings:bookings.slice(0,50),hasMore:bookings.length>50,nextOffset:offset+Math.min(50,bookings.length)});
+  }
+  if(path==='/api/catalog/admin/bookings/detail'){
+   const id=url.searchParams.get('id')||'';if(!id||id.length>128)return catalogJson({error:'invalid_query'},400);
+   const booking=await legacy.prepare('SELECT b.id,b.salon_id AS salonId,s.name AS salonName,b.starts_at AS startsAt,b.ends_at AS endsAt,b.status,b.created_at AS createdAt,d.name AS customerName,d.phone,d.notes,d.total_minor AS totalMinor,d.payment_method AS paymentMethod,d.payment_status AS paymentStatus,e.started_at AS startedAt FROM bookings b JOIN salons s ON s.id=b.salon_id LEFT JOIN customer_booking_details d ON d.booking_id=b.id LEFT JOIN booking_execution e ON e.booking_id=b.id WHERE b.id=? AND b.is_demo=0 AND s.is_demo=0').bind(id).first();if(!booking)return catalogJson({error:'not_found'},404);
+   const services=(await legacy.prepare('SELECT sv.name,sv.duration_minutes AS minutes,sv.price_minor AS priceMinor FROM services sv WHERE sv.id IN (SELECT service_id FROM booking_services WHERE booking_id=? UNION SELECT service_id FROM bookings WHERE id=?) ORDER BY sv.name').bind(id,id).all()).results;
+   return catalogJson({booking,services});
+  }
+  return catalogJson({error:'not_found'},404);
+ }
  const adResponse=await advertisementRoutes(request,db,actor,url);if(adResponse)return adResponse;
  const accountingResponse=await accountingRoutes(request,env,actor,url);if(accountingResponse)return accountingResponse;
  const productResponse=await productModerationRoutes(request,db,actor,url);if(productResponse)return productResponse;

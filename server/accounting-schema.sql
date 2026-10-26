@@ -4,3 +4,7 @@ CREATE TABLE IF NOT EXISTS catalog_financial_events(id TEXT PRIMARY KEY,owner_id
 CREATE TABLE IF NOT EXISTS catalog_cash_receipts(id TEXT PRIMARY KEY,owner_id TEXT NOT NULL REFERENCES catalog_accounts(id),event_id TEXT NOT NULL REFERENCES catalog_financial_events(id),amount INTEGER NOT NULL CHECK(amount>0),channel TEXT NOT NULL CHECK(channel IN('customer','courier')),reference TEXT NOT NULL,recorded_at TEXT NOT NULL,request_key TEXT NOT NULL UNIQUE);
 CREATE TABLE IF NOT EXISTS catalog_admin_payments(id TEXT PRIMARY KEY,owner_id TEXT NOT NULL REFERENCES catalog_accounts(id),amount INTEGER NOT NULL CHECK(amount>0),reference TEXT NOT NULL,recorded_by TEXT NOT NULL REFERENCES catalog_accounts(id),recorded_at TEXT NOT NULL,request_key TEXT NOT NULL UNIQUE);
 CREATE TABLE IF NOT EXISTS catalog_delivery_grants(account_id TEXT PRIMARY KEY REFERENCES catalog_accounts(id),legacy_courier_id TEXT NOT NULL,granted_by TEXT NOT NULL REFERENCES catalog_accounts(id),created_at TEXT NOT NULL);
+
+CREATE TABLE IF NOT EXISTS catalog_payment_notifications(payment_id TEXT PRIMARY KEY REFERENCES catalog_admin_payments(id),owner_id TEXT NOT NULL REFERENCES catalog_accounts(id),read_at TEXT);
+CREATE INDEX IF NOT EXISTS catalog_payment_notifications_owner ON catalog_payment_notifications(owner_id,read_at);
+CREATE TRIGGER IF NOT EXISTS catalog_notify_admin_payment AFTER INSERT ON catalog_admin_payments BEGIN INSERT INTO catalog_payment_notifications(payment_id,owner_id) VALUES(NEW.id,NEW.owner_id); END;

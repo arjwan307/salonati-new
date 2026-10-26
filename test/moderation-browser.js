@@ -1,0 +1,22 @@
+(async()=>{
+if(!location.hostname.startsWith('salonati-moderation-test-'))throw Error('isolated-test-only');
+const checks=[];let result={};const check=(name,ok)=>{checks.push({name,ok:!!ok});if(!ok)throw Error(name)};
+async function api(path,data,method){const r=await fetch('/api/catalog/'+path,{method:method||(data===undefined?'GET':'POST'),headers:data===undefined?{}:{'Content-Type':'application/json'},body:data===undefined?undefined:JSON.stringify(data)});let d;try{d=await r.json()}catch{d={}}return {status:r.status,data:d}}
+const password='Isolated-test-password-20261026';const owner={email:'owner-a@example.test',password,salonName:'صالون اختبار معزول',area:'اختبار'},other={...owner,email:'owner-b@example.test'},admin={email:'admin@example.test',password};
+try{
+let r=await api('register',owner);check('owner registration',r.status===200&&r.data.account.role==='owner');
+const image=Uint8Array.from(atob('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aJ1sAAAAASUVORK5CYII='),c=>c.charCodeAt(0));let response=await fetch('/api/catalog/media',{method:'POST',headers:{'Content-Type':'image/png'},body:image});let media=await response.json();check('private media upload',response.status===201);
+const service={name:'قص شعر معزول',category:'hair',price:50000,minutes:45,mediaId:media.id,discount:{price:35000,startsAt:new Date(Date.now()-3600000).toISOString(),endsAt:new Date(Date.now()+3600000).toISOString()}};
+r=await api('services',service);check('submit pending',r.status===201&&r.data.status==='pending');const first=r.data;
+r=await api('public');check('pending invisible',r.data.salons.length===0);
+r=await api('reviews');check('owner cannot approve',r.status===403);
+await api('logout',{});response=await fetch('/api/catalog/media/'+media.id);check('pending media private',response.status===404);
+await api('register',other);r=await api('services',{...service,id:first.id});check('cross-owner service denied',r.status===404||r.status===400);r=await api('services',service);check('cross-owner media denied',r.status===400);response=await fetch('/api/catalog/media/'+media.id);check('cross-owner private media denied',response.status===404);await api('logout',{});
+r=await api('setup',{...admin,setupToken:'isolated-test-setup-20261026'});check('admin setup',r.status===200&&r.data.account.role==='admin');r=await api('reviews');check('admin receives review',r.data.reviews.length===1);response=await fetch('/api/catalog/media/'+media.id);check('admin previews pending media',response.status===200);
+r=await api('reviews/'+first.revisionId,{action:'approve'});check('admin approve',r.status===200);r=await api('public');check('approved published to category',r.data.salons[0].services[0].category==='hair'&&r.data.salons[0].services[0].discount.price===35000);await api('logout',{});response=await fetch('/api/catalog/media/'+media.id);check('approved media public',response.status===200);
+await api('login',owner);r=await api('services',{...service,id:first.id,name:'مكياج معزول',category:'makeup',price:60000});const second=r.data;check('edit returns pending',r.status===201);r=await api('public');check('old version remains while pending',r.data.salons[0].services[0].category==='hair'&&r.data.salons[0].services[0].price===50000);await api('logout',{});await api('login',admin);
+r=await api('reviews/'+second.revisionId,{action:'reject',reason:'رفض للاختبار المعزول'});check('admin rejection',r.status===200);r=await api('public');check('rejected edit does not publish',r.data.salons[0].services[0].category==='hair');await api('logout',{});await api('login',owner);r=await api('services');check('owner sees rejection reason',r.data.services[0].reviewReason==='رفض للاختبار المعزول');r=await api('services',{...service,id:first.id,name:'مكياج معتمد',category:'makeup'});const third=r.data;await api('logout',{});await api('login',admin);r=await api('reviews/'+third.revisionId,{action:'approve'});check('resubmitted approval',r.status===200);r=await api('public');check('category changes only after approval',r.data.salons[0].services[0].category==='makeup');r=await api('reviews/'+third.revisionId,{action:'approve'});check('duplicate approval rejected',r.status===409);
+result={passed:true,checks};
+}catch(e){result={passed:false,error:e.message,checks}}
+const pre=document.createElement('pre');pre.id='moderation-test-results';pre.textContent=JSON.stringify(result);document.body.append(pre);
+})();

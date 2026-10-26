@@ -172,4 +172,4 @@ function addPhoto(){let f=document.getElementById('photo').files[0];if(!f)return
 function backup(){let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(db,null,2)],{type:'application/json'}));a.download='salonati-owner-backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
 function restoreData(){let f=document.getElementById('restore').files[0];if(!f)return toast('اختاري ملف JSON');let r=new FileReader();r.onload=()=>{try{let d=JSON.parse(r.result);if(!d.salon||!Array.isArray(d.services)||!Array.isArray(d.bookings))throw Error();if(confirm('استبدال البيانات الحالية؟')){db=d;save()}}catch(e){toast('ملف النسخة الاحتياطية غير صالح')}};r.readAsText(f)}
 render();void hydrateServiceMedia();if('serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('/sw.js').catch(()=>{});
-</script></body></html>
+</script><script src="/owner-publishing.js"></script></body></html>

@@ -1,0 +1,87 @@
+const catalogHex=a=>Array.from(new Uint8Array(a),x=>x.toString(16).padStart(2,'0')).join('');
+const catalogHash=async s=>catalogHex(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s)));
+const catalogRandom=()=>catalogHex(crypto.getRandomValues(new Uint8Array(32)));
+async function catalogPassword(password,salt){const key=await crypto.subtle.importKey('raw',new TextEncoder().encode(password),'PBKDF2',false,['deriveBits']);return catalogHex(await crypto.subtle.deriveBits({name:'PBKDF2',salt:new TextEncoder().encode(salt),iterations:100000,hash:'SHA-256'},key,256))}
+function catalogEqual(a,b){if(typeof a!=='string'||typeof b!=='string'||a.length!==b.length)return false;let d=0;for(let i=0;i<a.length;i++)d|=a.charCodeAt(i)^b.charCodeAt(i);return d===0}
+async function catalogBody(request,max=65536){const reader=request.body?.getReader();if(!reader)throw Object.assign(Error('empty_body'),{status:400});const chunks=[];let size=0;while(true){const {done,value}=await reader.read();if(done)break;size+=value.length;if(size>max){await reader.cancel();throw Object.assign(Error('body_too_large'),{status:413})}chunks.push(value)}const bytes=new Uint8Array(size);let offset=0;for(const chunk of chunks){bytes.set(chunk,offset);offset+=chunk.length}return bytes}
+async function catalogJsonBody(request){try{return JSON.parse(new TextDecoder().decode(await catalogBody(request)))}catch(e){if(e.status)throw e;throw Object.assign(Error('invalid_json'),{status:400})}}
+const catalogJson=(data,status=200,headers={})=>Response.json(data,{status,headers:{'cache-control':'no-store','x-content-type-options':'nosniff',...headers}});
+async function catalogActor(request,db){const token=/\b__Host-catalog=([a-f0-9]{64})(?:;|$)/.exec(request.headers.get('cookie')||'')?.[1];if(!token)return null;return db.prepare('SELECT a.id,a.email,a.role,a.salon_name AS salonName,a.area FROM catalog_sessions s JOIN catalog_accounts a ON a.id=s.account_id WHERE s.token_hash=? AND julianday(s.expires_at)>julianday(\'now\')').bind(await catalogHash(token)).first()}
+async function catalogSession(db,account){const token=catalogRandom();await db.prepare("INSERT INTO catalog_sessions(token_hash,account_id,expires_at) VALUES(?,?,datetime('now','+7 days'))").bind(await catalogHash(token),account.id).run();return catalogJson({account},200,{'set-cookie':'__Host-catalog='+token+'; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=604800'})}
+async function catalogRate(db,request,path){const key=await catalogHash((request.headers.get('cf-connecting-ip')||'unknown')+':'+path+':'+Math.floor(Date.now()/600000));const now=Math.floor(Date.now()/1000);await db.prepare('INSERT INTO catalog_rate(key,hits,expires_at) VALUES(?,1,?) ON CONFLICT(key) DO UPDATE SET hits=hits+1').bind(key,now+1200).run();const row=await db.prepare('SELECT hits FROM catalog_rate WHERE key=?').bind(key).first();return row.hits<=20}
+function catalogRevision(row,origin){return {id:row.service_id,revisionId:row.id,name:row.name,category:row.category,price:row.price,minutes:row.minutes,active:!!row.active,mediaId:row.media_id,mediaType:row.mime||null,mediaUrl:row.media_id?origin+'/api/catalog/media/'+row.media_id:null,discount:row.discount_price===null?null:{price:row.discount_price,startsAt:row.discount_start,endsAt:row.discount_end},publicationStatus:row.status,reviewReason:row.reason,createdAt:row.created_at}}
+function catalogMime(bytes,mime){const ascii=(s,o=0)=>s.split('').every((c,i)=>bytes[o+i]===c.charCodeAt(0));if(mime==='image/png')return bytes[0]===137&&ascii('PNG\r\n\x1a\n',1);if(mime==='image/jpeg')return bytes[0]===255&&bytes[1]===216&&bytes[2]===255;if(mime==='image/gif')return ascii('GIF87a')||ascii('GIF89a');if(mime==='image/webp')return ascii('RIFF')&&ascii('WEBP',8);if(mime==='video/mp4')return ascii('ftyp',4);if(mime==='video/webm')return bytes[0]===26&&bytes[1]===69&&bytes[2]===223&&bytes[3]===163;return false}
+export async function moderationRoutes(request,env){
+ const url=new URL(request.url),path=url.pathname;if(!path.startsWith('/api/catalog/'))return null;
+ const publicRead=path==='/api/catalog/public';
+ const cors=publicRead?{'access-control-allow-origin':'*'}:{};
+ if(publicRead&&request.method==='OPTIONS')return new Response(null,{status:204,headers:{...cors,'access-control-allow-methods':'GET'}});
+ if(!env.MODERATION_DB)return catalogJson({error:'storage_unavailable'},503,cors);
+ const db=env.MODERATION_DB;
+ try{
+ if(!['GET','HEAD','OPTIONS'].includes(request.method)&&request.headers.get('origin')!==url.origin)return catalogJson({error:'origin_denied'},403);
+ if(publicRead&&request.method==='GET'){
+  const rows=(await db.prepare("SELECT r.*,a.salon_name,a.area,m.mime FROM catalog_services s JOIN catalog_revisions r ON r.id=s.published_revision JOIN catalog_accounts a ON a.id=s.owner_id LEFT JOIN catalog_media m ON m.id=r.media_id WHERE r.status='approved' AND r.active=1 ORDER BY r.created_at DESC LIMIT 1000").all()).results;
+  const salons=new Map();for(const row of rows){if(!salons.has(row.owner_id))salons.set(row.owner_id,{id:row.owner_id,name:row.salon_name,area:row.area,services:[]});salons.get(row.owner_id).services.push(catalogRevision(row,url.origin))}
+  return catalogJson({salons:[...salons.values()],serverTime:new Date().toISOString()},200,cors)
+ }
+ if(['/api/catalog/register','/api/catalog/login','/api/catalog/setup'].includes(path)&&request.method==='POST'){
+  if(!await catalogRate(db,request,path))return catalogJson({error:'too_many_attempts'},429);
+  const d=await catalogJsonBody(request),email=String(d.email||'').trim().toLowerCase();if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)||email.length>254||typeof d.password!=='string'||d.password.length<10||d.password.length>128)return catalogJson({error:'invalid_credentials_format'},400);
+  if(path==='/api/catalog/login'){
+   const account=await db.prepare('SELECT * FROM catalog_accounts WHERE email=?').bind(email).first();const digest=await catalogPassword(d.password,account?.salt||'unavailable');if(!account||!catalogEqual(digest,account.digest))return catalogJson({error:'invalid_credentials'},401);
+   return catalogSession(db,{id:account.id,email:account.email,role:account.role,salonName:account.salon_name,area:account.area})
+  }
+  let role='owner';if(path==='/api/catalog/setup'){
+   if(!env.ADMIN_SETUP_HASH||Date.now()>Number(env.ADMIN_SETUP_EXPIRES)||typeof d.setupToken!=='string'||!catalogEqual(await catalogHash(d.setupToken),env.ADMIN_SETUP_HASH))return catalogJson({error:'setup_unavailable'},403);role='admin';
+  }
+  const salonName=String(d.salonName||'').trim(),area=String(d.area||'').trim();if(role==='owner'&&(!salonName||salonName.length>100||!area||area.length>100))return catalogJson({error:'salon_details_required'},400);
+  const account={id:crypto.randomUUID(),email,role,salonName:role==='owner'?salonName:'',area:role==='owner'?area:''};const salt=catalogRandom(),digest=await catalogPassword(d.password,salt);
+  try{await db.prepare('INSERT INTO catalog_accounts(id,email,role,salt,digest,salon_name,area) VALUES(?,?,?,?,?,?,?)').bind(account.id,email,role,salt,digest,account.salonName,account.area).run()}catch(e){if(/unique/i.test(e.message))return catalogJson({error:'account_unavailable'},409);throw e}
+  return catalogSession(db,account)
+ }
+ const actor=await catalogActor(request,db);
+ const mediaMatch=/^\/api\/catalog\/media\/([a-f0-9-]{36})$/.exec(path);
+ if(mediaMatch&&request.method==='GET'){
+  const row=await db.prepare('SELECT * FROM catalog_media WHERE id=?').bind(mediaMatch[1]).first();if(!row)return catalogJson({error:'not_found'},404);
+  const approved=await db.prepare("SELECT r.id FROM catalog_services s JOIN catalog_revisions r ON r.id=s.published_revision WHERE r.media_id=? AND r.status='approved' AND r.active=1 LIMIT 1").bind(row.id).first();
+  if(!approved&&(!actor||(actor.role!=='admin'&&actor.id!==row.owner_id)))return catalogJson({error:'not_found'},404);
+  const object=await env.MEDIA.get(row.object_key);if(!object)return catalogJson({error:'not_found'},404);return new Response(object.body,{headers:{'content-type':row.mime,'content-length':String(row.size),'x-content-type-options':'nosniff','cache-control':'no-store','access-control-allow-origin':approved?'*':url.origin,'content-security-policy':"default-src 'none'; sandbox"}})
+ }
+ if(!actor)return catalogJson({error:'login_required'},401);
+ if(path==='/api/catalog/me'&&request.method==='GET')return catalogJson({account:actor});
+ if(path==='/api/catalog/logout'&&request.method==='POST'){const token=/\b__Host-catalog=([a-f0-9]{64})(?:;|$)/.exec(request.headers.get('cookie')||'')?.[1];await db.prepare('DELETE FROM catalog_sessions WHERE token_hash=?').bind(await catalogHash(token)).run();return catalogJson({ok:true},200,{'set-cookie':'__Host-catalog=; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=0'})}
+ if(path==='/api/catalog/media'&&request.method==='POST'){
+  if(actor.role!=='owner')return catalogJson({error:'owner_required'},403);const mime=(request.headers.get('content-type')||'').split(';')[0];if(!['image/jpeg','image/png','image/gif','image/webp','video/mp4','video/webm'].includes(mime))return catalogJson({error:'unsupported_media'},400);
+  const quota=await db.prepare('SELECT COALESCE(SUM(size),0) AS total FROM catalog_media WHERE owner_id=?').bind(actor.id).first();if(quota.total>=500*1024*1024)return catalogJson({error:'media_quota'},413);
+  const bytes=await catalogBody(request,20*1024*1024);if(!catalogMime(bytes,mime))return catalogJson({error:'invalid_media'},400);const id=crypto.randomUUID(),key='moderated/'+actor.id+'/'+id;
+  await env.MEDIA.put(key,bytes,{httpMetadata:{contentType:mime}});try{await db.prepare('INSERT INTO catalog_media(id,owner_id,object_key,mime,size) VALUES(?,?,?,?,?)').bind(id,actor.id,key,mime,bytes.length).run()}catch(e){await env.MEDIA.delete(key);throw e}return catalogJson({id,mediaType:mime,mediaUrl:url.origin+'/api/catalog/media/'+id},201)
+ }
+ if(path==='/api/catalog/services'&&request.method==='GET'){
+  if(actor.role!=='owner')return catalogJson({error:'owner_required'},403);const rows=(await db.prepare('SELECT r.*,m.mime,s.published_revision FROM catalog_services s JOIN catalog_revisions r ON r.id=s.latest_revision LEFT JOIN catalog_media m ON m.id=r.media_id WHERE s.owner_id=? ORDER BY r.created_at DESC').bind(actor.id).all()).results;
+  return catalogJson({services:rows.map(r=>({...catalogRevision(r,url.origin),publishedRevisionId:r.published_revision}))})
+ }
+ if(path==='/api/catalog/services'&&request.method==='POST'){
+  if(actor.role!=='owner')return catalogJson({error:'owner_required'},403);const d=await catalogJsonBody(request);const name=String(d.name||'').trim();if(!name||name.length>160||!['hair','makeup','skin','nails'].includes(d.category)||!Number.isSafeInteger(d.price)||d.price<0||d.price>100000000||!Number.isSafeInteger(d.minutes)||d.minutes<1||d.minutes>1440)return catalogJson({error:'invalid_service'},400);
+  let discount=null;if(d.discount){const start=Date.parse(d.discount.startsAt),end=Date.parse(d.discount.endsAt);if(!Number.isSafeInteger(d.discount.price)||d.discount.price<=0||d.discount.price>=d.price||!Number.isFinite(start)||!Number.isFinite(end)||end<=start)return catalogJson({error:'invalid_discount'},400);discount={price:d.discount.price,start:new Date(start).toISOString(),end:new Date(end).toISOString()}}
+  if(d.mediaId&&!await db.prepare('SELECT id FROM catalog_media WHERE id=? AND owner_id=?').bind(d.mediaId,actor.id).first())return catalogJson({error:'invalid_media'},400);
+  const serviceId=d.id||crypto.randomUUID();if(d.id&&!await db.prepare('SELECT id FROM catalog_services WHERE id=? AND owner_id=?').bind(d.id,actor.id).first())return catalogJson({error:'not_found'},404);
+  const revisionId=crypto.randomUUID(),statements=[];
+  if(!d.id)statements.push(db.prepare('INSERT INTO catalog_services(id,owner_id) VALUES(?,?)').bind(serviceId,actor.id));
+  statements.push(db.prepare("INSERT INTO catalog_revisions(id,service_id,owner_id,name,category,price,minutes,active,media_id,discount_price,discount_start,discount_end,status) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,'pending')").bind(revisionId,serviceId,actor.id,name,d.category,d.price,d.minutes,d.active===false?0:1,d.mediaId||null,discount?.price??null,discount?.start??null,discount?.end??null),db.prepare('UPDATE catalog_services SET latest_revision=? WHERE id=? AND owner_id=?').bind(revisionId,serviceId,actor.id),db.prepare("INSERT INTO catalog_audit(actor_id,revision_id,event) VALUES(?,?,'submitted')").bind(actor.id,revisionId));await db.batch(statements);return catalogJson({id:serviceId,revisionId,status:'pending'},201)
+ }
+ if(path==='/api/catalog/reviews'&&request.method==='GET'){
+  if(actor.role!=='admin')return catalogJson({error:'admin_required'},403);const rows=(await db.prepare("SELECT r.*,m.mime,a.salon_name,a.area,s.latest_revision,s.published_revision FROM catalog_revisions r JOIN catalog_services s ON s.id=r.service_id JOIN catalog_accounts a ON a.id=r.owner_id LEFT JOIN catalog_media m ON m.id=r.media_id WHERE r.status='pending' AND r.id=s.latest_revision ORDER BY r.created_at LIMIT 200").all()).results;return catalogJson({reviews:rows.map(r=>({...catalogRevision(r,url.origin),salonName:r.salon_name,area:r.area,publishedRevisionId:r.published_revision}))})
+ }
+ const review=/^\/api\/catalog\/reviews\/([a-f0-9-]{36})$/.exec(path);
+ if(review&&request.method==='POST'){
+  if(actor.role!=='admin')return catalogJson({error:'admin_required'},403);const d=await catalogJsonBody(request);if(!['approve','reject'].includes(d.action))return catalogJson({error:'invalid_action'},400);const reason=String(d.reason||'').trim().slice(0,500);if(d.action==='reject'&&!reason)return catalogJson({error:'reason_required'},400);
+  const target=await db.prepare("SELECT r.service_id FROM catalog_revisions r JOIN catalog_services s ON s.id=r.service_id WHERE r.id=? AND r.status='pending' AND s.latest_revision=r.id").bind(review[1]).first();if(!target)return catalogJson({error:'review_stale'},409);
+  const approved=d.action==='approve',status=approved?'approved':'rejected';
+  const statements=[db.prepare("UPDATE catalog_revisions SET status=?,reason=?,reviewer=?,reviewed_at=strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE id=? AND status='pending' AND EXISTS(SELECT 1 FROM catalog_services s WHERE s.latest_revision=catalog_revisions.id)").bind(status,reason,actor.id,review[1])];
+  if(approved)statements.push(db.prepare("UPDATE catalog_services SET published_revision=? WHERE id=? AND latest_revision=? AND EXISTS(SELECT 1 FROM catalog_revisions WHERE id=? AND status='approved' AND reviewer=?)").bind(review[1],target.service_id,review[1],review[1],actor.id));
+  statements.push(db.prepare('INSERT INTO catalog_audit(actor_id,revision_id,event) SELECT ?,?,? WHERE EXISTS(SELECT 1 FROM catalog_revisions WHERE id=? AND status=? AND reviewer=?)').bind(actor.id,review[1],status,review[1],status,actor.id));const results=await db.batch(statements);if(!results[0].meta.changes)return catalogJson({error:'review_stale'},409);return catalogJson({status})
+ }
+ return catalogJson({error:'not_found'},404)
+ }catch(e){return catalogJson({error:e.status?e.message:'service_unavailable'},e.status||503,cors)}
+}

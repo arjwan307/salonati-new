@@ -8,3 +8,6 @@ CREATE TABLE IF NOT EXISTS catalog_delivery_grants(account_id TEXT PRIMARY KEY R
 CREATE TABLE IF NOT EXISTS catalog_payment_notifications(payment_id TEXT PRIMARY KEY REFERENCES catalog_admin_payments(id),owner_id TEXT NOT NULL REFERENCES catalog_accounts(id),read_at TEXT);
 CREATE INDEX IF NOT EXISTS catalog_payment_notifications_owner ON catalog_payment_notifications(owner_id,read_at);
 CREATE TRIGGER IF NOT EXISTS catalog_notify_admin_payment AFTER INSERT ON catalog_admin_payments BEGIN INSERT INTO catalog_payment_notifications(payment_id,owner_id) VALUES(NEW.id,NEW.owner_id); END;
+
+CREATE TABLE IF NOT EXISTS catalog_admin_expenses(id TEXT PRIMARY KEY,owner_id TEXT REFERENCES catalog_accounts(id),description TEXT NOT NULL,amount INTEGER NOT NULL CHECK(amount>0),reference TEXT NOT NULL DEFAULT '',expense_date TEXT NOT NULL,recorded_by TEXT NOT NULL REFERENCES catalog_accounts(id),recorded_at TEXT NOT NULL,request_key TEXT NOT NULL UNIQUE);
+CREATE INDEX IF NOT EXISTS catalog_admin_expenses_owner ON catalog_admin_expenses(owner_id,expense_date);

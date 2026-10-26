@@ -7,7 +7,7 @@ for(const route of urls){
  let r=await moderationRoutes(request,{MODERATION_DB:{}});
  assert.equal(r.status,401);
  let touchedLegacy=false;
- const env={MODERATION_DB:{prepare(){return {bind(){return this},async first(){return {id:'owner',role:'owner'}}}}},get LEGACY_DB(){touchedLegacy=true;throw Error('unauthorized legacy access')}};
+ const env={MODERATION_DB:{prepare(sql){return {bind(){return this},async first(){return sql.includes('catalog_admin_staff')?null:{id:'owner',role:'owner'}}}}},get LEGACY_DB(){touchedLegacy=true;throw Error('unauthorized legacy access')}};
  r=await moderationRoutes(new Request(request,{headers:{cookie:'__Host-catalog='+'a'.repeat(64)}}),env);
  assert.equal(r.status,403);assert.equal(touchedLegacy,false);
 }

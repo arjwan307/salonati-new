@@ -1,0 +1,13 @@
+import './linked-customer-workflow.mjs';
+import {sql,call,a,eq} from './registrations-campaigns.mjs';
+const guest=await call('/api/link/session',{body:{}}),service=sql.prepare("SELECT s.id FROM catalog_services s JOIN catalog_revisions r ON r.id=s.published_revision WHERE s.owner_id=? AND r.price=25000 LIMIT 1").get(a.data.account.id);
+const data={ownerId:a.data.account.id,serviceIds:[service.id],name:'زبونة حساب',phone:'07000000000',expectedTotal:25000,paymentMethod:'cash',requestKey:crypto.randomUUID(),startsAt:new Date(Date.now()+30*60000).toISOString()};
+const booking=await call('workflow/customer/bookings',{cookie:guest.cookie,body:data});eq(booking.status,201);
+const input={name:'زبونة حساب مستقل',password:'isolated-customer-password',phone:''};const registered=await call('/api/link/customer/register',{cookie:guest.cookie,body:input});eq(registered.status,201);eq(registered.data.account.phone,'');eq(registered.cookie.startsWith('__Host-salonati-customer='),true);eq((await call('workflow/customer/bookings',{cookie:registered.cookie})).data.bookings[0].id,booking.data.id);eq((await call('workflow/customer/bookings',{cookie:guest.cookie})).status,401);
+const stored=sql.prepare('SELECT * FROM catalog_customer_accounts WHERE id=?').get(registered.data.account.id);eq(stored.digest===input.password,false);eq(stored.salt.length,64);
+eq((await call('/api/link/customer/register',{body:input})).status,409);eq((await call('/api/link/customer/login',{body:{...input,password:'wrong-password'}})).status,401);
+const otherDevice=await call('/api/link/customer/login',{body:input});eq(otherDevice.status,200);eq((await call('workflow/customer/bookings',{cookie:otherDevice.cookie})).data.bookings[0].id,booking.data.id);eq((await call('/api/link/customer/me',{cookie:otherDevice.cookie})).data.account.id,registered.data.account.id);
+const optionalBooking=await call('workflow/customer/bookings',{cookie:otherDevice.cookie,body:{...data,phone:'',startsAt:new Date(Date.now()+3*3600000).toISOString(),requestKey:crypto.randomUUID()}});eq(optionalBooking.status,201);
+const otherAccount=await call('/api/link/customer/register',{body:{...input,name:'زبونة أخرى'}});eq(otherAccount.status,201);eq((await call('workflow/customer/bookings',{cookie:otherAccount.cookie})).data.bookings.length,0);
+eq((await call('/api/link/customer/logout',{cookie:otherDevice.cookie,body:{}})).status,200);eq((await call('/api/link/customer/me',{cookie:otherDevice.cookie})).status,401);eq((await call('/api/link/customer/me',{cookie:registered.cookie})).status,200);
+console.log('PASS: name/password accounts, optional phone, hashed credentials, guest transfer, cross-device bookings, account isolation and logout');

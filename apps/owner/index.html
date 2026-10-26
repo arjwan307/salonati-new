@@ -33,7 +33,7 @@ nav{background:var(--bg);border-color:var(--line)}nav button{color:var(--muted)}
 
 .service-media{display:block;width:100%;max-height:230px;object-fit:cover;border-radius:12px;margin:8px 0 14px}.service-discount-period{line-height:1.8;font-size:11px;overflow-wrap:anywhere}#serviceDiscountFields[hidden]{display:none}header .service-header-ad{width:45%;max-width:220px;padding:9px;text-align:center;flex-shrink:0}header .service-header-ad .ad-product-art{display:none}header .service-header-ad h2{font-size:12px;margin:3px 0}header .service-header-ad p{font-size:10px;margin:3px 0}header .service-header-ad small{font-size:9px}
 .service-editor-fold{margin:20px 0 12px}.service-editor-fold>summary{cursor:pointer;list-style-position:inside;font-size:17px;font-weight:bold;color:var(--text);padding:14px;border:1px solid var(--line);border-radius:13px;background:var(--card)}.service-editor-fold>summary:focus-visible{outline:2px solid var(--pink);outline-offset:3px}
-</style></head><body><div class="app"><header><div><small>صالوناتي • لوحة صاحبة الصالون</small><h1 id="salonTitle">صالون لؤلؤة بغداد</h1></div><div class="logo">✿</div></header><main id="main"></main></div><nav id="nav"></nav><div id="toast"></div><script src="/loyalty-ui.js"></script><script>
+</style></head><body><div class="app"><header style="display:none"><div><small>صالوناتي • لوحة صاحبة الصالون</small><h1 id="salonTitle">صالون لؤلؤة بغداد</h1></div><div class="logo">✿</div></header><main id="main"><section class="card" role="status"><h1>صالوناتي</h1><p>جارٍ التحقق من تسجيل الدخول…</p></section></main></div><nav id="nav" style="display:none"></nav><div id="toast"></div><script src="/loyalty-ui.js"></script><script>
 
 function applyTheme(theme){
   let root=document.documentElement;
@@ -171,5 +171,5 @@ function deletePhoto(i){db.photos.splice(i,1);save()}
 function addPhoto(){let f=document.getElementById('photo').files[0];if(!f)return toast('اختاري صورة');if(f.size>750000)return toast('اختاري صورة أصغر من 750 كيلوبايت');let r=new FileReader();r.onload=()=>{db.photos.push(r.result);try{save()}catch(e){db.photos.pop();toast('مساحة التخزين المحلي ممتلئة')}};r.readAsDataURL(f)}
 function backup(){let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(db,null,2)],{type:'application/json'}));a.download='salonati-owner-backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
 function restoreData(){let f=document.getElementById('restore').files[0];if(!f)return toast('اختاري ملف JSON');let r=new FileReader();r.onload=()=>{try{let d=JSON.parse(r.result);if(!d.salon||!Array.isArray(d.services)||!Array.isArray(d.bookings))throw Error();if(confirm('استبدال البيانات الحالية؟')){db=d;save()}}catch(e){toast('ملف النسخة الاحتياطية غير صالح')}};r.readAsText(f)}
-render();void hydrateServiceMedia();if('serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('/sw.js').catch(()=>{});
+void hydrateServiceMedia();if('serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('/sw.js').catch(()=>{});
 </script><script src="/owner-publishing.js"></script></body></html>

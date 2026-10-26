@@ -1,5 +1,5 @@
 (()=>{'use strict';let options=null,selectedOwner='',statement=null,expenseData=null,working=false,expenseKey=null;const host=document.createElement('section');host.id='adminFinance';document.querySelector('main').append(host);const labels={service:'الخدمات',product:'المنتجات',ad:'الإعلانات'};
-function ownerOptions(){return '<option value="">اختيار الصالون</option>'+options.owners.map(o=>'<option value="'+esc(o.id)+'" '+(o.id===selectedOwner?'selected':'')+'>'+esc(o.salonName)+' — '+esc(o.email)+'</option>').join('')}
+function ownerOptions(){return '<option value="">اختيار الصالون</option>'+options.owners.map(o=>'<option value="'+esc(o.id)+'" '+(o.id===selectedOwner?'selected':'')+'>'+esc(o.salonName)+(window.SALONATI_TRIAL?'':' — '+esc(o.email))+'</option>').join('')}
 const money=value=>Number(value||0).toLocaleString('ar-IQ')+' د.ع';
 const date=value=>value?new Date(value).toLocaleString('ar-IQ',{timeZone:'Asia/Baghdad'}):'';
 function renderFinance(){

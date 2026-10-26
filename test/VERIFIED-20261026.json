@@ -1,0 +1,19 @@
+{
+  "date": "2026-10-26",
+  "environment": "disposable Cloudflare Worker + isolated D1 + isolated R2",
+  "servicesApprovalFlow": true,
+  "productsApprovalPriceAndGIF": true,
+  "salonMediaAutomaticGeneralPlacementModerated": true,
+  "feeAgreementRequiresOwnerConsent": true,
+  "fixedPlusPercentageAndHistoricalSnapshots": true,
+  "cashAndCourierRemittancesSeparated": true,
+  "concurrentOverCollectionPrevented": true,
+  "deliveryQRConsumedOnce": true,
+  "legacyAdminDeliveryNotificationCount": 1,
+  "deliveryDoesNotImplyCashReceipt": true,
+  "galleryOutsideMoreEditorsInsideMore": true,
+  "customerThumbnailMapAndNearbySortWithMockGPS": true,
+  "adminReviewAndFeeMethodControls": true,
+  "productionReadChecks": {"publicAPIStatus": 200, "accountsPreserved": 1, "products": 0, "financialEvents": 0, "cashReceipts": 0},
+  "hardwareCameraOrGPSUsed": false
+}

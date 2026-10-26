@@ -1,5 +1,5 @@
 PRAGMA foreign_keys=ON;
-CREATE TABLE IF NOT EXISTS catalog_accounts(id TEXT PRIMARY KEY,email TEXT NOT NULL UNIQUE,role TEXT NOT NULL CHECK(role IN('owner','admin')),salt TEXT NOT NULL,digest TEXT NOT NULL,salon_name TEXT NOT NULL DEFAULT '',area TEXT NOT NULL DEFAULT '',created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP);
+CREATE TABLE IF NOT EXISTS catalog_accounts(id TEXT PRIMARY KEY,email TEXT NOT NULL UNIQUE,role TEXT NOT NULL CHECK(role IN('owner','admin')),salt TEXT NOT NULL,digest TEXT NOT NULL,salon_name TEXT NOT NULL DEFAULT '',area TEXT NOT NULL DEFAULT '',latitude REAL,longitude REAL,created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP);
 CREATE UNIQUE INDEX IF NOT EXISTS catalog_one_admin ON catalog_accounts(role) WHERE role='admin';
 CREATE TABLE IF NOT EXISTS catalog_sessions(token_hash TEXT PRIMARY KEY,account_id TEXT NOT NULL REFERENCES catalog_accounts(id),expires_at TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS catalog_rate(key TEXT PRIMARY KEY,hits INTEGER NOT NULL DEFAULT 1,expires_at INTEGER NOT NULL);

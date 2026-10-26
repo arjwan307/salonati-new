@@ -1,0 +1,7 @@
+{
+  "name": "صالوناتي - تجربة الزبونة",
+  "description": "تطبيق صالوناتي المعتمد - تجربة الزبونة لحجز الصالونات واستكشاف الخدمات والعروض",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+

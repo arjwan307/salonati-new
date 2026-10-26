@@ -1,0 +1,385 @@
+<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#f3ebfa"><title>صالوناتي | تجربة الزبونة</title><link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icons/icon-180.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="apple-mobile-web-app-title" content="صالوناتي"><meta name="format-detection" content="telephone=no"><script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAV-zWboc-0hmCFO-r11fCi4LVxjmvku9s&v=weekly&libraries=marker" async defer></script><style>
+:root{color-scheme:light;--bg:#f3ebfa;--outside:#e6d5fa;--card:#ffffff;--line:#d9baff;--pink:#4b0c9b;--soft:#eee0f8;--tint:#ebd8fc;--text:#250743;--muted:#70518e}
+*{box-sizing:border-box}
+html{background:var(--outside,#e6d5fa);color-scheme:light}
+body{margin:0;background:linear-gradient(145deg,#e6d5fa 0%,#f7f0fd 48%,#e9dafa 100%);background-attachment:fixed;color:var(--text);font-family:Tahoma,"Noto Sans Arabic",Arial,sans-serif;line-height:1.7;font-size:14px}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer;border:0;background:none;color:inherit}
+.app{max-width:480px;min-height:100dvh;margin:auto;background:linear-gradient(155deg,#f7effd 0%,#eee0f8 52%,#e5d5f4 100%);position:relative;padding:18px 17px 108px;isolation:isolate;overflow-x:clip}
+header{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:8px 0 24px}
+.brand{font-size:40px;font-weight:900;color:var(--pink)}
+.sub{color:var(--muted);font-size:12px}
+.pink{color:var(--pink)}
+h1,h2,h3,p{margin:0}
+h1,h2,h3,strong{font-weight:700;letter-spacing:0}
+h2{font-size:22px;margin:23px 0 15px}
+h3{font-size:18px}
+.round{border:1px solid var(--line);border-radius:12px;padding:9px 12px}
+.primary{background:var(--pink);color:#ffffff;border-radius:13px;padding:13px 18px;font-weight:800}
+.primary:disabled{opacity:.4}
+.outline{border:1px solid var(--line);border-radius:12px;padding:12px;background:var(--card)}
+.search{width:100%;background:#ffffff;color:var(--text);border:1px solid var(--line);border-radius:15px;padding:15px;margin:15px 0;outline:none}
+.search::placeholder,.field::placeholder{color:var(--muted)}
+.categories{display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:6px!important}
+.cat{border:1px solid var(--line);border-radius:13px;min-width:0!important;padding:10px 3px!important;font-size:10px!important;line-height:1.6;min-height:78px;background:var(--card);color:var(--text)}
+.cat span{display:flex;align-items:center;justify-content:center;height:26px;margin-bottom:5px;color:var(--pink)}
+.cat svg{display:block;width:25px;height:25px}
+.cat.active,.selected{background:var(--pink)!important;color:#ffffff!important}
+.categories .cat.active>span{color:#ffffff!important}
+.categories .discount-category{border-color:var(--pink);font-weight:700}
+.salon{display:flex;flex-direction:row-reverse;align-items:center;gap:12px;border:1px solid var(--line);border-radius:17px;padding:11px;margin:11px 0;background:linear-gradient(135deg,var(--card) 0%,var(--soft) 100%);min-height:112px;box-shadow:0 3px 12px rgba(75,12,155,0.06)}
+.salon>img{width:130px;height:130px;min-width:130px;object-fit:cover;border-radius:14px;flex-shrink:0}
+@media(max-width:360px){.salon>img{width:112px;height:112px;min-width:112px}.salon{gap:9px}}
+.salon .info{flex:1;min-width:0;text-align:right;direction:rtl}
+.salon .info h3{font-size:17px;line-height:1.6}
+.salon .info p,.small,.panel p{font-size:13px;color:var(--muted);margin-top:6px}
+.salon .actions{display:flex;align-items:center;justify-content:space-between;margin-top:8px;gap:6px}
+.salon .actions button{background:var(--pink);color:#ffffff;border-radius:8px;padding:6px 12px;font-weight:bold;font-size:11px;min-height:29px;white-space:nowrap;flex-shrink:0}
+.salon .actions .small{white-space:nowrap}
+.heart{font-size:23px;color:var(--pink)}
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(480px,100%);background:rgba(255,252,255,0.95);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:1px solid var(--line);border-radius:24px 24px 0 0;display:grid;grid-template-columns:repeat(5,1fr);padding:10px 5px calc(12px + env(safe-area-inset-bottom));z-index:9;box-shadow:0 -3px 20px rgba(75,12,155,0.08)}
+.nav button{display:flex;flex-direction:column;align-items:center;gap:5px;font-size:11px;color:var(--muted)}
+.nav button b{font-size:23px;font-weight:normal}
+.nav button.on{color:var(--pink);font-weight:bold}
+.nav .salonati-explore b{display:flex;align-items:center;justify-content:center;font-size:23px}
+.nav .salonati-explore svg{width:23px;height:23px}
+.hero{width:100%;height:230px;object-fit:cover;border-radius:18px}
+.thumbs{display:flex;gap:7px;overflow:auto;margin-top:8px}
+.thumbs img{width:75px;height:60px;object-fit:cover;border-radius:9px}
+.tabs,.segments{display:flex;gap:7px;margin:18px 0}
+.tabs button,.segments button{flex:1;padding:11px 4px;border:1px solid var(--line);border-radius:10px;font-size:13px;background:var(--card);color:var(--text)}
+.tabs .on,.segments .on{background:var(--pink)!important;color:#ffffff!important}
+.service{display:flex;align-items:center;gap:10px;background:linear-gradient(135deg,var(--card) 0%,var(--soft) 100%);border:1px solid var(--line);padding:9px;border-radius:13px;margin:9px 0;box-shadow:0 3px 12px rgba(75,12,155,0.05)}
+.service img{width:70px;height:67px;border-radius:9px;object-fit:cover}
+.service .txt{flex:1;font-size:13px}
+.service .txt p{color:var(--muted);margin-top:5px}
+.service button{background:var(--pink);color:#ffffff;border-radius:12px;padding:9px 12px;font-size:22px}
+.back{color:var(--pink);font-size:20px}
+.sticky{position:sticky;bottom:86px;z-index:4;width:100%;margin-top:16px}
+.sticky.primary{width:auto;max-width:100%;display:block;margin:12px auto 0;padding:9px 23px;font-size:13px;border-radius:11px}
+.calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin:15px 0}
+.calendar button{padding:11px 0;border-radius:9px;background:var(--soft);color:var(--text);border:1px solid var(--line);cursor:pointer}
+.calendar button:disabled,.times button:disabled{background:rgba(217,186,255,0.25)!important;color:var(--muted)!important;opacity:.35!important;cursor:not-allowed;border-color:var(--line)!important}
+.calendar .on,.times .on{background:var(--pink)!important;color:#ffffff!important;border-color:var(--pink)!important;font-weight:bold}
+.times{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.times button{border:1px solid var(--line);border-radius:10px;padding:12px 4px;font-size:12px;background:var(--soft);color:var(--text);cursor:pointer}
+.field{display:block;width:100%;padding:13px;margin:10px 0;background:#ffffff;color:var(--text);border:1px solid var(--line);border-radius:11px;outline:none}
+.panel{border:1px solid var(--line);background:linear-gradient(135deg,var(--card) 0%,var(--tint) 100%);border-radius:15px;padding:15px;margin:12px 0;box-shadow:0 3px 12px rgba(75,12,155,0.05)}
+.panel p{margin:8px 0;color:var(--muted);font-size:13px}
+.pill{display:inline-block;background:var(--soft);color:var(--pink);border:1px solid var(--line);border-radius:10px;padding:6px 10px;font-size:12px;font-weight:bold}
+.empty{text-align:center;color:var(--muted);padding:50px 15px}
+.sectiontop{display:flex;justify-content:space-between;align-items:center}
+.banner{background:linear-gradient(125deg,#eadbff,#f7effd);border:1px solid var(--line);padding:17px;border-radius:14px;margin:14px 0}
+.toast{position:fixed;bottom:110px;left:50%;transform:translateX(-50%);background:var(--pink);color:#ffffff;border-radius:12px;padding:12px 20px;z-index:20;max-width:90%;text-align:center;box-shadow:0 6px 20px rgba(75,12,155,0.25);font-weight:bold}
+.prod{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.prod .panel{margin:0}
+.prod img{width:100%;height:140px;object-fit:cover;border-radius:10px}
+.ornament{border-top:1px solid var(--line);margin:5px 0 18px}
+.chosen-line{display:flex;align-items:center;justify-content:space-between;gap:10px;border-bottom:1px solid var(--line);padding:10px 0;font-size:13px;flex-wrap:wrap}
+.remove{color:var(--pink);border:1px solid var(--line);border-radius:8px;padding:7px 10px;white-space:nowrap}
+@media(min-width:700px){.app{box-shadow:0 0 0 1px #d8c6e6,0 12px 70px rgba(112,80,128,0.12);margin:22px auto;border-radius:25px;min-height:calc(100dvh - 44px)}}
+
+/* Advertisement and Banner Styles */
+.sa-banner{position:relative;isolation:isolate;overflow:hidden;margin:0 0 18px;min-height:210px;padding:18px 18px 45px;border:1px solid #cfb8e3;border-radius:20px;background:linear-gradient(120deg,#e5d5f4,#f7effd 75%);color:#452961;touch-action:pan-y}
+.sa-banner[data-theme=gold]{background:linear-gradient(120deg,#f5ebd8,#fdfbf7 75%);border-color:#dfcca8}
+.sa-banner[data-theme=plum]{background:linear-gradient(120deg,#ead5f4,#faf2fd 75%);border-color:#d7b5e6}
+.sa-content{position:relative;z-index:2;max-width:76%}
+.sa-tag{display:inline-block;color:#72548b;font-size:12px;letter-spacing:.1px}
+.sa-banner h2.sa-title{font-size:23px;line-height:1.5;margin:8px 0;color:#4c2b70}
+.sa-banner p.sa-copy{font-size:13px;line-height:1.9;color:#72548b;margin:0 0 12px}
+.sa-banner button.sa-cta{padding:9px 13px;border-radius:11px;background:#4b0c9b;color:#fff;font-weight:700;font-size:12px;min-height:38px}
+.sa-art{position:absolute;inset-inline-end:-12px;top:30px;width:100px;height:140px;color:#9873bc;opacity:.7;z-index:0;pointer-events:none}
+.sa-art i{position:absolute;width:100px;height:100px;border:1px solid currentColor;border-radius:70px 70px 28px 28px;transform:rotate(-20deg);top:19px;left:0;background:linear-gradient(140deg,#4b0c9b16,#4b0c9b05)}
+.sa-art span{position:absolute;font-size:78px;line-height:1;top:32px;left:14px}
+.sa-art b{position:absolute;top:0;right:16px;font-size:20px}
+.sa-controls{position:absolute;bottom:7px;inset-inline:12px;display:flex;align-items:center;justify-content:center;gap:5px;direction:ltr;z-index:3;color:#75518d}
+.sa-controls>button{display:grid;place-items:center;width:32px;height:32px;border-radius:50%;border:1px solid #d8c4e9;background:#ffffff80;color:#70449e;font-size:21px;padding:0}
+.sa-controls button:focus-visible,.sa-cta:focus-visible{outline:2px solid var(--pink);outline-offset:3px}
+.sa-dots{display:flex;align-items:center;gap:0}
+.sa-dots button.sa-dot{position:relative;width:27px;height:32px;padding:0;background:transparent;border:0}
+.sa-dot:before{content:'';position:absolute;left:9px;top:13px;width:7px;height:7px;border-radius:50%;background:#ad8995}
+.sa-dot.sa-active:before{background:#4b0c9b;width:15px;left:5px;border-radius:5px}
+.sa-controls>button.sa-pause{position:absolute;right:0;font-size:15px}
+.sa-sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+@media(max-width:360px){.sa-banner{padding:15px 13px 45px}.sa-banner h2.sa-title{font-size:20px}.sa-content{max-width:81%}.sa-art{opacity:.38;inset-inline-end:-25px}}
+@media(prefers-reduced-motion:no-preference){.sa-banner{transition:background .3s,border-color .3s}}
+
+/* Catalogues, Categories and Components */
+.popular-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:22px}
+.popular-card{padding:0!important;overflow:hidden;border:1px solid var(--line);background:var(--card);color:var(--text);border-radius:13px;box-shadow:0 3px 10px rgba(75,12,155,0.04)}
+.popular-card img{width:100%;height:85px;object-fit:cover}
+.popular-card b{display:block;padding:9px 3px;font-size:11px}
+#popularServices{margin-top:22px}
+.salon-tab-content{padding-top:6px}
+.salon-tab-content>p{margin:9px 0 16px;line-height:1.8}
+.salon-product-list{display:grid;gap:12px}
+.salon-product-card{display:flex;align-items:center;gap:14px;padding:12px;border:1px solid var(--line);border-radius:15px;background:var(--card);box-shadow:0 3px 12px rgba(75,12,155,0.04)}
+.salon-product-card img{width:82px;height:88px;object-fit:cover;border-radius:11px;flex-shrink:0}
+.salon-product-card h3{font-size:14px;line-height:1.8}
+.salon-product-card p{margin:7px 0;font-size:13px}
+.salon-product-card button{padding:8px 12px;font-size:12px;background:var(--pink);color:#fff;border-radius:10px}
+.salon-staff-list{display:grid;gap:10px}
+.salon-staff-card{display:flex;align-items:center;gap:12px;width:100%;text-align:right;border:1px solid var(--line);background:var(--card);border-radius:15px;padding:14px 12px;min-height:85px}
+.salon-staff-card.chosen{border-color:var(--pink);background:#eee0f8}
+.salon-staff-avatar{width:47px;height:47px;border-radius:50%;display:grid;place-items:center;background:var(--soft);color:var(--pink);font-size:23px;flex-shrink:0}
+.salon-staff-text{flex:1;min-width:0}
+.salon-staff-text strong{font-size:15px}
+.salon-staff-text small{display:block;font-size:12px;color:var(--muted);margin-top:7px}
+.salon-staff-check{color:var(--pink);font-size:21px}
+.salon-staff-summary{border:1px solid var(--line);background:var(--tint);border-radius:11px;padding:11px 12px;margin:9px 0 15px;line-height:1.8;font-size:12px}
+.salon-staff-summary strong{color:var(--pink)}
+.salon-staff-summary button{float:left;color:var(--pink);text-decoration:underline}
+.tabs [role=tab]{min-height:44px}
+.tabs [role=tab]:focus-visible,.salon-staff-card:focus-visible{outline:2px solid var(--pink);outline-offset:3px}
+.category-page-intro{padding:19px;border:1px solid var(--line);border-radius:18px;background:linear-gradient(135deg,#ebd8fc,#f7effd);margin-bottom:14px}
+.category-page-intro h1{font-size:25px;color:var(--pink);margin:13px 0 10px}
+.category-page-intro>p{color:var(--muted);font-size:13px;line-height:1.9}
+.category-demo-note{font-size:12px;color:var(--muted);line-height:1.8;margin:12px 0 16px}
+.category-service-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.category-service-card{min-width:0;border:1px solid var(--line);border-radius:16px;overflow:hidden;background:var(--card);box-shadow:0 3px 12px rgba(75,12,155,0.04)}
+.category-service-card>img{width:100%;height:126px;object-fit:cover;display:block}
+.category-service-card>div{padding:12px}
+.category-service-card h2{margin:0;font-size:16px;line-height:1.8;min-height:54px}
+.category-service-card p{font-size:13px;color:var(--muted);margin:6px 0 10px}
+.category-service-card strong{font-size:13px;color:var(--pink)}
+.category-service-card button{display:block;width:100%;margin-top:13px;padding:11px 5px;font-size:13px}
+.category-salon-list .salon{margin-top:14px}
+@media(max-width:340px){.category-service-grid{gap:8px}.category-service-card>div{padding:9px}.category-service-card>img{height:105px}.category-service-card h2{font-size:13px}}
+.salon-service-link{display:flex;align-items:center;gap:13px;width:100%;text-align:right;border:1px solid var(--line);background:var(--card);border-radius:14px;padding:10px;margin:10px 0;color:var(--text);min-height:90px;box-shadow:0 3px 12px rgba(75,12,155,0.04)}
+.salon-service-link>img{width:68px;height:68px;border-radius:11px;object-fit:cover;flex-shrink:0}
+.salon-service-link .txt{flex:1;min-width:0}
+.salon-service-link strong{font-size:16px}
+.salon-service-link small{display:block;font-size:12px;color:var(--muted);margin-top:9px;line-height:1.8}
+.salon-service-arrow{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:12px;background:var(--soft);color:var(--pink);border:1px solid var(--line);flex-shrink:0;padding:6px;transition:transform .2s ease,background-color .2s ease;box-shadow:0 2px 8px rgba(75,12,155,0.06)}
+.salon-service-arrow svg{width:22px;height:22px;display:block}
+.salon-service-link:hover .salon-service-arrow,.salon-service-link:active .salon-service-arrow{transform:scale(1.08);background:rgba(75,12,155,0.18)}
+.salon-service-link:focus-visible{outline:2px solid var(--pink);outline-offset:3px}
+.salon-private-gallery{margin-top:16px}
+.offer-list{display:grid;gap:14px;margin-bottom:18px}
+.offer-card{background:var(--card);border:1px solid var(--line);border-radius:17px;padding:18px;box-shadow:0 3px 12px rgba(75,12,155,0.04)}
+.offer-card h2{font-size:18px;margin:15px 0 9px}
+.offer-card p{font-size:14px;color:var(--muted);line-height:1.9}
+.offer-card>strong{color:var(--pink);font-size:13px}
+.offer-card button{display:block;width:100%;margin-top:17px;padding:12px}
+.offer-filters{display:flex;flex-wrap:wrap;gap:7px;margin:16px 0}
+.offer-filters button{padding:9px 14px;border-radius:25px;border:1px solid var(--line);background:var(--card);color:var(--text)}
+.offer-filters button[aria-pressed=true]{background:var(--pink);color:#fff}
+.offer-badge{float:left;font-size:11px;color:var(--pink);padding:7px 0}
+.offer-price{display:flex;gap:15px;align-items:center}
+.offer-price strong{color:var(--pink);font-size:21px}
+.offer-price del{font-size:12px}
+.offer-card small{color:var(--muted);font-size:12px}
+.offer-salon-button{width:100%;padding:14px;margin-bottom:20px}
+.remove.small-service-minus{width:25px;height:25px;min-width:25px;padding:0;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;font-size:18px;line-height:1;color:var(--pink);background:var(--tint)}
+.service-worker-picker{width:100%;padding:12px 0 4px}
+.service-worker-picker>strong{font-size:13px}
+.service-worker-picker>div{display:grid;gap:2px;margin-top:9px}
+.service-worker-option{display:flex;align-items:center;gap:9px;padding:7px 0;font-size:13px;cursor:pointer}
+.service-worker-option input{width:17px;height:17px;margin:0;accent-color:var(--pink);flex-shrink:0}
+.inline-style-staff{margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
+.inline-style-staff>strong{font-size:13px;color:var(--text)}
+.inline-style-staff .small{font-size:11px;margin:7px 0}
+.inline-style-staff .service-worker-option{font-size:13px;align-items:flex-start}
+.inline-style-staff small{display:block;font-size:11px;color:var(--muted)}
+.gallery-continue{display:block;width:100%;margin:18px 0;padding:12px}
+.app::before,.app::after{content:"";position:absolute;z-index:-1;pointer-events:none;width:230px;height:430px;background:var(--pink);opacity:.035;mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 230 430'%3E%3Cg fill='none' stroke='black' stroke-width='1.4'%3E%3Cpath d='M35 420C150 310 25 160 195 10M91 330C25 310 9 265 24 225c48 12 73 46 67 105ZM100 265c71-3 105-37 112-81-52-4-94 24-112 81ZM102 181C42 161 26 120 40 81c49 11 73 47 62 100ZM137 91c44 2 77-19 88-52-41-9-75 10-88 52Z'/%3E%3C/g%3E%3C/svg%3E");mask-size:contain;mask-repeat:no-repeat}
+.app::before{top:90px;left:-92px;transform:rotate(-16deg)}
+.app::after{top:790px;right:-100px;transform:rotate(166deg)}
+@keyframes salonati-reveal{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+@media(prefers-reduced-motion:no-preference){
+  .salon,.category-service-card,.offer-card,.salon-product-card{animation:salonati-reveal .32s cubic-bezier(.2,.7,.3,1) both}
+  .salon:nth-child(2),.category-service-card:nth-child(2){animation-delay:.035s}
+  .salon:nth-child(3),.category-service-card:nth-child(3){animation-delay:.07s}
+  button,.cat,.salon,.category-service-card,.field,.search{transition:background-color .18s ease,color .18s ease,border-color .18s ease,box-shadow .18s ease,transform .18s ease}
+  button:active{transform:scale(.975)}
+  .field:focus,.search:focus{box-shadow:0 0 0 3px color-mix(in srgb,var(--pink) 14%,transparent);border-color:var(--pink)}
+  @media(hover:hover){
+    .salon:hover,.category-service-card:hover,.offer-card:hover{box-shadow:0 6px 18px color-mix(in srgb,var(--pink) 10%,transparent);transform:translateY(-2px)}
+    button:hover{filter:brightness(1.035)}
+  }
+}
+button:focus-visible,summary:focus-visible,input:focus-visible{outline:2px solid var(--pink);outline-offset:3px}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+</style></head><body><<div id="gmpQuotaBanner" style="display:none;background:#fef3c7;border-bottom:1px solid #fde68a;color:#78350f;padding:10px 16px;font-size:12px;text-align:center;position:sticky;top:0;z-index:99;box-shadow:0 1px 3px rgba(0,0,0,0.05);">
+  <span>Google Maps Platform quota reached. If you are the app owner, visit <a href="https://developers.google.com/maps/ai/ai-studio?utm_campaign=gmp_mcp_codeassist_v1_aistudio#quota_exceeded_errors" target="_blank" rel="noopener noreferrer" style="text-decoration:underline;font-weight:600;color:#451a03;">maps developer site</a> for instructions to update your account.</span>
+</div>
+<div class="app" id="app"></div><script>
+window.gm_authFailure = () => { window.dispatchEvent(new CustomEvent('gmp-quota-exceeded')); };
+const origError = console.error;
+console.error = (...args) => {
+  origError.apply(console, args);
+  const msg = args.map(a => String(a)).join(' ');
+  if (msg.includes('OverQuotaMapError') || msg.includes('QuotaExceededError')) {
+    window.dispatchEvent(new CustomEvent('gmp-quota-exceeded'));
+  }
+};
+window.addEventListener('gmp-quota-exceeded', () => {
+  const b = document.getElementById('gmpQuotaBanner');
+  if(b) b.style.display = 'block';
+});
+
+const salonImgs=['https://images.unsplash.com/photo-1560066984-138dadb4c035?w=700','https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?w=700','https://images.unsplash.com/photo-1633681926022-84c23e8cb2d6?w=700','https://images.unsplash.com/photo-1600948836101-f9ffda59d250?w=700'];
+const serviceImgs=['https://images.unsplash.com/photo-1560869713-7d0a29430803?w=350','https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=350','https://images.unsplash.com/photo-1604654894610-df63bc536371?w=350','https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=350'];
+const salons=[
+  {id:1,name:'صالون لؤلؤة بغداد',area:'الكرادة',rating:4.8,price:15000,img:salonImgs[0],reviews:120,lat:33.3128,lng:44.4322},
+  {id:2,name:'صالون ياسمين',area:'المنصور',rating:4.6,price:20000,img:salonImgs[1],reviews:98,lat:33.3245,lng:44.3512},
+  {id:3,name:'صالون ترف روز',area:'الجادرية',rating:4.9,price:18000,img:salonImgs[2],reviews:203,lat:33.2841,lng:44.3821},
+  {id:4,name:'صالون لمسة',area:'المنصور',rating:4.7,price:25000,img:salonImgs[3],reviews:76,lat:33.3210,lng:44.3580}
+];
+const services=[{id:1,name:'قص وتصفيف الشعر',price:25000,min:60,cat:'شعر',img:serviceImgs[0]},{id:2,name:'صبغ الشعر',price:60000,min:90,cat:'شعر',img:serviceImgs[1]},{id:3,name:'مناكير جل',price:15000,min:45,cat:'أظافر',img:serviceImgs[2]},{id:4,name:'عناية بالوجه',price:50000,min:60,cat:'بشرة',img:serviceImgs[3]},{id:5,name:'مكياج مناسبات',price:40000,min:75,cat:'مكياج',img:serviceImgs[1]}];
+const products=[{name:'مجموعة عناية بالشعر',price:45000,img:serviceImgs[1]},{name:'مجموعة العناية بالبشرة',price:38000,img:serviceImgs[3]},{name:'طلاء أظافر',price:12000,img:serviceImgs[2]}];
+const get=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))??d}catch{return d}};
+const save=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
+let state={page:'home',salon:1,service:1,selectedServices:[],date:'',time:'',tab:'services',cat:'الكل',query:'',favs:get('salonati_favs',[]),bookings:get('salonati_bookings',[]),name:get('salonati_name',''),phone:get('salonati_phone',''),notes:'',payment:'cash',theme:get('salonati_theme','lavender'),toast:'',bookingsTab:'upcoming'};
+const $=s=>document.querySelector(s),fmt=n=>Number(n).toLocaleString('en-US'),today=()=>{let d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function go(page){state.page=page;window.scrollTo(0,0);render()}
+function notify(t){state.toast=t;render();setTimeout(()=>{state.toast='';render()},2200)}
+
+function loadMap(lat, lng, name) {
+  setTimeout(() => {
+    const mapEl = document.getElementById('salonMap');
+    if (!mapEl || !window.google || !window.google.maps) return;
+    try {
+      const map = new google.maps.Map(mapEl, {
+        center: { lat, lng },
+        zoom: 15,
+        mapId: 'DEMO_MAP_ID',
+        internalUsageAttributionIds: ['gmp_mcp_codeassist_v1_aistudio']
+      });
+      if (google.maps.marker && google.maps.marker.AdvancedMarkerElement) {
+        new google.maps.marker.AdvancedMarkerElement({
+          map,
+          position: { lat, lng },
+          title: name
+        });
+      } else {
+        new google.maps.Marker({
+          map,
+          position: { lat, lng },
+          title: name
+        });
+      }
+    } catch(e) {
+      console.error(e);
+    }
+  }, 250);
+}
+
+function applyTheme(theme){
+  let root=document.documentElement;
+  if(theme==='rose'){
+    root.style.setProperty('--bg','#fbf6f7');
+    root.style.setProperty('--outside','#f5e8eb');
+    root.style.setProperty('--card','#ffffff');
+    root.style.setProperty('--line','#ebd8de');
+    root.style.setProperty('--pink','#c44d70');
+    root.style.setProperty('--soft','#fcebed');
+    root.style.setProperty('--tint','#fcebed');
+    root.style.setProperty('--text','#3d2b30');
+    root.style.setProperty('--muted','#947880');
+    root.dataset.themeMode='light';
+  }else{
+    root.style.setProperty('--bg','#f3ebfa');
+    root.style.setProperty('--outside','#e6d5fa');
+    root.style.setProperty('--card','#ffffff');
+    root.style.setProperty('--line','#d9baff');
+    root.style.setProperty('--pink','#4b0c9b');
+    root.style.setProperty('--soft','#eee0f8');
+    root.style.setProperty('--tint','#ebd8fc');
+    root.style.setProperty('--text','#250743');
+    root.style.setProperty('--muted','#70518e');
+    root.dataset.themeMode='light';
+  }
+}
+function setTheme(theme){
+  state.theme=theme;
+  save('salonati_theme',theme);
+  applyTheme(theme);
+  render();
+}
+// Apply visual identity on load
+applyTheme(get('salonati_theme','lavender'));
+
+function fav(id){state.favs=state.favs.includes(id)?state.favs.filter(x=>x!==id):[...state.favs,id];save('salonati_favs',state.favs);render()}
+function chooseSalon(id){state.salon=id;state.selectedServices=[];state.date='';state.time='';state.tab='services';go('salon')}
+function chooseService(id){toggleService(id)}
+function toggleService(id){state.selectedServices=state.selectedServices.includes(id)?state.selectedServices.filter(x=>x!==id):[...state.selectedServices,id];state.date='';state.time='';render()}
+function selectedTotal(){return services.filter(x=>state.selectedServices.includes(x.id)).reduce((a,v)=>a+v.price,0)}
+function selectedMinutes(){return services.filter(x=>state.selectedServices.includes(x.id)).reduce((a,v)=>a+v.min,0)}
+function proceedBooking(){if(!state.selectedServices.length)return notify('اختاري خدمة واحدة على الأقل');go('booking')}
+function nav(){return `<nav class="nav"><button class="${state.page==='home'?'on':''}" onclick="go('home')"><b>⌂</b>الرئيسية</button><button class="${state.page==='bookings'?'on':''}" onclick="go('bookings')"><b>▦</b>الحجوزات</button><button class="${state.page==='profile'?'on':''}" onclick="go('profile')"><b>♙</b>الملف</button><button class="${state.page==='favorites'?'on':''}" onclick="go('favorites')"><b>♡</b>المفضلة</button><button class="${state.page==='support'?'on':''}" onclick="go('support')"><b><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:block;margin:auto"><path d="M3 11h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-5a9 9 0 0 1 18 0v5a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3"/><path d="M21 16v2a4 4 0 0 1-4 4h-5"/></svg></b>طلب دعم</button></nav>`}
+function card(s){return `<div class="salon"><img src="${s.img}" alt="صورة صالون" onclick="chooseSalon(${s.id})"><div class="info"><div class="sectiontop"><h3 onclick="chooseSalon(${s.id})">${s.name}</h3><button class="heart" onclick="fav(${s.id})">${state.favs.includes(s.id)?'♥':'♡'}</button></div><p><span class="pink">★ ${s.rating}</span> (${s.reviews} تقييم)</p><p>⌖ بغداد · ${s.area} · 1.5 كم</p><div class="actions"><span class="small">من <b class="pink">${fmt(s.price)} د.ع</b></span><button onclick="chooseSalon(${s.id})">احجز الآن</button></div></div></div>`}
+function head(title){return `<header><button class="back" onclick="historyBack()">❯</button><h3 class="pink">${title}</h3><span style="width:25px"></span></header>`}
+function historyBack(){go(state.page==='booking'?'salon':'home')}
+function home(){return `<header><div><div class="brand">صالوناتي</div><h3>مرحباً، أهلاً بكِ</h3></div><button class="pink support-btn" onclick="go('support')" aria-label="طلب دعم" title="الدعم والمساعدة" style="display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--pink);cursor:pointer"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-5a9 9 0 0 1 18 0v5a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3"/><path d="M21 16v2a4 4 0 0 1-4 4h-5"/></svg></button></header><div class="ornament"></div><h2>التصنيفات</h2><div class="categories">${[['شعر','♨','عناية بالشعر'],['مكياج','✧','مكياج'],['بشرة','❀','عناية بالبشرة'],['أظافر','♧','أظافر']].map(c=>`<button class="cat ${state.cat===c[0]?'active':''}" onclick="state.cat=state.cat==='${c[0]}'?'الكل':'${c[0]}';drawCards()"><span>${c[1]}</span>${c[2]}</button>`).join('')}</div><div class="sectiontop" style="gap:10px;align-items:center;margin:10px 0"><input class="search" id="searchHome" style="margin:0;flex:1" placeholder="⌕ ابحث عن صالون، خدمة أو منطقة..." value="${esc(state.query)}" oninput="state.query=this.value;drawCards()"><button class="pink" onclick="go('search')" style="white-space:nowrap">عرض الكل ‹</button></div><div id="cards"></div><div class="banner"><h3>عروض الصالونات</h3><p class="small">تعرّفي على الخدمات والمنتجات المتوفرة</p><button class="primary" onclick="go('products')">منتجات وعروض</button></div>`}
+function drawCards(){const root=$('#cards');if(!root)return;let q=state.query.toLowerCase().trim();let arr=salons.filter(s=>(s.name+' '+s.area).toLowerCase().includes(q));if(state.cat!=='الكل')arr=arr.filter(s=>true);root.innerHTML=arr.map(card).join('')||'<div class="empty">لا توجد نتائج مطابقة</div>'}
+function salonPage(){let s=salons.find(x=>x.id===state.salon);return `${head(s.name)}<img class="hero" src="${s.img}" alt="صورة الصالون"><div class="thumbs">${[s.img,...salonImgs.filter(x=>x!==s.img)].map(x=>`<img src="${x}" alt="صورة داخل الصالون" onclick="$('.hero').src=this.src">`).join('')}</div><h2 class="pink">${s.name}</h2><p>★ ${s.rating} (${s.reviews} تقييم) · بغداد، ${s.area}</p><p class="small" style="margin-top:10px">● مفتوح الآن</p><div class="tabs">${[['services','الخدمات'],['about','معلومات'],['reviews','التقييمات']].map(t=>`<button class="${state.tab===t[0]?'on':''}" onclick="state.tab='${t[0]}';render()">${t[1]}</button>`).join('')}</div>${state.tab==='services'?services.map(v=>`<div class="service"><img src="${v.img}"><div class="txt"><b>${v.name}</b><p>◷ ${v.min} دقيقة</p><p class="pink">${fmt(v.price)} د.ع</p></div><button aria-label="إضافة أو حذف ${v.name}" onclick="toggleService(${v.id})">${state.selectedServices.includes(v.id)?'−':'+'}</button></div>`).join(''):state.tab==='about'?`<div class="panel"><h3>عن الصالون</h3><p>صالون راقٍ في بغداد يقدم خدمات الشعر والبشرة والأظافر. العنوان وأوقات العمل بيانات توضيحية.</p><p>أوقات العمل: 10 صباحاً – 9 مساءً</p><h3 style="margin:15px 0 10px;font-size:16px;color:var(--pink)">موقع الصالون على الخريطة التفاعلية</h3><div id="salonMap" style="width:100%;height:230px;border-radius:14px;border:1px solid var(--line);background:#e5d5f4;"></div></div>`:`<div class="panel"><h3>التقييمات</h3><p>★ ${s.rating} · ${s.reviews} تقييم</p><p>لا توجد مراجعات حقيقية بعد.</p></div>`}<div class="panel"><h3>الخدمات المختارة (${state.selectedServices.length})</h3>${state.selectedServices.length?services.filter(v=>state.selectedServices.includes(v.id)).map(v=>`<div class="chosen-line"><span>${v.name}</span><button class="remove" onclick="toggleService(${v.id})" aria-label="حذف ${v.name}">حذف ×</button></div>`).join(''):'<p>اضغطي + لاختيار الخدمات</p>'}<p>الإجمالي: <b class="pink">${fmt(selectedTotal())} د.ع</b> · المدة: ${selectedMinutes()} دقيقة</p></div><button class="primary sticky" onclick="proceedBooking()" ${!state.selectedServices.length?'disabled':''}>متابعة الحجز (${state.selectedServices.length})</button>`}
+function booking(){let s=salons.find(x=>x.id===state.salon),v=services.find(x=>x.id===state.selectedServices[0]),start=new Date();start.setHours(12,0,0,0);let days=Array.from({length:21},(_,i)=>{let d=new Date(start);d.setDate(d.getDate()+i);let unavail=(i%7===5);return {iso:d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'),day:d.getDate(),week:['أحد','اثنين','ثلاثاء','أربعاء','خميس','جمعة','سبت'][d.getDay()],unavail}});let timesList=['10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00','21:00','22:00'];return `${head('حجز الموعد')}<div class="panel"><h3>${s.name}</h3>${services.filter(v=>state.selectedServices.includes(v.id)).map(v=>`<p>${v.name} — ${fmt(v.price)} د.ع</p>`).join('')}<p>الإجمالي ${fmt(selectedTotal())} د.ع · ${selectedMinutes()} دقيقة</p><button class="outline" onclick="go('salon')">تعديل الخدمات</button></div><h2>اختاري التاريخ</h2><div class="calendar">${days.map(d=>`<button class="${state.date===d.iso?'on':''}" ${d.unavail?'disabled':''} onclick="state.date='${d.iso}';state.time='';render()"><small>${d.week}</small><br>${d.day}</button>`).join('')}</div><h2>اختاري الوقت</h2><div class="times">${timesList.map(t=>{let unavail=['14:00','20:00'].includes(t);return `<button class="${state.time===t?'on':''}" ${unavail?'disabled':''} onclick="state.time='${t}';render()">${t}</button>`}).join('')}</div><button class="primary sticky" ${!state.date||!state.time?'disabled':''} onclick="go('summary')">متابعة ←</button><p class="small" style="margin-top:14px">أوقات المواعيد متاحة، وسيتم تأكيد التوفر مباشرة.</p>`}
+function summary(){let s=salons.find(x=>x.id===state.salon),v=services.find(x=>x.id===state.selectedServices[0]);return `${head('ملخص الحجز')}<div class="panel"><h3>${s.name}</h3><p>الخدمات: ${services.filter(v=>state.selectedServices.includes(v.id)).map(v=>v.name).join('، ')}</p><button class="outline" onclick="go('salon')">تعديل الخدمات</button><p>التاريخ: ${state.date}</p><p>الوقت: ${state.time}</p><p>المبلغ: <b class="pink">${fmt(selectedTotal())} د.ع</b> · ${selectedMinutes()} دقيقة</p></div><h2>طريقة الدفع</h2><div style="display:flex;gap:10px;margin:10px 0"><button class="outline" style="flex:1;background:${state.payment==='cash'?'var(--pink)':'var(--card)'};color:${state.payment==='cash'?'#fff':'inherit'}" onclick="state.payment='cash';render()">💵 نقداً في الصالون</button><button class="outline" style="flex:1;background:${state.payment==='card'?'var(--pink)':'var(--card)'};color:${state.payment==='card'?'#fff':'inherit'}" onclick="state.payment='card';render()">💳 بطاقة إلكترونية</button></div><h2>معلومات الزبونة</h2><label>الاسم</label><input class="field" id="customerName" placeholder="الاسم الكامل" value="${esc(state.name)}"><label>رقم الهاتف</label><input class="field" id="customerPhone" type="tel" inputmode="tel" placeholder="07XXXXXXXXX" value="${esc(state.phone)}"><label>ملاحظات (اختياري)</label><textarea class="field" id="customerNotes" rows="3" placeholder="ملاحظات للحجز">${esc(state.notes)}</textarea><button class="primary sticky" onclick="confirmBooking()">تأكيد طلب الحجز</button><p class="small" style="margin-top:12px">لن يتم تحصيل أي مبلغ الآن. الطلب بانتظار موافقة الصالون.</p>`}
+function confirmBooking(){let name=$('#customerName').value.trim(),phone=$('#customerPhone').value.trim(),notes=$('#customerNotes').value.trim();if(name.length<2||!/^\+?[0-9٠-٩\s-]{9,17}$/.test(phone))return notify('أدخلي اسماً ورقم هاتف صحيحين');state.name=name;state.phone=phone;state.notes=notes;save('salonati_name',name);save('salonati_phone',phone);let exists=state.bookings.some(b=>b.salon===state.salon&&b.date===state.date&&b.time===state.time&&b.status!=='ملغي');if(exists)return notify('هذا الموعد موجود في حجوزاتك');let b={id:'SL'+Date.now(),salon:state.salon,service:state.selectedServices[0],services:[...state.selectedServices],total:selectedTotal(),minutes:selectedMinutes(),date:state.date,time:state.time,payment:state.payment,name,phone,notes,status:'بانتظار الموافقة',created:Date.now()};state.bookings.unshift(b);save('salonati_bookings',state.bookings);go('success')}
+function success(){let b=state.bookings[0];return `${head('تم إرسال الطلب')}<div class="empty"><div style="font-size:65px;color:var(--pink)">✓</div><h2>تم إرسال طلب الحجز</h2><p>طلبك بانتظار موافقة صاحبة الصالون</p><p>رقم الطلب: ${esc(b?.id||'')}</p></div><button class="primary" style="width:100%" onclick="go('bookings')">عرض حجوزاتي</button><button class="outline" style="width:100%;margin-top:10px" onclick="go('home')">العودة للرئيسية</button>`}
+function bookings(){return `${head('حجوزاتي')}<div class="segments"><button class="${state.bookingsTab==='upcoming'?'on':''}" onclick="state.bookingsTab='upcoming';render()">القادمة</button><button class="${state.bookingsTab==='taxi'?'on':''}" onclick="state.bookingsTab='taxi';render()">🚗 طلب تكسي</button></div>${state.bookingsTab==='upcoming'?(state.bookings.filter(b=>b.status!=='ملغي'&&b.date>=today()).map(b=>`<div class="panel"><h3>${salons.find(s=>s.id===b.salon)?.name||'صالون'}</h3><p>${(b.services||[b.service]).map(id=>services.find(s=>s.id===id)?.name||'خدمة').join('، ')}</p><p>📅 ${b.date} · ${b.time}</p><p>الإجمالي: ${fmt(b.total??services.find(s=>s.id===b.service)?.price??0)} د.ع</p><p>الدفع: ${b.payment==='card'?'💳 بطاقة إلكترونية':'💵 نقداً في الصالون'}</p><span class="pill">${b.status}</span><p>رقم الطلب: ${b.id}</p>${b.status==='بانتظار الموافقة'?`<button class="outline" onclick="cancelBooking('${b.id}')">إلغاء الطلب</button>`:''}</div>`).join('')||'<div class="empty">لا توجد حجوزات قادمة</div>'):`<div class="panel"><h3>🚗 خدمة طلب تكسي للصالون</h3><p>اطلبي سيارة أجرة عبر تطبيقات التوصيل المفضلة لديكِ للوصول إلى الصالون بكل سهولة.</p><label>نوع الرحلة</label><div style="display:flex;gap:10px;margin:8px 0 12px"><button class="outline" style="flex:1;background:var(--tint);color:var(--text);border-color:var(--pink)" onclick="this.style.background='var(--pink)';this.style.color='#fff';this.nextElementSibling.style.background='var(--card)';this.nextElementSibling.style.color='inherit'">🚗 ذهاب فقط</button><button class="outline" style="flex:1;background:var(--card);color:inherit" onclick="this.style.background='var(--pink)';this.style.color='#fff';this.previousElementSibling.style.background='var(--card)';this.previousElementSibling.style.color='inherit'">🔁 ذهاب وعودة</button></div><label>عنوان الانطلاق (موقعك الحالي)</label><input class="field" id="taxiLocation" placeholder="مثال: المنصور، شارع 14 رمضان"><label>الصالون الوجهة</label><select class="field" id="taxiSalon">${salons.map(s=>`<option value="${s.id}">${s.name} — ${s.area}</option>`).join('')}</select><div style="display:flex;gap:10px;margin-top:14px"><button class="primary" style="flex:1;padding:12px;background:#ffc20e;color:#111;font-weight:bold" onclick="notify('🚗 جاري فتح تطبيق كريم (Careem) لطلب التكسي...')">🟡 طلب عبر كريم</button><button class="primary" style="flex:1;padding:12px;background:#e31b23;color:#fff;font-weight:bold" onclick="notify('🚗 جاري فتح تطبيق بلي (Baly) لطلب التكسي...')">🔴 طلب عبر بلي</button></div></div>`}`;}
+function cancelBooking(id){let b=state.bookings.find(x=>x.id===id);if(b&&confirm('إلغاء طلب الحجز؟')){b.status='ملغي';save('salonati_bookings',state.bookings);render()}}
+function favorites(){return `${head('المفضلة')}${salons.filter(s=>state.favs.includes(s.id)).map(card).join('')||'<div class="empty">لم تضيفي صالونات إلى المفضلة بعد</div>'}`}
+function search(){
+  return `${head('استكشاف الصالونات')}<div class="panel" style="margin-bottom:15px"><h3 style="margin-bottom:8px;font-size:15px;color:var(--pink)">خريطة الصالونات القريبة</h3><div id="exploreMap" style="width:100%;height:240px;border-radius:14px;border:1px solid var(--line);background:#e5d5f4;"></div></div><input class="search" placeholder="ابحثي بالاسم أو المنطقة" value="${esc(state.query)}" oninput="state.query=this.value;drawCards()"><div id="cards"></div>`;
+}
+
+function loadExploreMap() {
+  setTimeout(() => {
+    const mapEl = document.getElementById('exploreMap');
+    if (!mapEl || !window.google || !window.google.maps) return;
+    try {
+      const map = new google.maps.Map(mapEl, {
+        center: { lat: 33.3152, lng: 44.3661 },
+        zoom: 13,
+        mapId: 'DEMO_MAP_ID',
+        internalUsageAttributionIds: ['gmp_mcp_codeassist_v1_aistudio']
+      });
+      salons.forEach(s => {
+        if (google.maps.marker && google.maps.marker.AdvancedMarkerElement) {
+          const marker = new google.maps.marker.AdvancedMarkerElement({
+            map,
+            position: { lat: s.lat, lng: s.lng },
+            title: s.name
+          });
+          marker.addListener('click', () => {
+            chooseSalon(s.id);
+          });
+        } else {
+          const marker = new google.maps.Marker({
+            map,
+            position: { lat: s.lat, lng: s.lng },
+            title: s.name
+          });
+          marker.addListener('click', () => {
+            chooseSalon(s.id);
+          });
+        }
+      });
+    } catch(e) {
+      console.error(e);
+    }
+  }, 250);
+}
+
+function productsPage(){return `${head('منتجات وعروض')}<div class="banner"><h3>منتجات الصالونات</h3><p>منتجات وعناية مميزة من أرقى الصالونات</p></div><div class="prod">${products.map(p=>`<div class="panel"><img src="${p.img}"><h3>${p.name}</h3><p class="pink">${fmt(p.price)} د.ع</p><button class="outline" onclick="notify('خدمة الطلب المباشر للمنتجات تتوفر قريباً')">عرض المنتج</button></div>`).join('')}</div>`}
+function supportPage(){return `${head('طلب الدعم والمساعدة')}<div class="panel"><h3>مركز المساعدة والدعم</h3><p>فريق صالوناتي معكِ للإجابة على استفساراتكِ ومساعدتكِ في أي وقت.</p></div><div class="panel"><h3>قنوات التواصل وأرقام الدعم</h3><p>💬 محادثة فورية: متاحة على مدار الساعة</p><div style="display:flex;gap:10px;margin:10px 0"><a href="tel:07800000000" class="primary" style="flex:1;text-align:center;text-decoration:none;padding:10px;font-size:13px">📞 اتصال: 07800000000</a><button class="outline" style="flex:1;padding:10px;font-size:13px" onclick="notify('تم نسخ رقم الدعم إلى الحافظة')">نسخ الرقم</button></div><p>✉ البريد: support@salonati.iq</p><button class="outline" style="width:100%;margin-top:8px;padding:10px;font-size:13px" onclick="notify('جاري فتح تطبيق البريد الإلكتروني...')">مراسلة عبر البريد</button></div><div class="panel"><h3>إرسال رسالة دعم</h3><label>الموضوع</label><input class="field" id="supportSubject" placeholder="عنوان الاستفسار أو المشكلة"><label>تفاصيل الرسالة</label><textarea class="field" id="supportMsg" rows="3" placeholder="اكتبي تفاصيل استفساركِ هنا..."></textarea><button class="primary sticky" onclick="notify('تم استلام رسالتكِ بنجاح وسيتواصل معكِ الدعم فوراً')">إرسال طلب الدعم</button></div>`}
+function profile(){return `${head('الملف الشخصي')}<div class="panel"><h2>${esc(state.name||'ضيفة صالوناتي')}</h2><p>${esc(state.phone||'لا يوجد رقم مسجل')}</p></div><div class="panel"><h3>🎨 مظهر الهوية البصرية</h3><p>اختاري بين مظهر لافندر (البنفسجي الحريري) أو وردي مغبّر:</p><div style="display:flex;gap:10px;margin-top:10px"><button class="outline" style="flex:1;background:${state.theme==='lavender'?'var(--pink)':'var(--card)'};color:${state.theme==='lavender'?'#fff':'inherit'}" onclick="setTheme('lavender')">💜 لافندر بنفسجي</button><button class="outline" style="flex:1;background:${state.theme==='rose'?'var(--pink)':'var(--card)'};color:${state.theme==='rose'?'#fff':'inherit'}" onclick="setTheme('rose')">🌸 وردي مغبّر</button></div></div>${[['حجوزاتي','bookings'],['المفضلة','favorites'],['منتجات وعروض','products'],['استكشاف الصالونات','search']].map(x=>`<button class="panel" style="width:100%;text-align:right" onclick="go('${x[1]}')">${x[0]} <span style="float:left">‹</span></button>`).join('')}<p class="small">صالوناتي</p><p class="small">بيانات الحجز محفوظة على جهازكِ بأمان.</p>`}
+function render(){
+  let views={home,search,salon:salonPage,booking,summary,success,bookings,favorites,products:productsPage,profile,support:supportPage};
+  $('#app').innerHTML=(views[state.page]||home)()+nav()+(state.toast?`<div class="toast">${esc(state.toast)}</div>`:'');
+  if(['home','search'].includes(state.page))drawCards();
+  if(state.page==='salon'&&state.tab==='about'){
+    let s=salons.find(x=>x.id===state.salon);
+    if(s) loadMap(s.lat, s.lng, s.name);
+  }
+  if(state.page==='search'){
+    loadExploreMap();
+  }
+}
+
+render();
+if('serviceWorker' in navigator && location.protocol==='https:') window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+</script><script src="/__salonati_ads.js"></script></body></html>

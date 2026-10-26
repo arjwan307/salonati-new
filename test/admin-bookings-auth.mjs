@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
-import {moderationRoutes} from '../server/moderation.mjs';
+import worker from '/tmp/salonati-connected-worker.mjs';
+const moderationRoutes=(request,env)=>worker.fetch(request,env);
 const urls=['admin/bookings','admin/bookings/salon?salonId=s1','admin/bookings/detail?id=b1'];
 for(const route of urls){
  const request=new Request('https://example.invalid/api/catalog/'+route);

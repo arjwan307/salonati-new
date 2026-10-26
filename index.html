@@ -1,4 +1,4 @@
-<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#f3ebfa"><title>صالوناتي | تجربة الزبونة</title><link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icons/icon-180.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="apple-mobile-web-app-title" content="صالوناتي"><meta name="format-detection" content="telephone=no"><script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAV-zWboc-0hmCFO-r11fCi4LVxjmvku9s&v=weekly&libraries=marker" async defer></script><style>
+<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#f3ebfa"><title>صالوناتي | تجربة الزبونة</title><link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icons/icon-180.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="apple-mobile-web-app-title" content="صالوناتي"><meta name="format-detection" content="telephone=no"><script src="/loyalty-ui.js"></script><script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAV-zWboc-0hmCFO-r11fCi4LVxjmvku9s&v=weekly&libraries=marker" async defer></script><style>
 :root{color-scheme:light;--bg:#f3ebfa;--outside:#e6d5fa;--card:#ffffff;--line:#d9baff;--pink:#4b0c9b;--soft:#eee0f8;--tint:#ebd8fc;--text:#250743;--muted:#70518e}
 *{box-sizing:border-box}
 html{background:var(--outside,#e6d5fa);color-scheme:light}
@@ -220,7 +220,12 @@ window.addEventListener('gmp-quota-exceeded', () => {
 
 const salonImgs=['https://images.unsplash.com/photo-1560066984-138dadb4c035?w=700','https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?w=700','https://images.unsplash.com/photo-1633681926022-84c23e8cb2d6?w=700','https://images.unsplash.com/photo-1600948836101-f9ffda59d250?w=700'];
 const serviceImgs=['https://images.unsplash.com/photo-1560869713-7d0a29430803?w=350','https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=350','https://images.unsplash.com/photo-1604654894610-df63bc536371?w=350','https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=350'];
-const salons=[];
+const salons=[
+  {id:1,name:'صالون لؤلؤة بغداد',area:'الكرادة',rating:4.8,price:15000,img:salonImgs[0],reviews:120,lat:33.3128,lng:44.4322},
+  {id:2,name:'صالون ياسمين',area:'المنصور',rating:4.6,price:20000,img:salonImgs[1],reviews:98,lat:33.3245,lng:44.3512},
+  {id:3,name:'صالون ترف روز',area:'الجادرية',rating:4.9,price:18000,img:salonImgs[2],reviews:203,lat:33.2841,lng:44.3821},
+  {id:4,name:'صالون لمسة',area:'المنصور',rating:4.7,price:25000,img:salonImgs[3],reviews:76,lat:33.3210,lng:44.3580}
+];
 const services=[{id:1,name:'قص وتصفيف الشعر',price:25000,min:60,cat:'شعر',img:serviceImgs[0]},{id:2,name:'صبغ الشعر',price:60000,min:90,cat:'شعر',img:serviceImgs[1]},{id:3,name:'مناكير جل',price:15000,min:45,cat:'أظافر',img:serviceImgs[2]},{id:4,name:'عناية بالوجه',price:50000,min:60,cat:'بشرة',img:serviceImgs[3]},{id:5,name:'مكياج مناسبات',price:40000,min:75,cat:'مكياج',img:serviceImgs[1]}];
 const products=[{name:'مجموعة عناية بالشعر',price:45000,img:serviceImgs[1]},{name:'مجموعة العناية بالبشرة',price:38000,img:serviceImgs[3]},{name:'طلاء أظافر',price:12000,img:serviceImgs[2]}];
 const get=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))??d}catch{return d}};
@@ -377,5 +382,4 @@ function render(){
 
 render();
 if('serviceWorker' in navigator && location.protocol==='https:') window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
-</script><script src="/__salonati_ads.js"></script><script src="/customer-catalog.js"></script></body></html>
-
+</script><script src="/__salonati_ads.js"></script><script src="/salonati-link.js"></script></body></html>

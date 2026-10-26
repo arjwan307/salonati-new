@@ -26,7 +26,6 @@ export default defineConfig(() => {
         },
       },
     ],
-    build: { rollupOptions: { input: { customer: path.resolve(__dirname, 'index.html'), owner: path.resolve(__dirname, 'apps/owner/index.html') } } },
     resolve: {
       alias: {
         '@': path.resolve(__dirname, '.'),

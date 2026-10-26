@@ -20,6 +20,7 @@ export async function moderationRoutes(request,env){
  const db=env.MODERATION_DB;
  try{
  if(!['GET','HEAD','OPTIONS'].includes(request.method)&&request.headers.get('origin')!==url.origin)return catalogJson({error:'origin_denied'},403);
+ const workflowCustomerResponse=await workflowCustomerRoutes(request,env,url);if(workflowCustomerResponse)return workflowCustomerResponse;
  if(publicRead&&request.method==='GET'){
   const rows=(await db.prepare("SELECT r.*,a.salon_name,a.area,a.latitude,a.longitude,m.mime FROM catalog_services s JOIN catalog_revisions r ON r.id=s.published_revision JOIN catalog_accounts a ON a.id=s.owner_id LEFT JOIN catalog_media m ON m.id=r.media_id WHERE r.status='approved' AND r.active=1 AND EXISTS(SELECT 1 FROM catalog_registrations g WHERE g.owner_id=a.id AND g.status='approved') ORDER BY r.created_at DESC LIMIT 1000").all()).results;
   const salons=new Map();for(const row of rows){if(!salons.has(row.owner_id))salons.set(row.owner_id,{id:row.owner_id,name:row.salon_name,area:row.area,latitude:row.latitude,longitude:row.longitude,services:[]});salons.get(row.owner_id).services.push(catalogRevision(row,url.origin))}
@@ -54,11 +55,12 @@ export async function moderationRoutes(request,env){
  if(!actor)return catalogJson({error:'login_required'},401);
  if(path.startsWith('/api/catalog/admin/bookings')&&request.method==='GET'){
   if(actor.role!=='admin')return catalogJson({error:'admin_required'},403);
+  const liveResponse=await workflowAdminBookings(env,url);if(liveResponse)return liveResponse;
   if(!env.LEGACY_DB)return catalogJson({error:'booking_source_unavailable'},503);
   const legacy=env.LEGACY_DB;
   if(path==='/api/catalog/admin/bookings'){
    const salons=(await legacy.prepare("SELECT s.id,s.name,COUNT(b.id) AS bookingCount,MAX(b.created_at) AS latestBooking,SUM(CASE WHEN b.status IN ('pending','confirmed') THEN 1 ELSE 0 END) AS activeCount FROM salons s JOIN bookings b ON b.salon_id=s.id WHERE b.is_demo=0 AND s.is_demo=0 GROUP BY s.id,s.name ORDER BY latestBooking DESC,s.id").all()).results;
-   return catalogJson({salons});
+   const liveSalons=(await db.prepare("SELECT 'live:'||a.id AS id,a.salon_name AS name,COUNT(b.id) AS bookingCount,MAX(b.created_at) AS latestBooking,SUM(CASE WHEN b.status IN ('pending','confirmed') THEN 1 ELSE 0 END) AS activeCount FROM catalog_live_bookings b JOIN catalog_accounts a ON a.id=b.owner_id GROUP BY a.id ORDER BY latestBooking DESC").all()).results;return catalogJson({salons:await mergeBookingGroups(db,salons,liveSalons)});
   }
   if(path==='/api/catalog/admin/bookings/salon'){
    const salonId=url.searchParams.get('salonId')||'',offset=Number(url.searchParams.get('offset')||0);
@@ -77,6 +79,7 @@ export async function moderationRoutes(request,env){
  }
  const sampleResponse=await clearSampleData(request,env,actor,url);if(sampleResponse)return sampleResponse;
  const campaignResponse=await campaignRoutes(request,env,actor,url);if(campaignResponse)return campaignResponse;
+ const workflowOwnerResponse=await workflowOwnerRoutes(request,env,actor,url);if(workflowOwnerResponse)return workflowOwnerResponse;
  const registrationResponse=await registrationRoutes(request,env,actor,url);if(registrationResponse)return registrationResponse;
  const adResponse=await advertisementRoutes(request,db,actor,url);if(adResponse)return adResponse;
  const accountingResponse=await accountingRoutes(request,env,actor,url);if(accountingResponse)return accountingResponse;

@@ -54,7 +54,41 @@ const originalPage=window.salonPage,originalChoose=window.chooseSalon;
 const names={1:['سارة','نور','ريم'],2:['ياسمين','هدى','آية'],3:['رنا','مريم','زينب'],4:['لمى','فرح','داليا']};
 function team(){return (names[state.salon]||names[1]).flatMap((name,i)=>[0,1].map(j=>({id:state.salon+'-'+i+'-'+j,name:j?['ليلى','هبة','دانا'][i]:name,specialty:['شعر وتصفيف','مكياج وبشرة','العناية بالأظافر'][i],group:i})));}
 function staffFor(id){const s=services.find(x=>x.id===id);const n=s?.name||'',c=s?.cat||'';const g=/مناكير|بديكير|أظافر/.test(n+c)?2:/مكياج|بشرة|وجه|ماسك/.test(n+c)?1:0;const list=team().filter(w=>w.group===g);return [...list,{id:'any',name:'كادر عشوائي',specialty:''}];}
-window.salonatiServiceStaff=function(serviceId,id){if(!state.selectedServices.includes(serviceId)||!staffFor(serviceId).some(w=>w.id===id))return;state.serviceStaff=state.serviceStaff||{};let selected=Array.isArray(state.serviceStaff[serviceId])?state.serviceStaff[serviceId]:[];if(id==='any'){selected=selected.includes('any')?[]:['any'];}else{selected=selected.filter(x=>x!=='any');if(selected.includes(id)){selected=selected.filter(x=>x!==id);}else{selected.push(id);}}state.serviceStaff[serviceId]=selected;state.pendingStaffService=null;render();};
+window.salonatiServiceStaff=function(serviceId,id){
+ if(!state.selectedServices.includes(serviceId)||!staffFor(serviceId).some(w=>w.id===id))return;
+ state.serviceStaff=state.serviceStaff||{};state.serviceStaff[serviceId]=[id];state.pendingStaffService=null;render();
+};
+const staffStyles=document.createElement('style');
+staffStyles.textContent=`
+ .staff-dialog{width:min(430px,calc(100% - 28px));max-height:85dvh;overflow:auto;border:1px solid var(--line);border-radius:22px;padding:20px;background:var(--card);color:var(--text);box-shadow:0 18px 60px rgba(75,12,155,.22);direction:rtl}
+ .staff-dialog::backdrop{background:rgba(37,7,67,.38);backdrop-filter:blur(4px)}
+ .staff-dialog header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 8px}
+ .staff-dialog h2{margin:0;font-size:18px;color:var(--pink)}
+ .staff-dialog .staff-dialog-close{width:36px;height:36px;border-radius:50%;background:var(--soft);color:var(--pink);font-size:22px}
+ .staff-dialog .salon-staff-card{cursor:pointer;margin:0;min-height:76px}
+ .staff-dialog .salon-staff-card:has(input:checked){border-color:var(--pink);background:var(--tint)}
+ .staff-dialog input{width:18px;height:18px;accent-color:var(--pink);flex-shrink:0}
+ .staff-dialog .staff-dialog-actions{display:flex;gap:10px;margin-top:18px;position:sticky;bottom:0;background:var(--card);padding-top:8px}
+ .staff-dialog-actions button{flex:1;min-height:44px}
+ .service-staff-choice{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:10px;width:100%}
+ .service-staff-choice .outline{min-height:42px;padding:8px 12px;white-space:nowrap}
+`;
+document.head.append(staffStyles);
+window.salonatiOpenStaff=function(serviceId){
+ if(!state.selectedServices.includes(serviceId)||document.getElementById('service-staff-dialog'))return;
+ state.pendingStaffService=null;
+ const item=services.find(s=>s.id===serviceId),workers=staffFor(serviceId),picked=state.serviceStaff?.[serviceId]?.[0]||'any';
+ const dialog=document.createElement('dialog');dialog.id='service-staff-dialog';dialog.className='staff-dialog';
+ dialog.setAttribute('aria-labelledby','staff-dialog-title');dialog.setAttribute('aria-describedby','staff-dialog-description');
+ dialog.innerHTML=`<form method="dialog"><header><h2 id="staff-dialog-title">اختاري كادر ${esc(item.name)}</h2><button type="button" class="staff-dialog-close" aria-label="إغلاق اختيار الكادر">×</button></header><p id="staff-dialog-description" class="small">المختصات بخدمة ${esc(item.name)} في الصالون المختار</p><div class="salon-staff-list">${workers.map(w=>`<label class="salon-staff-card"><span class="salon-staff-avatar" aria-hidden="true">${w.id==='any'?'✦':'♙'}</span><span class="salon-staff-text"><strong>${esc(w.name)}</strong><small>${esc(w.specialty||'أي مختصة متاحة لهذه الخدمة')}</small></span><input type="radio" name="service-staff" value="${esc(w.id)}" ${picked===w.id?'checked':''}></label>`).join('')}</div><div class="staff-dialog-actions"><button type="submit" class="primary">تأكيد الاختيار</button><button type="button" class="outline staff-dialog-cancel">إلغاء</button></div></form>`;
+ const restoreFocus=()=>document.querySelector(`[data-staff-service="${serviceId}"]`)?.focus();
+ dialog.addEventListener('close',()=>{dialog.remove();restoreFocus();},{once:true});
+ dialog.querySelector('.staff-dialog-close').onclick=()=>dialog.close();
+ dialog.querySelector('.staff-dialog-cancel').onclick=()=>dialog.close();
+ dialog.addEventListener('click',event=>{if(event.target!==dialog)return;const r=dialog.getBoundingClientRect();if(event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom)dialog.close();});
+ dialog.querySelector('form').onsubmit=event=>{event.preventDefault();const value=dialog.querySelector('input:checked')?.value;if(!value)return;dialog.close();window.salonatiServiceStaff(serviceId,value);restoreFocus();};
+ document.body.append(dialog);dialog.showModal();
+};
 
 window.salonatiInlineStaff=function(){return '';};
 
@@ -76,11 +110,15 @@ window.salonPage=function(){
  if(active!=='services'){while(tabs.nextElementSibling)tabs.nextElementSibling.remove();tabs.insertAdjacentHTML('afterend',active==='products'?productContent():active==='brides'?bridesContent():staffContent());}
  
  for(const remove of template.content.querySelectorAll('.remove')){remove.textContent='−';remove.classList.add('small-service-minus');}
- if(active==='services')for(const row of template.content.querySelectorAll('.chosen-line')){const remove=row.querySelector('.remove'),id=state.selectedServices.find(id=>remove?.getAttribute('aria-label')==='حذف '+services.find(s=>s.id===id)?.name);if(!id)continue;const item=services.find(s=>s.id===id),workers=staffFor(id),picked=Array.isArray(state.serviceStaff?.[id])?state.serviceStaff[id]:[];row.insertAdjacentHTML('beforeend',`<div class="service-worker-picker" id="staff-for-${id}"><strong>كادر ${esc(item.name)}</strong><p class="small">${esc(workers[0]?.specialty||'')} · كادر متخصص</p><div>${workers.map(w=>`<label class="service-worker-option"><input type="checkbox" ${picked.includes(w.id)?'checked':''} onchange="salonatiServiceStaff(${id},'${w.id}')"><span>${esc(w.name)}${w.specialty?' — '+esc(w.specialty):''}</span></label>`).join('')}</div></div>`);}
+ if(active==='services')for(const row of template.content.querySelectorAll('.chosen-line')){
+ const remove=row.querySelector('.remove'),id=state.selectedServices.find(id=>remove?.getAttribute('aria-label')==='حذف '+services.find(s=>s.id===id)?.name);if(!id)continue;
+ const workers=staffFor(id),picked=workers.filter(w=>(state.serviceStaff?.[id]||[]).includes(w.id));
+ row.insertAdjacentHTML('beforeend',`<div class="service-staff-choice"><small class="small">الكادر: <strong>${picked.length?picked.map(w=>esc(w.name)).join('، '):'كادر عشوائي'}</strong></small><button type="button" class="outline" data-staff-service="${id}" onclick="salonatiOpenStaff(${id})">${picked.length?'تغيير الكادر':'اختيار الكادر'}</button></div>`);
+ }
 
  return template.innerHTML;
 };
-function withStaff(html){const t=document.createElement('template');t.innerHTML=html;const header=t.content.querySelector('header');if(header)header.insertAdjacentHTML('afterend',`<div class="salon-staff-summary">${state.selectedServices.map(id=>{const worker=staffFor(id).filter(w=>(state.serviceStaff?.[id]||[]).includes(w.id));return `<p>${esc(services.find(s=>s.id===id)?.name||'')} — ${worker.length?worker.map(w=>esc(w.name)).join('، '):'كادر عشوائي'}</p>`;}).join('')}</div>`);return t.innerHTML;}
+function withStaff(html){const t=document.createElement('template');t.innerHTML=html;for(const p of t.content.querySelectorAll('p'))if(p.textContent.startsWith('الكادر:'))p.remove();const header=t.content.querySelector('header');if(header)header.insertAdjacentHTML('afterend',`<div class="salon-staff-summary">${state.selectedServices.map(id=>{const worker=staffFor(id).filter(w=>(state.serviceStaff?.[id]||[]).includes(w.id));return `<p>${esc(services.find(s=>s.id===id)?.name||'')} — ${worker.length?worker.map(w=>esc(w.name)).join('، '):'كادر عشوائي'}</p>`;}).join('')}</div>`);return t.innerHTML;}
 
 const originalBooking=window.booking,originalSummary=window.summary,originalConfirm=window.confirmBooking,originalBookings=window.bookings;
 window.booking=function(){const t=document.createElement('template');t.innerHTML=withStaff(originalBooking());const times=t.content.querySelector('.times');if(times)times.innerHTML=Array.from({length:15},(_,i)=>{const hour=8+i,label=`${(hour%12)||12}:00 ${hour<12?'ص':'م'}`;return `<button class="${state.time===label?'on':''}" onclick="state.time='${label}';render()">${label}</button>`;}).join('');return t.innerHTML;};window.summary=function(){return withStaff(originalSummary());};
@@ -102,7 +140,7 @@ for(const [key,g] of Object.entries(groups))g.items=g.items.map(([name,price,min
 let activeGroup='hair',pendingItem=null;
 window.salonatiOpenCategory=function(key){if(!groups[key])return;activeGroup=key;pendingItem=null;go('category-'+key);};
 window.salonatiCategoryService=function(id){const item=Object.values(groups).flatMap(g=>g.items).find(s=>s.id===id);if(!item)return;pendingItem=item;go('category-salons');};
-window.salonatiCategorySalon=function(id){if(!pendingItem)return;const item=pendingItem;chooseSalon(id);state.selectedServices=[item.id];state.tab='services';render();};
+window.salonatiCategorySalon=function(id){if(!pendingItem)return;const item=pendingItem;chooseSalon(id);state.selectedServices=[item.id];state.pendingStaffService=item.id;state.tab='services';render();};
 function bindCategoryButtons(){const labels=[['عناية بالشعر','hair'],['مكياج','makeup'],['عناية بالبشرة','skin'],['أظافر','nails']];for(const b of document.querySelectorAll('#app .categories .cat')){const key=labels.find(([label])=>b.textContent.includes(label))?.[1];if(key){b.onclick=()=>window.salonatiOpenCategory(key);b.setAttribute('aria-label','فتح '+groups[key].title);}}}
 function categoryPage(key){const g=groups[key];return `<header><button class="back" onclick="go('home')" aria-label="العودة للرئيسية">❯</button><h3 class="pink">${g.title}</h3><span></span></header><section class="category-page-intro"><span class="pill">${key==='hair'?'قصّات وخدمات الشعر':'خدمات '+g.title}</span><h1>${g.title}</h1><p>${g.subtitle}</p></section><p class="category-demo-note">تفاصيل الخدمات والأسعار للحجز المباشر.</p><div class="category-service-grid">${g.items.map(item=>`<article class="category-service-card"><img src="${item.img}" alt="صورة توضيحية لقسم ${g.title}" loading="lazy"><div><h2>${item.name}</h2><p>${item.min} دقيقة</p><strong>${fmt(item.price)} د.ع</strong><button class="primary" onclick="salonatiCategoryService(${item.id})">اختاري الصالون</button></div></article>`).join('')}</div>`;}
 function categorySalonPage(){if(!pendingItem)return categoryPage(activeGroup);return `<header><button class="back" onclick="salonatiOpenCategory('${activeGroup}')" aria-label="العودة للخدمات">❯</button><h3 class="pink">اختاري الصالون</h3><span></span></header><div class="panel"><h3>${pendingItem.name}</h3><p>${fmt(pendingItem.price)} د.ع · ${pendingItem.min} دقيقة</p><p class="small">الخدمات والأسعار المعتمدة من قبل الصالون.</p></div><div class="category-salon-list">${salons.map(s=>`<article class="salon"><img src="${s.img}" alt="صورة صالون توضيحية"><div class="info"><h3>${s.name}</h3><p>بغداد · ${s.area}</p><div class="actions"><button onclick="salonatiCategorySalon(${s.id})">اختاري واحجزي</button></div></div></article>`).join('')}</div>`;}
@@ -154,7 +192,7 @@ window.salonPage=function(){const template=document.createElement('template');te
  }else if(state.tab==='products'){const h=template.content.querySelector('.salon-tab-content h3');if(h)h.textContent='منتجات '+salons.find(s=>s.id===state.salon).name;}
  return template.innerHTML;};
 window.render=function(){originalRender();if(state.page==='salon-service-gallery')document.getElementById('app').innerHTML=gallery()+nav();};
-const staffRender=window.render;window.render=function(){staffRender();if(state.page==='salon'&&state.pendingStaffService){document.getElementById('staff-for-'+state.pendingStaffService)?.scrollIntoView({block:'center'});}};
+const staffRender=window.render;window.render=function(){staffRender();if(state.pendingStaffService){salonatiOpenStaff(state.pendingStaffService);}};
 render();
 })();
 

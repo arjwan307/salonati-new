@@ -197,56 +197,9 @@ function servicePriceMarkup(service){return activeServiceDiscount(service)?'<del
 function localDateInput(value){if(!value)return '';const d=new Date(value);if(!Number.isFinite(d.getTime()))return '';return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,16)}
 function toggleServiceDiscountForm(){document.getElementById('serviceDiscountFields').hidden=!document.getElementById('serviceHasDiscount').checked}
 
-const KEY='salonati-owner-v5';
-const initial={
- salon:{id:1,name:'صالون لؤلؤة بغداد',ownerName:'ست مريم',image:'https://images.unsplash.com/photo-1560066984-138dadb4c035?w=600',greetingPeriod:'auto',area:'الكرادة',address:'بغداد، الكرادة داخل',phone:'07701112233',about:'جمالُك يبدأ من هنا',lat:'33.3128',lng:'44.4322',open:true},
- services:[
-  {id:101,name:'قصّة كاريه',category:'hair',price:25000,minutes:60,active:true,publicationStatus:'approved',mediaUrl:'https://images.unsplash.com/photo-1560869713-7d0a29430803?w=500'},
-  {id:102,name:'قصّة بوب قصيرة',category:'hair',price:25000,minutes:60,active:true,publicationStatus:'approved',mediaUrl:'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=500'},
-  {id:103,name:'قصّة شعر مدرّج',category:'hair',price:30000,minutes:60,active:true,publicationStatus:'approved',mediaUrl:'https://images.unsplash.com/photo-1560066984-138dadb4c035?w=500'},
-  {id:104,name:'قصّة بيكسي',category:'hair',price:25000,minutes:60,active:true,publicationStatus:'approved',mediaUrl:'https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?w=500'},
-  {id:105,name:'قصّ الغرّة والأطراف',category:'hair',price:15000,minutes:30,active:true,publicationStatus:'approved',mediaUrl:'https://images.unsplash.com/photo-1560869713-7d0a29430803?w=500'},
-  {id:106,name:'قصّة شعر طويل',category:'hair',price:25000,minutes:60,active:true,publicationStatus:'approved',mediaUrl:'https://images.unsplash.com/photo-1600948836101-f9ffda59d250?w=500'},
-  {id:107,name:'تصفيف واستشوار',category:'hair',price:20000,minutes:45,active:true,publicationStatus:'approved',mediaUrl:'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=500'},
-  {id:108,name:'صبغ الشعر وخصل هايلايت',category:'hair',price:60000,minutes:90,active:true,publicationStatus:'approved',mediaUrl:'https://images.unsplash.com/photo-1560869713-7d0a29430803?w=500'},
-  {id:201,name:'مكياج ناعم',category:'makeup',price:30000,minutes:60,active:true,publicationStatus:'approved',mediaUrl:'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=500'},
-  {id:202,name:'مكياج مناسبات',category:'makeup',price:40000,minutes:75,active:true,publicationStatus:'approved',mediaUrl:'https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=500'},
-  {id:203,name:'مكياج عروس ملكي',category:'makeup',price:120000,minutes:120,active:true,publicationStatus:'approved',mediaUrl:'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=500'},
-  {id:204,name:'مكياج عيون سموكي',category:'makeup',price:20000,minutes:40,active:true,publicationStatus:'approved',mediaUrl:'https://images.unsplash.com/photo-1586495777744-4413f21062fa?w=500'},
-  {id:301,name:'تنظيف البشرة العميق',category:'skin',price:35000,minutes:60,active:true,publicationStatus:'approved',mediaUrl:'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=500'},
-  {id:302,name:'ترطيب ونضارة البشرة',category:'skin',price:30000,minutes:45,active:true,publicationStatus:'approved',mediaUrl:'https://images.unsplash.com/photo-1571781926291-c477ebfd024b?w=500'},
-  {id:303,name:'ماسك وعناية بالوجه',category:'skin',price:25000,minutes:40,active:true,publicationStatus:'approved',mediaUrl:'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=500'},
-  {id:304,name:'جلسة عناية متكاملة بالبشرة',category:'skin',price:50000,minutes:75,active:true,publicationStatus:'approved',mediaUrl:'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=500'},
-  {id:401,name:'مناكير كلاسيكي',category:'nails',price:10000,minutes:30,active:true,publicationStatus:'approved',mediaUrl:'https://images.unsplash.com/photo-1604654894610-df63bc536371?w=500'},
-  {id:402,name:'مناكير جل',category:'nails',price:15000,minutes:45,active:true,publicationStatus:'approved',mediaUrl:'https://images.unsplash.com/photo-1633681926022-84c23e8cb2d6?w=500'},
-  {id:403,name:'بديكير وعناية بالقدمين',category:'nails',price:20000,minutes:45,active:true,publicationStatus:'approved',mediaUrl:'https://images.unsplash.com/photo-1604654894610-df63bc536371?w=500'},
-  {id:404,name:'رسم وتزيين الأظافر',category:'nails',price:25000,minutes:60,active:true,publicationStatus:'approved',mediaUrl:'https://images.unsplash.com/photo-1633681926022-84c23e8cb2d6?w=500'}
- ],
- bookings:[
-  {id:1001,name:'سارة أحمد',phone:'07712345678',services:[101,402],date:'2026-10-29',time:'11:00 ص',status:'pending',notes:'أرغب بقصّة كاريه مع مناكير جل'},
-  {id:1002,name:'نور علي',phone:'07812345678',services:[202,107],date:'2026-10-29',time:'2:00 م',status:'accepted',notes:'مكياج مناسبات مع تصفيف'},
-  {id:1003,name:'هدى محمد',phone:'07709876543',services:[301],date:'2026-10-30',time:'4:00 م',status:'pending',notes:'جلسة تنظيف بشرة'}
- ],
- products:[
-  {id:501,name:'مجموعة عناية بالشعر',category:'hair',price:45000,stock:12,description:'شامبو وبلسم وماسك مغذي للشعر التالف والمصبوغ',publicationStatus:'approved',mediaUrl:'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=500'},
-  {id:502,name:'زيت الأرغان لترطيب الشعر',category:'hair',price:18000,stock:8,description:'زيت طبيعي للمعان وتقوية أطراف الشعر بعد التصفيف',publicationStatus:'approved',mediaUrl:'https://images.unsplash.com/photo-1560869713-7d0a29430803?w=500'},
-  {id:503,name:'مجموعة العناية بالبشرة',category:'skin',price:38000,stock:10,description:'غسول وتونر وكريم ترطيب يومي للبشرة الحساسة',publicationStatus:'approved',mediaUrl:'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=500'},
-  {id:504,name:'سيروم فيتامين سي للنضارة',category:'skin',price:22000,stock:15,description:'سيروم مركز لتفتيح وإشراقة الوجه',publicationStatus:'approved',mediaUrl:'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=500'},
-  {id:505,name:'مجموعة طلاء أظافر جل',category:'nails',price:12000,stock:20,description:'ألوان ثابتة عالية اللمعان تدوم طويلاً',publicationStatus:'approved',mediaUrl:'https://images.unsplash.com/photo-1604654894610-df63bc536371?w=500'},
-  {id:506,name:'باليت مكياج احترافي',category:'makeup',price:32000,stock:6,description:'درجات ظلال عيون وإضاءة ثابتة للمناسبات',publicationStatus:'approved',mediaUrl:'https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=500'}
- ],
- ads:[
-  {id:'ad-1',title:'عرض قصّات وتصفيف الشعر',placement:'hair',budget:25000,active:true,publicationStatus:'approved',mediaType:'image/jpeg',mediaUrl:'https://images.unsplash.com/photo-1560066984-138dadb4c035?w=500'},
-  {id:'ad-2',title:'باقة مكياج المناسبات والعرائس',placement:'makeup',budget:40000,active:true,publicationStatus:'approved',mediaType:'image/jpeg',mediaUrl:'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=500'},
-  {id:'ad-3',title:'جلسات تنظيف ونضارة البشرة',placement:'skin',budget:30000,active:true,publicationStatus:'approved',mediaType:'image/jpeg',mediaUrl:'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=500'},
-  {id:'ad-4',title:'مناكير جل ورسم الأظافر',placement:'nails',budget:15000,active:true,publicationStatus:'approved',mediaType:'image/jpeg',mediaUrl:'https://images.unsplash.com/photo-1604654894610-df63bc536371?w=500'}
- ],
- staff:[{id:1,name:'زينب',role:'قص وتصفيف الشعر'},{id:2,name:'رنا',role:'العناية بالبشرة'},{id:3,name:'ياسمين',role:'مكياج احترافي'},{id:4,name:'دانا',role:'العناية بالأظافر'}],
- hours:[{day:'السبت',open:'08:00',close:'22:00',enabled:true},{day:'الأحد',open:'08:00',close:'22:00',enabled:true},{day:'الاثنين',open:'08:00',close:'22:00',enabled:true},{day:'الثلاثاء',open:'08:00',close:'22:00',enabled:true},{day:'الأربعاء',open:'08:00',close:'22:00',enabled:true},{day:'الخميس',open:'08:00',close:'22:00',enabled:true},{day:'الجمعة',open:'10:00',close:'22:00',enabled:true}],
- photos:['https://images.unsplash.com/photo-1560066984-138dadb4c035?w=600','https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?w=600'],
- blocked:[]
-};
-let db;try{db=JSON.parse(localStorage.getItem(KEY))||structuredClone(initial);if(!Array.isArray(db.ads))db.ads=structuredClone(initial.ads);if(!db.salon.ownerName)db.salon.ownerName='ست مريم';if(!db.salon.image)db.salon.image=db.photos?.[0]||'https://images.unsplash.com/photo-1560066984-138dadb4c035?w=600'}catch(e){db=JSON.parse(JSON.stringify(initial))}
+const KEY='salonati-owner-production-v1';
+const initial={salon:{id:null,name:'',ownerName:'',image:'',greetingPeriod:'auto',area:'',address:'',phone:'',about:'',lat:'',lng:'',open:false},services:[],bookings:[],products:[],ads:[],staff:[],hours:[{day:'السبت',open:'08:00',close:'22:00',enabled:true},{day:'الأحد',open:'08:00',close:'22:00',enabled:true},{day:'الاثنين',open:'08:00',close:'22:00',enabled:true},{day:'الثلاثاء',open:'08:00',close:'22:00',enabled:true},{day:'الأربعاء',open:'08:00',close:'22:00',enabled:true},{day:'الخميس',open:'08:00',close:'22:00',enabled:true},{day:'الجمعة',open:'10:00',close:'22:00',enabled:true}],photos:[],blocked:[]};
+let db;try{db=JSON.parse(localStorage.getItem(KEY))||structuredClone(initial);if(!Array.isArray(db.ads))db.ads=structuredClone(initial.ads);if(!db.salon.image)db.salon.image=db.photos?.[0]||'https://images.unsplash.com/photo-1560066984-138dadb4c035?w=600'}catch(e){db=JSON.parse(JSON.stringify(initial))}
 const save=()=>{localStorage.setItem(KEY,JSON.stringify(db));render()},esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])),fmt=n=>Number(n||0).toLocaleString('en-US')+' د.ع',val=id=>document.getElementById(id)?.value?.trim(),id=()=>Date.now(),status={pending:'بانتظار الموافقة',accepted:'مقبول',rejected:'مرفوض',cancelled:'ملغي',completed:'مكتمل'},tabs=[['home','الرئيسية','⌂'],['bookings','الحجوزات','▦'],['hours','أوقات العمل','◷'],['services','إضافة منتج','＋'],['products','المعرض','▣'],['more','الإعدادات','⚙']];
 let page='home',filter='all',serviceCatFilter='all',edit=null;
 function toast(s){let t=document.getElementById('toast');t.textContent=s;t.style.display='block';setTimeout(()=>t.style.display='none',2600)}

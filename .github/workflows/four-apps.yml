@@ -1,0 +1,37 @@
+name: Four-app validation
+on:
+  push:
+    branches: [integration/four-apps-google-studio-20261029]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    name: Build ${{ matrix.app }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        app: [customer, salon, admin, cosmetics]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify app source has been imported
+        run: test -f "apps/${{ matrix.app }}/package.json" && test -f "apps/${{ matrix.app }}/index.html"
+      - name: Install dependencies
+        working-directory: apps/${{ matrix.app }}
+        run: npm install --no-audit --no-fund
+      - name: Check TypeScript
+        working-directory: apps/${{ matrix.app }}
+        run: npm run lint
+      - name: Build
+        working-directory: apps/${{ matrix.app }}
+        run: npm run build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: salonati-${{ matrix.app }}
+          path: apps/${{ matrix.app }}/dist/
+          if-no-files-found: error

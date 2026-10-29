@@ -1,19 +1,29 @@
-# Four app integration — source audit (2026-10-30)
+# Google Studio import and cloud review — 2026-10-30
 
-Sources received: 4 Google AI Studio ZIP exports (customer, salon, admin, cosmetics).
+The complete four source exports are imported under `google-apps/{customer,salon,admin,cosmetics}`. This namespace avoids collisions with the legacy `apps/customer/index.html` and `apps/admin/index.html`. Original archives remain separately retained. SHA-256 inventory records every original file, including Studio caches and duplicate ZIP files which are not committed.
 
-## Verified facts
-- Each ZIP is an independent project export, with root package.json and index.html.
-- The bundles contain overlapping paths whose content differs. Do not overwrite or flatten their roots.
-- An isolated four-app staging archive was prepared locally, retaining every file under apps/{customer,salon,admin,cosmetics}, with SHA-256 inventory.
-- The archive has **not** been uploaded to GitHub from this environment. This repository branch still lacks the imported source trees.
-- Neither Cloudflare deployment nor live integration/authentication/push validation has been completed.
+## Entry routing
+| Review app | Original export entry |
+| --- | --- |
+| Customer | google-apps/customer/apps/customer/index.html |
+| Salon | google-apps/salon/index.html |
+| Admin | google-apps/admin/index.html |
+| Cosmetics | google-apps/cosmetics/cosmetics/owner/index.html |
 
-## Next release gate
-1. Upload the staged source archive from the conversation to a Git environment and expand into this branch (not main); use the manifest to check files.
-2. Fix only build and infrastructure issues without design, color or feature changes; keep visual diffs and test screenshots.
-3. Test individual builds and workflows on Safari iPad/iPhone + Android Chrome.
-4. Configure four separate Cloudflare Pages projects linked to source folders, and verify HTTPS, navigation, state persistence, role authorization, privacy consent and opt-in push.
-5. Merge to main only after all checks and user acceptance.
+The export named Customer opens Cosmetics at its root. The export named Cosmetics opens Administration at its root. Deployment selects the existing role-appropriate page without rewriting any approved HTML/CSS/JS. All original roots are retained for review. No visual redesign was performed.
 
-**Never claim a deployment exists until its actual URL has been verified.**
+## Validation
+- Resolved esbuild/Vite peer dependency mismatch with compatible esbuild 0.28 and lockfiles.
+- Corrected TypeScript state types in the Admin/Cosmetics Vite development mocks; no runtime behavior change.
+- All four TypeScript checks and Vite builds passed locally.
+- Static release copies approved entry HTML byte-for-byte, excludes downloadable source ZIPs and alternate HTML pages, and verifies script syntax and local entry assets (45 checks).
+- Cloud review builds use the dependency-free static exporter because these approved pages use plain HTML/JS. The React starter source remains preserved.
+
+## Commercial release blockers
+These are review deployments, not commercial acceptance:
+- The Customer and Cosmetics selected pages still use localStorage demo data; they do not persist orders to a shared commercial backend.
+- Admin Vite mock routes are development-only and are deliberately not deployed as authenticated production APIs.
+- Salon includes a trial-mode switch from the supplied export; a secure backend and removal of trial shortcuts require integration work.
+- Secure per-role login, registration approval, cross-app state, private push subscriptions, notification preferences and actual lock-screen push are not complete.
+- Payments and physical iPad/iPhone/Android acceptance are not verified.
+- `main` is unchanged. Do not merge or label commercial-ready until these gates pass.

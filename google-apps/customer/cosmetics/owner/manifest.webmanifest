@@ -1,0 +1,11 @@
+{
+  "name": "صالوناتي كوزمتك - إدارة المتجر",
+  "short_name": "إدارة الكوزمتك",
+  "description": "تطبيق مستقل لصاحب متجر الكوزمتك لإدارة المنتجات والعروض وطلبات الزبونات",
+  "start_url": "/cosmetics/owner/",
+  "display": "standalone",
+  "background_color": "#f3ebfa",
+  "theme_color": "#f3ebfa",
+  "lang": "ar",
+  "dir": "rtl"
+}

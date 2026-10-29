@@ -220,20 +220,10 @@ window.addEventListener('gmp-quota-exceeded', () => {
 
 const salonImgs=['https://images.unsplash.com/photo-1560066984-138dadb4c035?w=700','https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?w=700','https://images.unsplash.com/photo-1633681926022-84c23e8cb2d6?w=700','https://images.unsplash.com/photo-1600948836101-f9ffda59d250?w=700'];
 const serviceImgs=['https://images.unsplash.com/photo-1560869713-7d0a29430803?w=350','https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=350','https://images.unsplash.com/photo-1604654894610-df63bc536371?w=350','https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=350'];
-const salons=[
-  {id:1,name:'صالون لؤلؤة بغداد',area:'الكرادة',rating:4.8,price:15000,img:salonImgs[0],reviews:120,lat:33.3128,lng:44.4322},
-  {id:2,name:'صالون ياسمين',area:'المنصور',rating:4.6,price:20000,img:salonImgs[1],reviews:98,lat:33.3245,lng:44.3512},
-  {id:3,name:'صالون ترف روز',area:'الجادرية',rating:4.9,price:18000,img:salonImgs[2],reviews:203,lat:33.2841,lng:44.3821},
-  {id:4,name:'صالون لمسة',area:'المنصور',rating:4.7,price:25000,img:salonImgs[3],reviews:76,lat:33.3210,lng:44.3580}
-];
-const cosmeticStores=[
-  {id:'cs1',name:'روز كوزمتك',area:'الكرادة',region:'بغداد · الكرادة داخل',img:'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=700',discount:'خصم 35%',offer:'مجموعة العناية الشاملة بالمستحضرات الأصلية',price:24000,oldPrice:38000},
-  {id:'cs2',name:'فراولة للعطور والتجميل',area:'المنصور',region:'بغداد · شارع الرواد',img:'https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?w=700',discount:'خصم 25%',offer:'عطر شانيل الاصدار الخاص الفاخر',price:45000,oldPrice:60000},
-  {id:'cs3',name:'لامور بيوتي',area:'الجادرية',region:'بغداد · قرب جامعة بغداد',img:'https://images.unsplash.com/photo-1571781926291-c477ebfd024b?w=700',discount:'خصم 30%',offer:'سيروم فيتامين سي للبشرة النضرة',price:18000,oldPrice:26000},
-  {id:'cs4',name:'بيوتي لاين',area:'أربيل',region:'إقليم كردستان · شارع گولان',img:'https://images.unsplash.com/photo-1586495777744-4413f21062fa?w=700',discount:'خصم 40%',offer:'مجموعة مكياج مات ثابت طويل الأمد',price:32000,oldPrice:55000}
-];
-const services=[{id:1,name:'قص وتصفيف الشعر',price:25000,min:60,cat:'شعر',img:serviceImgs[0]},{id:2,name:'صبغ الشعر',price:60000,min:90,cat:'شعر',img:serviceImgs[1]},{id:3,name:'مناكير جل',price:15000,min:45,cat:'أظافر',img:serviceImgs[2]},{id:4,name:'عناية بالوجه',price:50000,min:60,cat:'بشرة',img:serviceImgs[3]},{id:5,name:'مكياج مناسبات',price:40000,min:75,cat:'مكياج',img:serviceImgs[1]}];
-const products=[{name:'مجموعة عناية بالشعر',price:45000,img:serviceImgs[1]},{name:'مجموعة العناية بالبشرة',price:38000,img:serviceImgs[3]},{name:'طلاء أظافر',price:12000,img:serviceImgs[2]}];
+const salons=[];
+const cosmeticStores=[];
+const services=[];
+const products=[];
 const get=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))??d}catch{return d}};
 const save=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
 let state={page:'home',salon:1,service:1,selectedServices:[],date:'',time:'',tab:'services',cat:'الكل',query:'',favs:get('salonati_favs',[]),bookings:get('salonati_bookings',[]),isLoggedIn:get('salonati_logged_in',false),name:get('salonati_name',''),phone:get('salonati_phone',''),address:get('salonati_address',''),notes:'',payment:'cash',taxi:'',theme:get('salonati_theme','lavender'),toast:'',bookingsTab:'current'};
@@ -772,7 +762,7 @@ function profile(){
   if(!state.isLoggedIn) return loginPage();
   return `${head('الحساب')}<div class="panel"><h3>👤 إنشاء وتعديل بيانات الحساب</h3><p class="small">سجلي اسمكِ ورقم هاتفكِ وعنوانكِ مع تفعيل GPS لتسهيل طلب التكسي والتوصيل الفوري.</p><label>الاسم</label><input class="field" id="accName" placeholder="الاسم الكامل" value="${esc(state.name)}"><label>رقم الهاتف</label><input class="field" id="accPhone" type="tel" inputmode="tel" placeholder="07XXXXXXXXX" value="${esc(state.phone)}"><label>العنوان</label><div style="display:flex;gap:8px"><input class="field" id="accAddress" placeholder="مثال: الكرادة داخل، قرب مسرح حكواتي" value="${esc(state.address)}" style="margin:0;flex:1"><button class="primary" style="padding:0 12px;font-size:12px;white-space:nowrap;border-radius:11px" onclick="fetchUserGPS()">📍 جلب الموقع</button></div><p class="small" style="margin-top:6px">علامة جي بي إس (GPS): تضمن إرسال موقعك بدقة مباشرة لشركة التكسي أو التوصيل عند الطلب.</p><button class="primary" style="width:100%;margin-top:14px;padding:12px" onclick="saveAccountData()">حفظ بيانات الحساب 💾</button><button class="outline" style="width:100%;margin-top:10px;padding:11px;color:var(--pink);border-color:var(--pink)" onclick="doLogout()">تسجيل الخروج ⎋</button></div><p class="small" style="text-align:center;margin-top:20px">صالوناتي · لون بنفسجي ثابت · بيانات الحساب والموقع محفوظة بأمان</p>`;
 }
-function render(){
+function render(){if(['salon','booking','summary'].includes(state.page)&&(!salons.some(s=>s.id===state.salon)||!services.length)){state.page='home';state.selectedServices=[];}
   let views={home,search,salon:salonPage,booking,summary,success,bookings,favorites,products:productsPage,profile,support:supportPage,cosmetics:cosmeticsPage,'cosmetics-basket':cosmeticsBasketPage};
   $('#app').innerHTML=(views[state.page]||home)()+nav()+(state.toast?`<div class="toast">${esc(state.toast)}</div>`:'');
   if(['home','search'].includes(state.page))drawCards();

@@ -1,4 +1,4 @@
-const KEY = 'salonati-cosmetics-owner-v2';
+const KEY = 'salonati-cosmetics-owner-production-v1';
 const catNames = {
   makeup: 'المكياج',
   skincare: 'العناية بالبشرة',
@@ -14,82 +14,10 @@ const timeSlots12h = [
 ];
 
 const initial = {
-  store: {
-    name: 'روز كوزمتك',
-    area: 'الكرادة',
-    address: 'بغداد، الكرادة داخل',
-    phone: '07700000000',
-    openTime: '8:00 ص',
-    closeTime: '10:00 م',
-    about: 'أرقى مستحضرات التجميل والعطور العالمية الأصلية',
-    lat: '33.3128',
-    lng: '44.4322',
-    active: true
-  },
-  products: [
-    {
-      id: 1,
-      name: 'حمره مات ثابتة ممتدة الثبات',
-      price: 18000,
-      oldPrice: 28000,
-      stock: 15,
-      category: 'makeup',
-      description: 'ألوان جذابة تدوم طوال اليوم دون جفاف الشفاه',
-      image: 'https://images.unsplash.com/photo-1586495777744-4413f21062fa?w=400&q=80'
-    },
-    {
-      id: 2,
-      name: 'سيروم فيتامين سي للبشرة النضرة',
-      price: 28000,
-      oldPrice: 42000,
-      stock: 8,
-      category: 'skincare',
-      description: 'نضارة وإشراقة فورية وتفتيح البقع الداكنة',
-      image: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=400&q=80'
-    },
-    {
-      id: 3,
-      name: 'عطر شانيل الإصدار الخاص الفاخر',
-      price: 145000,
-      oldPrice: 180000,
-      stock: 5,
-      category: 'perfumes',
-      description: 'عطر فخم يناسب السهرات والمناسبات الخاصة',
-      image: 'https://images.unsplash.com/photo-1541643600914-78b084683601?w=400&q=80'
-    }
-  ],
-  offers: [
-    {
-      id: 1,
-      title: 'مهرجان العروض الكبرى',
-      discount: 'خصم 35%',
-      details: 'على كافة منتجات المكياج والعناية بالبشرة والعطور الأصلية'
-    }
-  ],
-  orders: [
-    {
-      id: 501,
-      name: 'سارة أحمد',
-      phone: '07712345678',
-      address: 'بغداد · الكرادة داخل',
-      items: ['حمره مات ثابتة ممتدة الثبات', 'سيروم فيتامين سي للبشرة النضرة'],
-      total: 46000,
-      date: '2026-10-29',
-      time: '10:00 ص',
-      status: 'pending'
-    },
-    {
-      id: 502,
-      name: 'نور الهدى',
-      phone: '07811223344',
-      address: 'بغداد · المنصور شارع الرواد',
-      items: ['عطر شانيل الإصدار الخاص الفاخر'],
-      total: 145000,
-      date: '2026-10-29',
-      time: '6:00 م',
-      status: 'accepted'
-    }
-  ]
+  store: {name:'',area:'',address:'',phone:'',openTime:'8:00 ص',closeTime:'10:00 م',about:'',lat:'',lng:'',active:false},
+  products: [],
+  offers: [],
+  orders: []
 };
 
 let db;

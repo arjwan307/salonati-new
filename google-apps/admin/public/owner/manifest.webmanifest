@@ -1,0 +1,10 @@
+{
+  "name": "صالوناتي | إدارة الصالون",
+  "short_name": "صالوناتي صاحبة الصالون",
+  "dir": "rtl",
+  "lang": "ar",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f3ebfa",
+  "theme_color": "#4b0c9b"
+}

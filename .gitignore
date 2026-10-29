@@ -6,3 +6,12 @@ coverage/
 *.log
 .env*
 !.env.example
+
+release/
+apps/*/.aistudio/
+apps/*/.gmp_cache/
+apps/*/public/project.zip
+
+google-apps/*/.aistudio/
+google-apps/*/.gmp_cache/
+google-apps/*/public/project.zip

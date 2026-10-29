@@ -1,0 +1,2162 @@
+[
+  {
+    "path": "apps/customer/package.json",
+    "sha256": "1dde28eccd794865b44b8aa7918594f5eff1371e33238c9a3f94c713a1e4fe6e",
+    "bytes": 887
+  },
+  {
+    "path": "apps/customer/vite.config.ts",
+    "sha256": "2f41d0ec5627808f961f5b9d3fdccc0c10b343d91cf1d620d30d38dc436a4c1a",
+    "bytes": 3238
+  },
+  {
+    "path": "apps/customer/index.html",
+    "sha256": "6ea6c173b008c32e46ab9787bdc690bdf1b0a188a83ef8e09830344dd5974b90",
+    "bytes": 1304
+  },
+  {
+    "path": "apps/customer/.gitignore",
+    "sha256": "db691f14fcf678985362a42c6aedb581e42cd6bb99962ce1b44aea460fb2a4df",
+    "bytes": 73
+  },
+  {
+    "path": "apps/customer/.env.example",
+    "sha256": "b6d12c728de0aac8b0bc6239e53aa8088c1431bcb4f9a3d61e5e8a2df1c7c400",
+    "bytes": 445
+  },
+  {
+    "path": "apps/customer/tsconfig.json",
+    "sha256": "cbc914147cc208c35cb5f6d405f0f0bc3c1c76ae76bf45bbc4f588b924492d2a",
+    "bytes": 561
+  },
+  {
+    "path": "apps/customer/README.md",
+    "sha256": "ee3a82f601fbb92a4ca3b43f5528596c2aebeeeaa62a276cc51595a21048e335",
+    "bytes": 542
+  },
+  {
+    "path": "apps/customer/metadata.json",
+    "sha256": "b5403266519a4b24d1611cc8f210677a20e77157748331e506dde48c05705e22",
+    "bytes": 341
+  },
+  {
+    "path": "apps/customer/index.html.bak",
+    "sha256": "ce81120a744e4a591a80cabcac0f31373e34598ebc6e264798ba238f7503b11a",
+    "bytes": 670
+  },
+  {
+    "path": "apps/cosmetics/package.json",
+    "sha256": "1dde28eccd794865b44b8aa7918594f5eff1371e33238c9a3f94c713a1e4fe6e",
+    "bytes": 887
+  },
+  {
+    "path": "apps/cosmetics/vite.config.ts",
+    "sha256": "960343a2476c2d2edccb3e5241b1b5a419c37822d7cf7b38feb3ef31d695a7a9",
+    "bytes": 33544
+  },
+  {
+    "path": "apps/cosmetics/index.html",
+    "sha256": "9531b5c87b0bb694bcdcc0e81c4d0ac1ff47fda0c4640d54c43ac74826cd808a",
+    "bytes": 38725
+  },
+  {
+    "path": "apps/cosmetics/.gitignore",
+    "sha256": "db691f14fcf678985362a42c6aedb581e42cd6bb99962ce1b44aea460fb2a4df",
+    "bytes": 73
+  },
+  {
+    "path": "apps/cosmetics/.env.example",
+    "sha256": "b6d12c728de0aac8b0bc6239e53aa8088c1431bcb4f9a3d61e5e8a2df1c7c400",
+    "bytes": 445
+  },
+  {
+    "path": "apps/cosmetics/tsconfig.json",
+    "sha256": "cbc914147cc208c35cb5f6d405f0f0bc3c1c76ae76bf45bbc4f588b924492d2a",
+    "bytes": 561
+  },
+  {
+    "path": "apps/cosmetics/README.md",
+    "sha256": "ee3a82f601fbb92a4ca3b43f5528596c2aebeeeaa62a276cc51595a21048e335",
+    "bytes": 542
+  },
+  {
+    "path": "apps/cosmetics/metadata.json",
+    "sha256": "b5403266519a4b24d1611cc8f210677a20e77157748331e506dde48c05705e22",
+    "bytes": 341
+  },
+  {
+    "path": "apps/cosmetics/index.html.bak",
+    "sha256": "ce81120a744e4a591a80cabcac0f31373e34598ebc6e264798ba238f7503b11a",
+    "bytes": 670
+  },
+  {
+    "path": "apps/admin/package.json",
+    "sha256": "1dde28eccd794865b44b8aa7918594f5eff1371e33238c9a3f94c713a1e4fe6e",
+    "bytes": 887
+  },
+  {
+    "path": "apps/admin/vite.config.ts",
+    "sha256": "9c1f096aa3dba2855ae6943d16b08289f527f34d3e9b30d9d047477fca5629e7",
+    "bytes": 29718
+  },
+  {
+    "path": "apps/admin/index.html",
+    "sha256": "a34dad0486f99918a2f4943376e91844de9c74fc07e429fd2c712d878bfe49e6",
+    "bytes": 36877
+  },
+  {
+    "path": "apps/admin/bun.lock",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  {
+    "path": "apps/admin/.gitignore",
+    "sha256": "db691f14fcf678985362a42c6aedb581e42cd6bb99962ce1b44aea460fb2a4df",
+    "bytes": 73
+  },
+  {
+    "path": "apps/admin/.env.example",
+    "sha256": "b6d12c728de0aac8b0bc6239e53aa8088c1431bcb4f9a3d61e5e8a2df1c7c400",
+    "bytes": 445
+  },
+  {
+    "path": "apps/admin/tsconfig.json",
+    "sha256": "cbc914147cc208c35cb5f6d405f0f0bc3c1c76ae76bf45bbc4f588b924492d2a",
+    "bytes": 561
+  },
+  {
+    "path": "apps/admin/README.md",
+    "sha256": "ee3a82f601fbb92a4ca3b43f5528596c2aebeeeaa62a276cc51595a21048e335",
+    "bytes": 542
+  },
+  {
+    "path": "apps/admin/metadata.json",
+    "sha256": "b5403266519a4b24d1611cc8f210677a20e77157748331e506dde48c05705e22",
+    "bytes": 341
+  },
+  {
+    "path": "apps/admin/index.html.bak",
+    "sha256": "ce81120a744e4a591a80cabcac0f31373e34598ebc6e264798ba238f7503b11a",
+    "bytes": 670
+  },
+  {
+    "path": "apps/salon/package.json",
+    "sha256": "1dde28eccd794865b44b8aa7918594f5eff1371e33238c9a3f94c713a1e4fe6e",
+    "bytes": 887
+  },
+  {
+    "path": "apps/salon/vite.config.ts",
+    "sha256": "407938cd0b2fe7c122116541b9b0089efb26b58c3ae1abf39456294e3f5eeb61",
+    "bytes": 3817
+  },
+  {
+    "path": "apps/salon/index.html",
+    "sha256": "7e3f9c8f743326cafed8715c3b347b13f8bc26be2bf92eb6ecbf7cd5a9558486",
+    "bytes": 69238
+  },
+  {
+    "path": "apps/salon/.gitignore",
+    "sha256": "db691f14fcf678985362a42c6aedb581e42cd6bb99962ce1b44aea460fb2a4df",
+    "bytes": 73
+  },
+  {
+    "path": "apps/salon/.env.example",
+    "sha256": "b6d12c728de0aac8b0bc6239e53aa8088c1431bcb4f9a3d61e5e8a2df1c7c400",
+    "bytes": 445
+  },
+  {
+    "path": "apps/salon/tsconfig.json",
+    "sha256": "cbc914147cc208c35cb5f6d405f0f0bc3c1c76ae76bf45bbc4f588b924492d2a",
+    "bytes": 561
+  },
+  {
+    "path": "apps/salon/README.md",
+    "sha256": "ee3a82f601fbb92a4ca3b43f5528596c2aebeeeaa62a276cc51595a21048e335",
+    "bytes": 542
+  },
+  {
+    "path": "apps/salon/metadata.json",
+    "sha256": "b5403266519a4b24d1611cc8f210677a20e77157748331e506dde48c05705e22",
+    "bytes": 341
+  },
+  {
+    "path": "apps/salon/index.html.bak",
+    "sha256": "ce81120a744e4a591a80cabcac0f31373e34598ebc6e264798ba238f7503b11a",
+    "bytes": 670
+  },
+  {
+    "path": "apps/customer/.gmp_cache/index.json",
+    "sha256": "97a963f4295b60f14e64ebad1b211f9eea67b9af39913bf58829d6b18a150995",
+    "bytes": 21658
+  },
+  {
+    "path": "apps/customer/src/main.tsx",
+    "sha256": "30d02ee59cb6576973dea4368093b2dcae692a40668f288fdbc66a114873fcd3",
+    "bytes": 159
+  },
+  {
+    "path": "apps/customer/src/App.tsx",
+    "sha256": "26753d3d5863cc8285d5ae26507f492ff9476602b293abbc71aa8f3c61006137",
+    "bytes": 116
+  },
+  {
+    "path": "apps/customer/src/index.css",
+    "sha256": "42070e0b45bb201b2b838a52aaaa6e965f964e0b542d97f1fe517fe59c4b75a8",
+    "bytes": 23
+  },
+  {
+    "path": "apps/customer/public/__salonati_ads.js",
+    "sha256": "fb3fd2f999468b04902252a0c3f392edec89ec614461e92d416b719ac363f02e",
+    "bytes": 42806
+  },
+  {
+    "path": "apps/customer/public/project.zip",
+    "sha256": "ef5a4d497046541d17bf8803c9a3f475cdd875d2565028f8fca44a3a0231b7c0",
+    "bytes": 4332055
+  },
+  {
+    "path": "apps/customer/public/manifest.webmanifest",
+    "sha256": "08b9cf0827fbef3e76fbdff6ae8b6a5fc417352de0560bfbae82664878e22faa",
+    "bytes": 399
+  },
+  {
+    "path": "apps/customer/public/sw.js",
+    "sha256": "12693e997e753e6a001b20283a3fdd653255615c340bad31f98c5d3dcd2f4e27",
+    "bytes": 137
+  },
+  {
+    "path": "apps/customer/apps/owner/index.html",
+    "sha256": "717d622ced8dfe2c198075c0359b9b30cb4bd634c8b4e71189d832335699196d",
+    "bytes": 20808
+  },
+  {
+    "path": "apps/customer/apps/customer/index.html",
+    "sha256": "d3b8aa69691c646d0da7dab7eb57ae35cde648b6e0599ab1cf744c6c5b0525f7",
+    "bytes": 75622
+  },
+  {
+    "path": "apps/customer/apps/admin/index.html",
+    "sha256": "76bbf9e3bc5f90b90229735dca9421b75f0da944c6dd6f908333b2d7fe0d667e",
+    "bytes": 33803
+  },
+  {
+    "path": "apps/customer/apps/cosmetics/owner/index.html",
+    "sha256": "8b6a0a59d19befe9c4b5e266e43ee4faf5fe2329142a5c118dd3c920451af2aa",
+    "bytes": 1324
+  },
+  {
+    "path": "apps/customer/apps/cosmetics/owner/styles.css",
+    "sha256": "224f2f509765d42a4cd0d875c8d5eeefd6b744afe5cbeca9388262256ee7f606",
+    "bytes": 6554
+  },
+  {
+    "path": "apps/customer/apps/cosmetics/owner/manifest.webmanifest",
+    "sha256": "757c69651e71ef04c7088f0a4cd827c3acb0098e64727c8dfec3787165c40d1f",
+    "bytes": 429
+  },
+  {
+    "path": "apps/customer/apps/cosmetics/owner/README.md",
+    "sha256": "06ba07ac4006c1ec50e132d575f25f21ab096fe9287c9800300a86ad38788dc4",
+    "bytes": 1666
+  },
+  {
+    "path": "apps/customer/apps/cosmetics/owner/app.js",
+    "sha256": "144477c732ee415cc2ac3e6ad63c6f292c9fea4885415b4d86dd9885d5c3f267",
+    "bytes": 19341
+  },
+  {
+    "path": "apps/customer/apps/cosmetics/customer/index.html",
+    "sha256": "621445b18643f5096b2de3d38a584063a52f6c6578e71c07efed178c73018d52",
+    "bytes": 19149
+  },
+  {
+    "path": "apps/customer/apps/cosmetics/admin/index.html",
+    "sha256": "6947510eced61c254303e418c67245c0a53b01a038ce0d0e2dc9907bbabd8aba",
+    "bytes": 6742
+  },
+  {
+    "path": "apps/customer/cosmetics/owner/index.html",
+    "sha256": "8b6a0a59d19befe9c4b5e266e43ee4faf5fe2329142a5c118dd3c920451af2aa",
+    "bytes": 1324
+  },
+  {
+    "path": "apps/customer/cosmetics/owner/styles.css",
+    "sha256": "224f2f509765d42a4cd0d875c8d5eeefd6b744afe5cbeca9388262256ee7f606",
+    "bytes": 6554
+  },
+  {
+    "path": "apps/customer/cosmetics/owner/manifest.webmanifest",
+    "sha256": "757c69651e71ef04c7088f0a4cd827c3acb0098e64727c8dfec3787165c40d1f",
+    "bytes": 429
+  },
+  {
+    "path": "apps/customer/cosmetics/owner/app.js",
+    "sha256": "144477c732ee415cc2ac3e6ad63c6f292c9fea4885415b4d86dd9885d5c3f267",
+    "bytes": 19341
+  },
+  {
+    "path": "apps/customer/.aistudio/artifacts/brain/7347352c-b30d-41a0-beae-306a3a2ea864/.tempmediaStorage/media_1793013972161_a2ce5c41.png",
+    "sha256": "750f185f5e67542c5f13f644f5919167d89193a5647f1f3301635aced86cf577",
+    "bytes": 179377
+  },
+  {
+    "path": "apps/customer/.aistudio/artifacts/brain/7347352c-b30d-41a0-beae-306a3a2ea864/.tempmediaStorage/media_1792979160920_b6feffd2.png",
+    "sha256": "4b3c878c1ff5d4e85bfc1c92b1628877127079d11e6960f64bc6a5fd7758df15",
+    "bytes": 169019
+  },
+  {
+    "path": "apps/customer/.aistudio/artifacts/brain/7347352c-b30d-41a0-beae-306a3a2ea864/.tempmediaStorage/media_1792985679062_0e60da58.png",
+    "sha256": "eb6b5678ab2dbd09848975eff382aabe1acf7750720cef709b42861769c6d5ff",
+    "bytes": 132621
+  },
+  {
+    "path": "apps/customer/.aistudio/artifacts/brain/7347352c-b30d-41a0-beae-306a3a2ea864/.tempmediaStorage/media_1793013266903_53dafff2.png",
+    "sha256": "7548612e370e6ed9a6e09287fe0fe39c6c8db365fc10d25090337f8e9dee9266",
+    "bytes": 257822
+  },
+  {
+    "path": "apps/customer/.aistudio/artifacts/brain/7347352c-b30d-41a0-beae-306a3a2ea864/.tempmediaStorage/media_1792978824307_9266f895.png",
+    "sha256": "694a19216271177989ae4f2362ba7e1a3d33bf58e35b5a7c04eec470585389d8",
+    "bytes": 181954
+  },
+  {
+    "path": "apps/customer/.aistudio/artifacts/brain/7347352c-b30d-41a0-beae-306a3a2ea864/.tempmediaStorage/media_1792985202765_6c672f75.png",
+    "sha256": "3af27d8d9000eb247c6c0e9e9c08617744b1ccb4cae237b02d8751add521965a",
+    "bytes": 994436
+  },
+  {
+    "path": "apps/customer/.aistudio/artifacts/brain/7347352c-b30d-41a0-beae-306a3a2ea864/.tempmediaStorage/media_1793013971592_b8eb7e14.png",
+    "sha256": "52fd6aa126459753f85aa2043a6ff412582dc297c61209caf23a3bdee8de8fbd",
+    "bytes": 163486
+  },
+  {
+    "path": "apps/customer/.aistudio/artifacts/brain/7347352c-b30d-41a0-beae-306a3a2ea864/.tempmediaStorage/media_1793012584286_e537b083.png",
+    "sha256": "158fc4df5d72e274f3d4659cb9d8d93ffbf6f9f2298acca5dfa4c6ff3400a824",
+    "bytes": 319089
+  },
+  {
+    "path": "apps/customer/.aistudio/artifacts/brain/7347352c-b30d-41a0-beae-306a3a2ea864/.tempmediaStorage/media_1792984182138_74c441da.png",
+    "sha256": "4e65c55ced76d3862550bf7e14924cce109e75dec4576a8dbef3bd6e32f15f6c",
+    "bytes": 158182
+  },
+  {
+    "path": "apps/customer/.aistudio/artifacts/brain/7347352c-b30d-41a0-beae-306a3a2ea864/.tempmediaStorage/media_1792985202197_a6f19dda.png",
+    "sha256": "8b62d664005cf665aae5cdd79065d2e95d9a5b4973af742992c53ab8e13babe7",
+    "bytes": 1536565
+  },
+  {
+    "path": "apps/customer/.aistudio/artifacts/brain/7347352c-b30d-41a0-beae-306a3a2ea864/.tempmediaStorage/media_1793013427264_e31e0581.png",
+    "sha256": "c5746764633e37c92bc5d8123eaaa19a4fa28a64bcc1e439d381e27d4e687f46",
+    "bytes": 45674
+  },
+  {
+    "path": "apps/customer/.aistudio/artifacts/brain/7347352c-b30d-41a0-beae-306a3a2ea864/.tempmediaStorage/media_1792984592267_a62ffa8d.png",
+    "sha256": "43d80ace40e449cefdf546e9aa5115e605aa5cf2fbc71163fdbb58abacc0f7c8",
+    "bytes": 110020
+  },
+  {
+    "path": "apps/customer/public/icons/icon-512.png",
+    "sha256": "49c0341ef5291ad000877aad6f3610355b79138b499b86aa42e1d3bee19a171a",
+    "bytes": 5059
+  },
+  {
+    "path": "apps/customer/public/icons/icon-180.png",
+    "sha256": "a8fe299880be89ad6d40dd0511a9bf0123c353f55236402fc944b7267e157f9a",
+    "bytes": 1612
+  },
+  {
+    "path": "apps/customer/public/icons/icon-192.png",
+    "sha256": "9e1feb4203e4027b4f3bb2b1eb497c0348b2bfc6a08c3626b4ee3d417f581de7",
+    "bytes": 1699
+  },
+  {
+    "path": "apps/customer/public/assets/aistudio/image_36f1f1eb.png",
+    "sha256": "36f1f1eb67be26e80ec5f847e7a1bf20ffc14e04fb85dcd25bac3bccc8f674eb",
+    "bytes": 205997
+  },
+  {
+    "path": "apps/customer/public/assets/aistudio/image_abed52ee.png",
+    "sha256": "abed52ee2d9bf42bc907b3617cdc64ff41ed461a81b4b086cc61d9e9cbe5b1a0",
+    "bytes": 335734
+  },
+  {
+    "path": "apps/customer/public/assets/aistudio/image_3937ff8d.png",
+    "sha256": "3937ff8d486b2596d50616574722b6012018b67cb7ce090f42d2d330f547d552",
+    "bytes": 473557
+  },
+  {
+    "path": "apps/customer/public/assets/aistudio/image_48e262a5.png",
+    "sha256": "48e262a511e03eff03347fd163275f640ecc4ab95f2ffc7a641ccdd7af7c4615",
+    "bytes": 227622
+  },
+  {
+    "path": "apps/customer/public/assets/aistudio/image_6b4837f1.png",
+    "sha256": "6b4837f174a089f8285d62fb4ad1300078be6334434028fdf6f28e5cb3b44bf7",
+    "bytes": 193366
+  },
+  {
+    "path": "apps/customer/public/assets/aistudio/image_e44368af.png",
+    "sha256": "e44368af3c7b58c9c11a07a52f49b45e87de405a535828a1c3ca97a3098c7c4e",
+    "bytes": 364827
+  },
+  {
+    "path": "apps/customer/public/assets/aistudio/image_694a1921.png",
+    "sha256": "694a19216271177989ae4f2362ba7e1a3d33bf58e35b5a7c04eec470585389d8",
+    "bytes": 181954
+  },
+  {
+    "path": "apps/customer/public/assets/aistudio/image_eb6b5678.png",
+    "sha256": "eb6b5678ab2dbd09848975eff382aabe1acf7750720cef709b42861769c6d5ff",
+    "bytes": 132621
+  },
+  {
+    "path": "apps/customer/public/assets/aistudio/image_93d02900.png",
+    "sha256": "93d029001611938273ee49e418e0cde008f18be4c06aeefa0b9665109810f92a",
+    "bytes": 68865
+  },
+  {
+    "path": "apps/customer/public/assets/aistudio/image_7d1ce165.png",
+    "sha256": "7d1ce165b37a14ea020334edb1365d3394aa7b4cee278d497a8ccdad4305f02e",
+    "bytes": 486953
+  },
+  {
+    "path": "apps/customer/public/assets/aistudio/image_ec4aac54.png",
+    "sha256": "ec4aac540c07f4bf9954f18234e654f014937986f4e456aeed78924b525ee1b7",
+    "bytes": 423579
+  },
+  {
+    "path": "apps/customer/public/assets/aistudio/image_43d80ace.png",
+    "sha256": "43d80ace40e449cefdf546e9aa5115e605aa5cf2fbc71163fdbb58abacc0f7c8",
+    "bytes": 110020
+  },
+  {
+    "path": "apps/customer/public/assets/aistudio/image_3af27d8d.png",
+    "sha256": "3af27d8d9000eb247c6c0e9e9c08617744b1ccb4cae237b02d8751add521965a",
+    "bytes": 994436
+  },
+  {
+    "path": "apps/customer/public/assets/aistudio/image_158fc4df.png",
+    "sha256": "158fc4df5d72e274f3d4659cb9d8d93ffbf6f9f2298acca5dfa4c6ff3400a824",
+    "bytes": 319089
+  },
+  {
+    "path": "apps/customer/public/assets/aistudio/image_52fd6aa1.png",
+    "sha256": "52fd6aa126459753f85aa2043a6ff412582dc297c61209caf23a3bdee8de8fbd",
+    "bytes": 163486
+  },
+  {
+    "path": "apps/customer/public/assets/aistudio/image_4b3c878c.png",
+    "sha256": "4b3c878c1ff5d4e85bfc1c92b1628877127079d11e6960f64bc6a5fd7758df15",
+    "bytes": 169019
+  },
+  {
+    "path": "apps/customer/public/assets/aistudio/image_66da095f.png",
+    "sha256": "66da095f802573cb802d893299d45f963a0b7448f81ca5a35d1bb378b3e7b9b2",
+    "bytes": 421847
+  },
+  {
+    "path": "apps/customer/public/assets/aistudio/image_b56f7240.png",
+    "sha256": "b56f7240891e0bb54b5800cf74eca5543b45be9f635b68cda1235e9c89d25c79",
+    "bytes": 356711
+  },
+  {
+    "path": "apps/customer/public/assets/aistudio/image_73cf9e2e.png",
+    "sha256": "73cf9e2e3b7575afd5bd7d057623300fc404e2e67e486a392c16b10de9804090",
+    "bytes": 379506
+  },
+  {
+    "path": "apps/customer/public/assets/aistudio/image_30e5c6cb.png",
+    "sha256": "30e5c6cbe1b27f9dc1fdf3c0286c996d4aefec2848fd9a26ca5d8e9f4c34cd58",
+    "bytes": 369015
+  },
+  {
+    "path": "apps/customer/public/assets/aistudio/image_733a3a6a.png",
+    "sha256": "733a3a6abadc5370d4c3c3d43997838f60122730a91e5c3badce1529901568b1",
+    "bytes": 340656
+  },
+  {
+    "path": "apps/customer/public/assets/aistudio/image_5fdfc73b.png",
+    "sha256": "5fdfc73b46bae00c2efa059a6ff056ff3aff7e0e05a42d9bec3fba36a82151bd",
+    "bytes": 449321
+  },
+  {
+    "path": "apps/customer/public/assets/aistudio/image_750f185f.png",
+    "sha256": "750f185f5e67542c5f13f644f5919167d89193a5647f1f3301635aced86cf577",
+    "bytes": 179377
+  },
+  {
+    "path": "apps/customer/public/assets/aistudio/image_50af003c.png",
+    "sha256": "50af003c69c8a7e1d2e23b97f545b203bba891fe3274ee8012d756159deabf70",
+    "bytes": 470629
+  },
+  {
+    "path": "apps/customer/public/assets/aistudio/image_9d2027c4.png",
+    "sha256": "9d2027c4314618fb4539f5105ffc83e5f8e347b147eca8630613dd0fabe17462",
+    "bytes": 294212
+  },
+  {
+    "path": "apps/customer/public/assets/aistudio/image_932c4be4.png",
+    "sha256": "932c4be477b97a17986eaadff8f6742c2d482349f8d65aaf69a52329e370737c",
+    "bytes": 274819
+  },
+  {
+    "path": "apps/customer/public/assets/aistudio/image_8b62d664.png",
+    "sha256": "8b62d664005cf665aae5cdd79065d2e95d9a5b4973af742992c53ab8e13babe7",
+    "bytes": 1536565
+  },
+  {
+    "path": "apps/customer/public/assets/aistudio/image_bbed1075.png",
+    "sha256": "bbed1075acb0fd0c91b8e27f46c209093e02c301d898a0e2f724ba1caf3cf655",
+    "bytes": 177972
+  },
+  {
+    "path": "apps/customer/public/assets/aistudio/image_a183bc2f.png",
+    "sha256": "a183bc2f47fa215ae8b8e5a075a91776b826b6f9bda25bbacd9b968b03d70d7e",
+    "bytes": 87480
+  },
+  {
+    "path": "apps/customer/public/assets/aistudio/image_4e65c55c.png",
+    "sha256": "4e65c55ced76d3862550bf7e14924cce109e75dec4576a8dbef3bd6e32f15f6c",
+    "bytes": 158182
+  },
+  {
+    "path": "apps/customer/public/assets/aistudio/image_c5746764.png",
+    "sha256": "c5746764633e37c92bc5d8123eaaa19a4fa28a64bcc1e439d381e27d4e687f46",
+    "bytes": 45674
+  },
+  {
+    "path": "apps/customer/public/assets/aistudio/image_7548612e.png",
+    "sha256": "7548612e370e6ed9a6e09287fe0fe39c6c8db365fc10d25090337f8e9dee9266",
+    "bytes": 257822
+  },
+  {
+    "path": "apps/customer/public/assets/aistudio/image_a5b9d3ec.png",
+    "sha256": "a5b9d3ec3fe8680713d1fbe4cf5c54036962c54e7d49d4ade38ff0fe54305d4c",
+    "bytes": 517819
+  },
+  {
+    "path": "apps/customer/public/assets/aistudio/image_ddc397f8.png",
+    "sha256": "ddc397f8e79b5e7c22cb4577439e5715d419e4a488aca403b596902cb7d5eee3",
+    "bytes": 413855
+  },
+  {
+    "path": "apps/customer/public/assets/aistudio/image_4c01ae0d.png",
+    "sha256": "4c01ae0dff0104e7c8f883918840ebf197df0a9a7e03e96308bcb1677a553913",
+    "bytes": 158037
+  },
+  {
+    "path": "apps/customer/public/assets/aistudio/image_78f11f73.png",
+    "sha256": "78f11f73eb07d1cf12e8ad5b243fd0dcf97b85eaec6b45ecf50d8b92dd8700b8",
+    "bytes": 484584
+  },
+  {
+    "path": "apps/customer/public/assets/aistudio/image_bf1586c4.png",
+    "sha256": "bf1586c4e7e22d4aac75a5642fe4e562d7008604eacd4dc33afcfc33f842bc01",
+    "bytes": 237824
+  },
+  {
+    "path": "apps/customer/public/cosmetics/owner/styles.css",
+    "sha256": "224f2f509765d42a4cd0d875c8d5eeefd6b744afe5cbeca9388262256ee7f606",
+    "bytes": 6554
+  },
+  {
+    "path": "apps/customer/public/cosmetics/owner/manifest.webmanifest",
+    "sha256": "757c69651e71ef04c7088f0a4cd827c3acb0098e64727c8dfec3787165c40d1f",
+    "bytes": 429
+  },
+  {
+    "path": "apps/customer/public/cosmetics/owner/app.js",
+    "sha256": "144477c732ee415cc2ac3e6ad63c6f292c9fea4885415b4d86dd9885d5c3f267",
+    "bytes": 19341
+  },
+  {
+    "path": "apps/cosmetics/.gmp_cache/index.json",
+    "sha256": "97a963f4295b60f14e64ebad1b211f9eea67b9af39913bf58829d6b18a150995",
+    "bytes": 21658
+  },
+  {
+    "path": "apps/cosmetics/src/main.tsx",
+    "sha256": "30d02ee59cb6576973dea4368093b2dcae692a40668f288fdbc66a114873fcd3",
+    "bytes": 159
+  },
+  {
+    "path": "apps/cosmetics/src/App.tsx",
+    "sha256": "26753d3d5863cc8285d5ae26507f492ff9476602b293abbc71aa8f3c61006137",
+    "bytes": 116
+  },
+  {
+    "path": "apps/cosmetics/src/index.css",
+    "sha256": "42070e0b45bb201b2b838a52aaaa6e965f964e0b542d97f1fe517fe59c4b75a8",
+    "bytes": 23
+  },
+  {
+    "path": "apps/cosmetics/owner/owner-publishing.js",
+    "sha256": "3f2b2c6c0daf82ba2fe597d26c9432b1b5116777bf69c3d3683a2cfb777e304c",
+    "bytes": 61276
+  },
+  {
+    "path": "apps/cosmetics/owner/index.html",
+    "sha256": "7e3f9c8f743326cafed8715c3b347b13f8bc26be2bf92eb6ecbf7cd5a9558486",
+    "bytes": 69238
+  },
+  {
+    "path": "apps/cosmetics/owner/styles.css",
+    "sha256": "a5c400497c7ba8e5233a7769de5c27a8c5f0b28ee6ec46eac418ce89aa727ec0",
+    "bytes": 5798
+  },
+  {
+    "path": "apps/cosmetics/owner/manifest.webmanifest",
+    "sha256": "eaedfdf55ea82f639fa836d3f02440a86b6e5e34e6ff3535bd62e07b947878ec",
+    "bytes": 264
+  },
+  {
+    "path": "apps/cosmetics/owner/loyalty-ui.js",
+    "sha256": "fd04a0204e662b099c2a339cee160fe06626c5ae70005548b3fbbae90ec80a6b",
+    "bytes": 1258
+  },
+  {
+    "path": "apps/cosmetics/owner/app.js",
+    "sha256": "80e2fcd6483dc810ee3f2e2a7b2e2453e38ac76b91657014cc4d4ad631fff4a1",
+    "bytes": 17530
+  },
+  {
+    "path": "apps/cosmetics/public/owner-publishing.js",
+    "sha256": "3f2b2c6c0daf82ba2fe597d26c9432b1b5116777bf69c3d3683a2cfb777e304c",
+    "bytes": 61276
+  },
+  {
+    "path": "apps/cosmetics/public/__salonati_ads.js",
+    "sha256": "fb3fd2f999468b04902252a0c3f392edec89ec614461e92d416b719ac363f02e",
+    "bytes": 42806
+  },
+  {
+    "path": "apps/cosmetics/public/admin-finance.js",
+    "sha256": "52a7f556468ed1c567b5620595ac6db7b4140e0aef1c7dc56d3515673504fe9d",
+    "bytes": 17912
+  },
+  {
+    "path": "apps/cosmetics/public/project.zip",
+    "sha256": "ef5a4d497046541d17bf8803c9a3f475cdd875d2565028f8fca44a3a0231b7c0",
+    "bytes": 4332055
+  },
+  {
+    "path": "apps/cosmetics/public/manifest.webmanifest",
+    "sha256": "68eb06f1dc3e224eabc00f9cef35f298bf08e69760b082a8203a7569e170baed",
+    "bytes": 215
+  },
+  {
+    "path": "apps/cosmetics/public/loyalty-ui.js",
+    "sha256": "fd04a0204e662b099c2a339cee160fe06626c5ae70005548b3fbbae90ec80a6b",
+    "bytes": 1258
+  },
+  {
+    "path": "apps/cosmetics/public/sw.js",
+    "sha256": "ffcfc769d75c91662cbc8c3aa87edbcacd0201ad8f9dd34fab211b9383a1c91c",
+    "bytes": 127
+  },
+  {
+    "path": "apps/cosmetics/owner/vendor/jsQR.js",
+    "sha256": "9fe288a770b80532943291c7f756ad0df4e8e98ad52403f8dd3848260838d090",
+    "bytes": 256886
+  },
+  {
+    "path": "apps/cosmetics/owner/icons/icon-180.png",
+    "sha256": "a8fe299880be89ad6d40dd0511a9bf0123c353f55236402fc944b7267e157f9a",
+    "bytes": 1612
+  },
+  {
+    "path": "apps/cosmetics/apps/owner/owner-publishing.js",
+    "sha256": "3f2b2c6c0daf82ba2fe597d26c9432b1b5116777bf69c3d3683a2cfb777e304c",
+    "bytes": 61276
+  },
+  {
+    "path": "apps/cosmetics/apps/owner/index.html",
+    "sha256": "7e3f9c8f743326cafed8715c3b347b13f8bc26be2bf92eb6ecbf7cd5a9558486",
+    "bytes": 69238
+  },
+  {
+    "path": "apps/cosmetics/apps/customer/index.html",
+    "sha256": "d3b8aa69691c646d0da7dab7eb57ae35cde648b6e0599ab1cf744c6c5b0525f7",
+    "bytes": 75622
+  },
+  {
+    "path": "apps/cosmetics/apps/admin/index.html",
+    "sha256": "9531b5c87b0bb694bcdcc0e81c4d0ac1ff47fda0c4640d54c43ac74826cd808a",
+    "bytes": 38725
+  },
+  {
+    "path": "apps/cosmetics/apps/cosmetics/owner/index.html",
+    "sha256": "8b6a0a59d19befe9c4b5e266e43ee4faf5fe2329142a5c118dd3c920451af2aa",
+    "bytes": 1324
+  },
+  {
+    "path": "apps/cosmetics/apps/cosmetics/owner/styles.css",
+    "sha256": "224f2f509765d42a4cd0d875c8d5eeefd6b744afe5cbeca9388262256ee7f606",
+    "bytes": 6554
+  },
+  {
+    "path": "apps/cosmetics/apps/cosmetics/owner/manifest.webmanifest",
+    "sha256": "757c69651e71ef04c7088f0a4cd827c3acb0098e64727c8dfec3787165c40d1f",
+    "bytes": 429
+  },
+  {
+    "path": "apps/cosmetics/apps/cosmetics/owner/README.md",
+    "sha256": "06ba07ac4006c1ec50e132d575f25f21ab096fe9287c9800300a86ad38788dc4",
+    "bytes": 1666
+  },
+  {
+    "path": "apps/cosmetics/apps/cosmetics/owner/app.js",
+    "sha256": "144477c732ee415cc2ac3e6ad63c6f292c9fea4885415b4d86dd9885d5c3f267",
+    "bytes": 19341
+  },
+  {
+    "path": "apps/cosmetics/apps/cosmetics/customer/index.html",
+    "sha256": "621445b18643f5096b2de3d38a584063a52f6c6578e71c07efed178c73018d52",
+    "bytes": 19149
+  },
+  {
+    "path": "apps/cosmetics/apps/cosmetics/admin/index.html",
+    "sha256": "6947510eced61c254303e418c67245c0a53b01a038ce0d0e2dc9907bbabd8aba",
+    "bytes": 6742
+  },
+  {
+    "path": "apps/cosmetics/cosmetics/owner/index.html",
+    "sha256": "8b6a0a59d19befe9c4b5e266e43ee4faf5fe2329142a5c118dd3c920451af2aa",
+    "bytes": 1324
+  },
+  {
+    "path": "apps/cosmetics/cosmetics/owner/styles.css",
+    "sha256": "224f2f509765d42a4cd0d875c8d5eeefd6b744afe5cbeca9388262256ee7f606",
+    "bytes": 6554
+  },
+  {
+    "path": "apps/cosmetics/cosmetics/owner/manifest.webmanifest",
+    "sha256": "757c69651e71ef04c7088f0a4cd827c3acb0098e64727c8dfec3787165c40d1f",
+    "bytes": 429
+  },
+  {
+    "path": "apps/cosmetics/cosmetics/owner/app.js",
+    "sha256": "144477c732ee415cc2ac3e6ad63c6f292c9fea4885415b4d86dd9885d5c3f267",
+    "bytes": 19341
+  },
+  {
+    "path": "apps/cosmetics/.aistudio/artifacts/brain/7347352c-b30d-41a0-beae-306a3a2ea864/.tempmediaStorage/media_1793013972161_a2ce5c41.png",
+    "sha256": "750f185f5e67542c5f13f644f5919167d89193a5647f1f3301635aced86cf577",
+    "bytes": 179377
+  },
+  {
+    "path": "apps/cosmetics/.aistudio/artifacts/brain/7347352c-b30d-41a0-beae-306a3a2ea864/.tempmediaStorage/media_1792979160920_b6feffd2.png",
+    "sha256": "4b3c878c1ff5d4e85bfc1c92b1628877127079d11e6960f64bc6a5fd7758df15",
+    "bytes": 169019
+  },
+  {
+    "path": "apps/cosmetics/.aistudio/artifacts/brain/7347352c-b30d-41a0-beae-306a3a2ea864/.tempmediaStorage/media_1792985679062_0e60da58.png",
+    "sha256": "eb6b5678ab2dbd09848975eff382aabe1acf7750720cef709b42861769c6d5ff",
+    "bytes": 132621
+  },
+  {
+    "path": "apps/cosmetics/.aistudio/artifacts/brain/7347352c-b30d-41a0-beae-306a3a2ea864/.tempmediaStorage/media_1793013266903_53dafff2.png",
+    "sha256": "7548612e370e6ed9a6e09287fe0fe39c6c8db365fc10d25090337f8e9dee9266",
+    "bytes": 257822
+  },
+  {
+    "path": "apps/cosmetics/.aistudio/artifacts/brain/7347352c-b30d-41a0-beae-306a3a2ea864/.tempmediaStorage/media_1792978824307_9266f895.png",
+    "sha256": "694a19216271177989ae4f2362ba7e1a3d33bf58e35b5a7c04eec470585389d8",
+    "bytes": 181954
+  },
+  {
+    "path": "apps/cosmetics/.aistudio/artifacts/brain/7347352c-b30d-41a0-beae-306a3a2ea864/.tempmediaStorage/media_1792985202765_6c672f75.png",
+    "sha256": "3af27d8d9000eb247c6c0e9e9c08617744b1ccb4cae237b02d8751add521965a",
+    "bytes": 994436
+  },
+  {
+    "path": "apps/cosmetics/.aistudio/artifacts/brain/7347352c-b30d-41a0-beae-306a3a2ea864/.tempmediaStorage/media_1793013971592_b8eb7e14.png",
+    "sha256": "52fd6aa126459753f85aa2043a6ff412582dc297c61209caf23a3bdee8de8fbd",
+    "bytes": 163486
+  },
+  {
+    "path": "apps/cosmetics/.aistudio/artifacts/brain/7347352c-b30d-41a0-beae-306a3a2ea864/.tempmediaStorage/media_1793012584286_e537b083.png",
+    "sha256": "158fc4df5d72e274f3d4659cb9d8d93ffbf6f9f2298acca5dfa4c6ff3400a824",
+    "bytes": 319089
+  },
+  {
+    "path": "apps/cosmetics/.aistudio/artifacts/brain/7347352c-b30d-41a0-beae-306a3a2ea864/.tempmediaStorage/media_1792984182138_74c441da.png",
+    "sha256": "4e65c55ced76d3862550bf7e14924cce109e75dec4576a8dbef3bd6e32f15f6c",
+    "bytes": 158182
+  },
+  {
+    "path": "apps/cosmetics/.aistudio/artifacts/brain/7347352c-b30d-41a0-beae-306a3a2ea864/.tempmediaStorage/media_1792985202197_a6f19dda.png",
+    "sha256": "8b62d664005cf665aae5cdd79065d2e95d9a5b4973af742992c53ab8e13babe7",
+    "bytes": 1536565
+  },
+  {
+    "path": "apps/cosmetics/.aistudio/artifacts/brain/7347352c-b30d-41a0-beae-306a3a2ea864/.tempmediaStorage/media_1793013427264_e31e0581.png",
+    "sha256": "c5746764633e37c92bc5d8123eaaa19a4fa28a64bcc1e439d381e27d4e687f46",
+    "bytes": 45674
+  },
+  {
+    "path": "apps/cosmetics/.aistudio/artifacts/brain/7347352c-b30d-41a0-beae-306a3a2ea864/.tempmediaStorage/media_1792984592267_a62ffa8d.png",
+    "sha256": "43d80ace40e449cefdf546e9aa5115e605aa5cf2fbc71163fdbb58abacc0f7c8",
+    "bytes": 110020
+  },
+  {
+    "path": "apps/cosmetics/.aistudio/artifacts/brain/04052d60-f8bc-45f8-a01c-9d75643c0d51/.tempmediaStorage/media_1793303855518_68bcfa15.png",
+    "sha256": "098d444954ef7b7bc21077c7d629742b8ecb37c811dd824daf118d11a7e3010b",
+    "bytes": 397818
+  },
+  {
+    "path": "apps/cosmetics/.aistudio/artifacts/brain/04052d60-f8bc-45f8-a01c-9d75643c0d51/.tempmediaStorage/media_1793303319344_b6c61ea2.png",
+    "sha256": "1d2f5aba6aadeec22ca2350ed9b915a78bb6619ddf85848e2e4e0550953780bb",
+    "bytes": 417961
+  },
+  {
+    "path": "apps/cosmetics/public/owner/owner-publishing.js",
+    "sha256": "3f2b2c6c0daf82ba2fe597d26c9432b1b5116777bf69c3d3683a2cfb777e304c",
+    "bytes": 61276
+  },
+  {
+    "path": "apps/cosmetics/public/owner/index.html",
+    "sha256": "7e3f9c8f743326cafed8715c3b347b13f8bc26be2bf92eb6ecbf7cd5a9558486",
+    "bytes": 69238
+  },
+  {
+    "path": "apps/cosmetics/public/owner/styles.css",
+    "sha256": "a5c400497c7ba8e5233a7769de5c27a8c5f0b28ee6ec46eac418ce89aa727ec0",
+    "bytes": 5798
+  },
+  {
+    "path": "apps/cosmetics/public/owner/manifest.webmanifest",
+    "sha256": "eaedfdf55ea82f639fa836d3f02440a86b6e5e34e6ff3535bd62e07b947878ec",
+    "bytes": 264
+  },
+  {
+    "path": "apps/cosmetics/public/owner/app.js",
+    "sha256": "80e2fcd6483dc810ee3f2e2a7b2e2453e38ac76b91657014cc4d4ad631fff4a1",
+    "bytes": 17530
+  },
+  {
+    "path": "apps/cosmetics/public/vendor/jsQR.js",
+    "sha256": "9fe288a770b80532943291c7f756ad0df4e8e98ad52403f8dd3848260838d090",
+    "bytes": 256886
+  },
+  {
+    "path": "apps/cosmetics/public/icons/icon-512.png",
+    "sha256": "49c0341ef5291ad000877aad6f3610355b79138b499b86aa42e1d3bee19a171a",
+    "bytes": 5059
+  },
+  {
+    "path": "apps/cosmetics/public/icons/icon-180.png",
+    "sha256": "a8fe299880be89ad6d40dd0511a9bf0123c353f55236402fc944b7267e157f9a",
+    "bytes": 1612
+  },
+  {
+    "path": "apps/cosmetics/public/icons/icon-192.png",
+    "sha256": "9e1feb4203e4027b4f3bb2b1eb497c0348b2bfc6a08c3626b4ee3d417f581de7",
+    "bytes": 1699
+  },
+  {
+    "path": "apps/cosmetics/public/assets/aistudio/image_36f1f1eb.png",
+    "sha256": "36f1f1eb67be26e80ec5f847e7a1bf20ffc14e04fb85dcd25bac3bccc8f674eb",
+    "bytes": 205997
+  },
+  {
+    "path": "apps/cosmetics/public/assets/aistudio/image_abed52ee.png",
+    "sha256": "abed52ee2d9bf42bc907b3617cdc64ff41ed461a81b4b086cc61d9e9cbe5b1a0",
+    "bytes": 335734
+  },
+  {
+    "path": "apps/cosmetics/public/assets/aistudio/image_3937ff8d.png",
+    "sha256": "3937ff8d486b2596d50616574722b6012018b67cb7ce090f42d2d330f547d552",
+    "bytes": 473557
+  },
+  {
+    "path": "apps/cosmetics/public/assets/aistudio/image_48e262a5.png",
+    "sha256": "48e262a511e03eff03347fd163275f640ecc4ab95f2ffc7a641ccdd7af7c4615",
+    "bytes": 227622
+  },
+  {
+    "path": "apps/cosmetics/public/assets/aistudio/image_e31ff4c5.png",
+    "sha256": "e31ff4c5f620215a7ce92142c386649aff7c12809dd8c717d9e937c76e1e75ec",
+    "bytes": 129345
+  },
+  {
+    "path": "apps/cosmetics/public/assets/aistudio/image_6b4837f1.png",
+    "sha256": "6b4837f174a089f8285d62fb4ad1300078be6334434028fdf6f28e5cb3b44bf7",
+    "bytes": 193366
+  },
+  {
+    "path": "apps/cosmetics/public/assets/aistudio/image_e44368af.png",
+    "sha256": "e44368af3c7b58c9c11a07a52f49b45e87de405a535828a1c3ca97a3098c7c4e",
+    "bytes": 364827
+  },
+  {
+    "path": "apps/cosmetics/public/assets/aistudio/image_694a1921.png",
+    "sha256": "694a19216271177989ae4f2362ba7e1a3d33bf58e35b5a7c04eec470585389d8",
+    "bytes": 181954
+  },
+  {
+    "path": "apps/cosmetics/public/assets/aistudio/image_3839e05e.png",
+    "sha256": "1d2f5aba6aadeec22ca2350ed9b915a78bb6619ddf85848e2e4e0550953780bb",
+    "bytes": 417961
+  },
+  {
+    "path": "apps/cosmetics/public/assets/aistudio/image_eb6b5678.png",
+    "sha256": "eb6b5678ab2dbd09848975eff382aabe1acf7750720cef709b42861769c6d5ff",
+    "bytes": 132621
+  },
+  {
+    "path": "apps/cosmetics/public/assets/aistudio/image_93d02900.png",
+    "sha256": "93d029001611938273ee49e418e0cde008f18be4c06aeefa0b9665109810f92a",
+    "bytes": 68865
+  },
+  {
+    "path": "apps/cosmetics/public/assets/aistudio/image_7d1ce165.png",
+    "sha256": "7d1ce165b37a14ea020334edb1365d3394aa7b4cee278d497a8ccdad4305f02e",
+    "bytes": 486953
+  },
+  {
+    "path": "apps/cosmetics/public/assets/aistudio/image_5e9c523a.png",
+    "sha256": "5e9c523aeb9b87ad2dde4503bd5686506f9c4ded6d7d59e0014cbf1f522c410d",
+    "bytes": 126125
+  },
+  {
+    "path": "apps/cosmetics/public/assets/aistudio/image_ec4aac54.png",
+    "sha256": "ec4aac540c07f4bf9954f18234e654f014937986f4e456aeed78924b525ee1b7",
+    "bytes": 423579
+  },
+  {
+    "path": "apps/cosmetics/public/assets/aistudio/image_43d80ace.png",
+    "sha256": "43d80ace40e449cefdf546e9aa5115e605aa5cf2fbc71163fdbb58abacc0f7c8",
+    "bytes": 110020
+  },
+  {
+    "path": "apps/cosmetics/public/assets/aistudio/image_3af27d8d.png",
+    "sha256": "3af27d8d9000eb247c6c0e9e9c08617744b1ccb4cae237b02d8751add521965a",
+    "bytes": 994436
+  },
+  {
+    "path": "apps/cosmetics/public/assets/aistudio/image_158fc4df.png",
+    "sha256": "158fc4df5d72e274f3d4659cb9d8d93ffbf6f9f2298acca5dfa4c6ff3400a824",
+    "bytes": 319089
+  },
+  {
+    "path": "apps/cosmetics/public/assets/aistudio/image_098d4449.png",
+    "sha256": "098d444954ef7b7bc21077c7d629742b8ecb37c811dd824daf118d11a7e3010b",
+    "bytes": 397818
+  },
+  {
+    "path": "apps/cosmetics/public/assets/aistudio/image_52fd6aa1.png",
+    "sha256": "52fd6aa126459753f85aa2043a6ff412582dc297c61209caf23a3bdee8de8fbd",
+    "bytes": 163486
+  },
+  {
+    "path": "apps/cosmetics/public/assets/aistudio/image_4b3c878c.png",
+    "sha256": "4b3c878c1ff5d4e85bfc1c92b1628877127079d11e6960f64bc6a5fd7758df15",
+    "bytes": 169019
+  },
+  {
+    "path": "apps/cosmetics/public/assets/aistudio/image_66da095f.png",
+    "sha256": "66da095f802573cb802d893299d45f963a0b7448f81ca5a35d1bb378b3e7b9b2",
+    "bytes": 421847
+  },
+  {
+    "path": "apps/cosmetics/public/assets/aistudio/image_b56f7240.png",
+    "sha256": "b56f7240891e0bb54b5800cf74eca5543b45be9f635b68cda1235e9c89d25c79",
+    "bytes": 356711
+  },
+  {
+    "path": "apps/cosmetics/public/assets/aistudio/image_73cf9e2e.png",
+    "sha256": "73cf9e2e3b7575afd5bd7d057623300fc404e2e67e486a392c16b10de9804090",
+    "bytes": 379506
+  },
+  {
+    "path": "apps/cosmetics/public/assets/aistudio/image_30e5c6cb.png",
+    "sha256": "30e5c6cbe1b27f9dc1fdf3c0286c996d4aefec2848fd9a26ca5d8e9f4c34cd58",
+    "bytes": 369015
+  },
+  {
+    "path": "apps/cosmetics/public/assets/aistudio/image_733a3a6a.png",
+    "sha256": "733a3a6abadc5370d4c3c3d43997838f60122730a91e5c3badce1529901568b1",
+    "bytes": 340656
+  },
+  {
+    "path": "apps/cosmetics/public/assets/aistudio/image_e8e77a8c.png",
+    "sha256": "e8e77a8c2d84b38cd0cdddb87df64fcf2335a305621ce3b3961b826c4b9931f6",
+    "bytes": 113685
+  },
+  {
+    "path": "apps/cosmetics/public/assets/aistudio/image_5fdfc73b.png",
+    "sha256": "5fdfc73b46bae00c2efa059a6ff056ff3aff7e0e05a42d9bec3fba36a82151bd",
+    "bytes": 449321
+  },
+  {
+    "path": "apps/cosmetics/public/assets/aistudio/image_750f185f.png",
+    "sha256": "750f185f5e67542c5f13f644f5919167d89193a5647f1f3301635aced86cf577",
+    "bytes": 179377
+  },
+  {
+    "path": "apps/cosmetics/public/assets/aistudio/image_50af003c.png",
+    "sha256": "50af003c69c8a7e1d2e23b97f545b203bba891fe3274ee8012d756159deabf70",
+    "bytes": 470629
+  },
+  {
+    "path": "apps/cosmetics/public/assets/aistudio/image_460e3220.png",
+    "sha256": "460e3220a1c8b9e0e78e94909e2c97ddc87dc2c64780800c17c17a67071f3d72",
+    "bytes": 189053
+  },
+  {
+    "path": "apps/cosmetics/public/assets/aistudio/image_9d2027c4.png",
+    "sha256": "9d2027c4314618fb4539f5105ffc83e5f8e347b147eca8630613dd0fabe17462",
+    "bytes": 294212
+  },
+  {
+    "path": "apps/cosmetics/public/assets/aistudio/image_932c4be4.png",
+    "sha256": "932c4be477b97a17986eaadff8f6742c2d482349f8d65aaf69a52329e370737c",
+    "bytes": 274819
+  },
+  {
+    "path": "apps/cosmetics/public/assets/aistudio/image_8b62d664.png",
+    "sha256": "8b62d664005cf665aae5cdd79065d2e95d9a5b4973af742992c53ab8e13babe7",
+    "bytes": 1536565
+  },
+  {
+    "path": "apps/cosmetics/public/assets/aistudio/image_1558ed7d.png",
+    "sha256": "1558ed7da46fab735756dfbb9a915588f8aa634bcffe0a1ba44bb0ad5f433aec",
+    "bytes": 121773
+  },
+  {
+    "path": "apps/cosmetics/public/assets/aistudio/image_bbed1075.png",
+    "sha256": "bbed1075acb0fd0c91b8e27f46c209093e02c301d898a0e2f724ba1caf3cf655",
+    "bytes": 177972
+  },
+  {
+    "path": "apps/cosmetics/public/assets/aistudio/image_a183bc2f.png",
+    "sha256": "a183bc2f47fa215ae8b8e5a075a91776b826b6f9bda25bbacd9b968b03d70d7e",
+    "bytes": 87480
+  },
+  {
+    "path": "apps/cosmetics/public/assets/aistudio/image_e4a0ea39.png",
+    "sha256": "e4a0ea39b5265a7219e3e2828d6929886eb8468600b1e7b579a184c0e456d68c",
+    "bytes": 100075
+  },
+  {
+    "path": "apps/cosmetics/public/assets/aistudio/image_4e65c55c.png",
+    "sha256": "4e65c55ced76d3862550bf7e14924cce109e75dec4576a8dbef3bd6e32f15f6c",
+    "bytes": 158182
+  },
+  {
+    "path": "apps/cosmetics/public/assets/aistudio/image_c5746764.png",
+    "sha256": "c5746764633e37c92bc5d8123eaaa19a4fa28a64bcc1e439d381e27d4e687f46",
+    "bytes": 45674
+  },
+  {
+    "path": "apps/cosmetics/public/assets/aistudio/image_7548612e.png",
+    "sha256": "7548612e370e6ed9a6e09287fe0fe39c6c8db365fc10d25090337f8e9dee9266",
+    "bytes": 257822
+  },
+  {
+    "path": "apps/cosmetics/public/assets/aistudio/image_a5b9d3ec.png",
+    "sha256": "a5b9d3ec3fe8680713d1fbe4cf5c54036962c54e7d49d4ade38ff0fe54305d4c",
+    "bytes": 517819
+  },
+  {
+    "path": "apps/cosmetics/public/assets/aistudio/image_ddc397f8.png",
+    "sha256": "ddc397f8e79b5e7c22cb4577439e5715d419e4a488aca403b596902cb7d5eee3",
+    "bytes": 413855
+  },
+  {
+    "path": "apps/cosmetics/public/assets/aistudio/image_4c01ae0d.png",
+    "sha256": "4c01ae0dff0104e7c8f883918840ebf197df0a9a7e03e96308bcb1677a553913",
+    "bytes": 158037
+  },
+  {
+    "path": "apps/cosmetics/public/assets/aistudio/image_78f11f73.png",
+    "sha256": "78f11f73eb07d1cf12e8ad5b243fd0dcf97b85eaec6b45ecf50d8b92dd8700b8",
+    "bytes": 484584
+  },
+  {
+    "path": "apps/cosmetics/public/assets/aistudio/image_bad54cef.png",
+    "sha256": "bad54cef55a00b1bbcc9d1932502f9f17f5d44ca250068e3838fbb563dbc58db",
+    "bytes": 165411
+  },
+  {
+    "path": "apps/cosmetics/public/assets/aistudio/image_bf1586c4.png",
+    "sha256": "bf1586c4e7e22d4aac75a5642fe4e562d7008604eacd4dc33afcfc33f842bc01",
+    "bytes": 237824
+  },
+  {
+    "path": "apps/cosmetics/public/assets/aistudio/image_4791edda.png",
+    "sha256": "4791eddab48907ed2b86a39ee914ac74ed3a1bf1d9a9a2dc391064f4e38a929a",
+    "bytes": 85632
+  },
+  {
+    "path": "apps/cosmetics/public/cosmetics/owner/styles.css",
+    "sha256": "224f2f509765d42a4cd0d875c8d5eeefd6b744afe5cbeca9388262256ee7f606",
+    "bytes": 6554
+  },
+  {
+    "path": "apps/cosmetics/public/cosmetics/owner/manifest.webmanifest",
+    "sha256": "757c69651e71ef04c7088f0a4cd827c3acb0098e64727c8dfec3787165c40d1f",
+    "bytes": 429
+  },
+  {
+    "path": "apps/cosmetics/public/cosmetics/owner/app.js",
+    "sha256": "144477c732ee415cc2ac3e6ad63c6f292c9fea4885415b4d86dd9885d5c3f267",
+    "bytes": 19341
+  },
+  {
+    "path": "apps/admin/.gmp_cache/index.json",
+    "sha256": "97a963f4295b60f14e64ebad1b211f9eea67b9af39913bf58829d6b18a150995",
+    "bytes": 21658
+  },
+  {
+    "path": "apps/admin/src/main.tsx",
+    "sha256": "30d02ee59cb6576973dea4368093b2dcae692a40668f288fdbc66a114873fcd3",
+    "bytes": 159
+  },
+  {
+    "path": "apps/admin/src/App.tsx",
+    "sha256": "26753d3d5863cc8285d5ae26507f492ff9476602b293abbc71aa8f3c61006137",
+    "bytes": 116
+  },
+  {
+    "path": "apps/admin/src/index.css",
+    "sha256": "42070e0b45bb201b2b838a52aaaa6e965f964e0b542d97f1fe517fe59c4b75a8",
+    "bytes": 23
+  },
+  {
+    "path": "apps/admin/owner/owner-publishing.js",
+    "sha256": "3f2b2c6c0daf82ba2fe597d26c9432b1b5116777bf69c3d3683a2cfb777e304c",
+    "bytes": 61276
+  },
+  {
+    "path": "apps/admin/owner/index.html",
+    "sha256": "7e3f9c8f743326cafed8715c3b347b13f8bc26be2bf92eb6ecbf7cd5a9558486",
+    "bytes": 69238
+  },
+  {
+    "path": "apps/admin/owner/styles.css",
+    "sha256": "a5c400497c7ba8e5233a7769de5c27a8c5f0b28ee6ec46eac418ce89aa727ec0",
+    "bytes": 5798
+  },
+  {
+    "path": "apps/admin/owner/manifest.webmanifest",
+    "sha256": "eaedfdf55ea82f639fa836d3f02440a86b6e5e34e6ff3535bd62e07b947878ec",
+    "bytes": 264
+  },
+  {
+    "path": "apps/admin/owner/loyalty-ui.js",
+    "sha256": "fd04a0204e662b099c2a339cee160fe06626c5ae70005548b3fbbae90ec80a6b",
+    "bytes": 1258
+  },
+  {
+    "path": "apps/admin/owner/app.js",
+    "sha256": "80e2fcd6483dc810ee3f2e2a7b2e2453e38ac76b91657014cc4d4ad631fff4a1",
+    "bytes": 17530
+  },
+  {
+    "path": "apps/admin/public/owner-publishing.js",
+    "sha256": "3f2b2c6c0daf82ba2fe597d26c9432b1b5116777bf69c3d3683a2cfb777e304c",
+    "bytes": 61276
+  },
+  {
+    "path": "apps/admin/public/__salonati_ads.js",
+    "sha256": "fb3fd2f999468b04902252a0c3f392edec89ec614461e92d416b719ac363f02e",
+    "bytes": 42806
+  },
+  {
+    "path": "apps/admin/public/admin-finance.js",
+    "sha256": "52a7f556468ed1c567b5620595ac6db7b4140e0aef1c7dc56d3515673504fe9d",
+    "bytes": 17912
+  },
+  {
+    "path": "apps/admin/public/project.zip",
+    "sha256": "ef5a4d497046541d17bf8803c9a3f475cdd875d2565028f8fca44a3a0231b7c0",
+    "bytes": 4332055
+  },
+  {
+    "path": "apps/admin/public/manifest.webmanifest",
+    "sha256": "68eb06f1dc3e224eabc00f9cef35f298bf08e69760b082a8203a7569e170baed",
+    "bytes": 215
+  },
+  {
+    "path": "apps/admin/public/loyalty-ui.js",
+    "sha256": "fd04a0204e662b099c2a339cee160fe06626c5ae70005548b3fbbae90ec80a6b",
+    "bytes": 1258
+  },
+  {
+    "path": "apps/admin/public/sw.js",
+    "sha256": "ffcfc769d75c91662cbc8c3aa87edbcacd0201ad8f9dd34fab211b9383a1c91c",
+    "bytes": 127
+  },
+  {
+    "path": "apps/admin/owner/vendor/jsQR.js",
+    "sha256": "9fe288a770b80532943291c7f756ad0df4e8e98ad52403f8dd3848260838d090",
+    "bytes": 256886
+  },
+  {
+    "path": "apps/admin/owner/icons/icon-180.png",
+    "sha256": "a8fe299880be89ad6d40dd0511a9bf0123c353f55236402fc944b7267e157f9a",
+    "bytes": 1612
+  },
+  {
+    "path": "apps/admin/apps/owner/owner-publishing.js",
+    "sha256": "3f2b2c6c0daf82ba2fe597d26c9432b1b5116777bf69c3d3683a2cfb777e304c",
+    "bytes": 61276
+  },
+  {
+    "path": "apps/admin/apps/owner/index.html",
+    "sha256": "7e3f9c8f743326cafed8715c3b347b13f8bc26be2bf92eb6ecbf7cd5a9558486",
+    "bytes": 69238
+  },
+  {
+    "path": "apps/admin/apps/customer/index.html",
+    "sha256": "d3b8aa69691c646d0da7dab7eb57ae35cde648b6e0599ab1cf744c6c5b0525f7",
+    "bytes": 75622
+  },
+  {
+    "path": "apps/admin/apps/admin/index.html",
+    "sha256": "a34dad0486f99918a2f4943376e91844de9c74fc07e429fd2c712d878bfe49e6",
+    "bytes": 36877
+  },
+  {
+    "path": "apps/admin/apps/cosmetics/owner/index.html",
+    "sha256": "8b6a0a59d19befe9c4b5e266e43ee4faf5fe2329142a5c118dd3c920451af2aa",
+    "bytes": 1324
+  },
+  {
+    "path": "apps/admin/apps/cosmetics/owner/styles.css",
+    "sha256": "224f2f509765d42a4cd0d875c8d5eeefd6b744afe5cbeca9388262256ee7f606",
+    "bytes": 6554
+  },
+  {
+    "path": "apps/admin/apps/cosmetics/owner/manifest.webmanifest",
+    "sha256": "757c69651e71ef04c7088f0a4cd827c3acb0098e64727c8dfec3787165c40d1f",
+    "bytes": 429
+  },
+  {
+    "path": "apps/admin/apps/cosmetics/owner/README.md",
+    "sha256": "06ba07ac4006c1ec50e132d575f25f21ab096fe9287c9800300a86ad38788dc4",
+    "bytes": 1666
+  },
+  {
+    "path": "apps/admin/apps/cosmetics/owner/app.js",
+    "sha256": "144477c732ee415cc2ac3e6ad63c6f292c9fea4885415b4d86dd9885d5c3f267",
+    "bytes": 19341
+  },
+  {
+    "path": "apps/admin/apps/cosmetics/customer/index.html",
+    "sha256": "621445b18643f5096b2de3d38a584063a52f6c6578e71c07efed178c73018d52",
+    "bytes": 19149
+  },
+  {
+    "path": "apps/admin/apps/cosmetics/admin/index.html",
+    "sha256": "6947510eced61c254303e418c67245c0a53b01a038ce0d0e2dc9907bbabd8aba",
+    "bytes": 6742
+  },
+  {
+    "path": "apps/admin/cosmetics/owner/index.html",
+    "sha256": "8b6a0a59d19befe9c4b5e266e43ee4faf5fe2329142a5c118dd3c920451af2aa",
+    "bytes": 1324
+  },
+  {
+    "path": "apps/admin/cosmetics/owner/styles.css",
+    "sha256": "224f2f509765d42a4cd0d875c8d5eeefd6b744afe5cbeca9388262256ee7f606",
+    "bytes": 6554
+  },
+  {
+    "path": "apps/admin/cosmetics/owner/manifest.webmanifest",
+    "sha256": "757c69651e71ef04c7088f0a4cd827c3acb0098e64727c8dfec3787165c40d1f",
+    "bytes": 429
+  },
+  {
+    "path": "apps/admin/cosmetics/owner/app.js",
+    "sha256": "144477c732ee415cc2ac3e6ad63c6f292c9fea4885415b4d86dd9885d5c3f267",
+    "bytes": 19341
+  },
+  {
+    "path": "apps/admin/.aistudio/artifacts/brain/7347352c-b30d-41a0-beae-306a3a2ea864/.tempmediaStorage/media_1793013972161_a2ce5c41.png",
+    "sha256": "750f185f5e67542c5f13f644f5919167d89193a5647f1f3301635aced86cf577",
+    "bytes": 179377
+  },
+  {
+    "path": "apps/admin/.aistudio/artifacts/brain/7347352c-b30d-41a0-beae-306a3a2ea864/.tempmediaStorage/media_1792979160920_b6feffd2.png",
+    "sha256": "4b3c878c1ff5d4e85bfc1c92b1628877127079d11e6960f64bc6a5fd7758df15",
+    "bytes": 169019
+  },
+  {
+    "path": "apps/admin/.aistudio/artifacts/brain/7347352c-b30d-41a0-beae-306a3a2ea864/.tempmediaStorage/media_1792985679062_0e60da58.png",
+    "sha256": "eb6b5678ab2dbd09848975eff382aabe1acf7750720cef709b42861769c6d5ff",
+    "bytes": 132621
+  },
+  {
+    "path": "apps/admin/.aistudio/artifacts/brain/7347352c-b30d-41a0-beae-306a3a2ea864/.tempmediaStorage/media_1793013266903_53dafff2.png",
+    "sha256": "7548612e370e6ed9a6e09287fe0fe39c6c8db365fc10d25090337f8e9dee9266",
+    "bytes": 257822
+  },
+  {
+    "path": "apps/admin/.aistudio/artifacts/brain/7347352c-b30d-41a0-beae-306a3a2ea864/.tempmediaStorage/media_1792978824307_9266f895.png",
+    "sha256": "694a19216271177989ae4f2362ba7e1a3d33bf58e35b5a7c04eec470585389d8",
+    "bytes": 181954
+  },
+  {
+    "path": "apps/admin/.aistudio/artifacts/brain/7347352c-b30d-41a0-beae-306a3a2ea864/.tempmediaStorage/media_1792985202765_6c672f75.png",
+    "sha256": "3af27d8d9000eb247c6c0e9e9c08617744b1ccb4cae237b02d8751add521965a",
+    "bytes": 994436
+  },
+  {
+    "path": "apps/admin/.aistudio/artifacts/brain/7347352c-b30d-41a0-beae-306a3a2ea864/.tempmediaStorage/media_1793013971592_b8eb7e14.png",
+    "sha256": "52fd6aa126459753f85aa2043a6ff412582dc297c61209caf23a3bdee8de8fbd",
+    "bytes": 163486
+  },
+  {
+    "path": "apps/admin/.aistudio/artifacts/brain/7347352c-b30d-41a0-beae-306a3a2ea864/.tempmediaStorage/media_1793012584286_e537b083.png",
+    "sha256": "158fc4df5d72e274f3d4659cb9d8d93ffbf6f9f2298acca5dfa4c6ff3400a824",
+    "bytes": 319089
+  },
+  {
+    "path": "apps/admin/.aistudio/artifacts/brain/7347352c-b30d-41a0-beae-306a3a2ea864/.tempmediaStorage/media_1792984182138_74c441da.png",
+    "sha256": "4e65c55ced76d3862550bf7e14924cce109e75dec4576a8dbef3bd6e32f15f6c",
+    "bytes": 158182
+  },
+  {
+    "path": "apps/admin/.aistudio/artifacts/brain/7347352c-b30d-41a0-beae-306a3a2ea864/.tempmediaStorage/media_1792985202197_a6f19dda.png",
+    "sha256": "8b62d664005cf665aae5cdd79065d2e95d9a5b4973af742992c53ab8e13babe7",
+    "bytes": 1536565
+  },
+  {
+    "path": "apps/admin/.aistudio/artifacts/brain/7347352c-b30d-41a0-beae-306a3a2ea864/.tempmediaStorage/media_1793013427264_e31e0581.png",
+    "sha256": "c5746764633e37c92bc5d8123eaaa19a4fa28a64bcc1e439d381e27d4e687f46",
+    "bytes": 45674
+  },
+  {
+    "path": "apps/admin/.aistudio/artifacts/brain/7347352c-b30d-41a0-beae-306a3a2ea864/.tempmediaStorage/media_1792984592267_a62ffa8d.png",
+    "sha256": "43d80ace40e449cefdf546e9aa5115e605aa5cf2fbc71163fdbb58abacc0f7c8",
+    "bytes": 110020
+  },
+  {
+    "path": "apps/admin/.aistudio/artifacts/brain/04052d60-f8bc-45f8-a01c-9d75643c0d51/.tempmediaStorage/media_1793303855518_68bcfa15.png",
+    "sha256": "098d444954ef7b7bc21077c7d629742b8ecb37c811dd824daf118d11a7e3010b",
+    "bytes": 397818
+  },
+  {
+    "path": "apps/admin/.aistudio/artifacts/brain/04052d60-f8bc-45f8-a01c-9d75643c0d51/.tempmediaStorage/media_1793303319344_b6c61ea2.png",
+    "sha256": "1d2f5aba6aadeec22ca2350ed9b915a78bb6619ddf85848e2e4e0550953780bb",
+    "bytes": 417961
+  },
+  {
+    "path": "apps/admin/public/owner/owner-publishing.js",
+    "sha256": "3f2b2c6c0daf82ba2fe597d26c9432b1b5116777bf69c3d3683a2cfb777e304c",
+    "bytes": 61276
+  },
+  {
+    "path": "apps/admin/public/owner/index.html",
+    "sha256": "7e3f9c8f743326cafed8715c3b347b13f8bc26be2bf92eb6ecbf7cd5a9558486",
+    "bytes": 69238
+  },
+  {
+    "path": "apps/admin/public/owner/styles.css",
+    "sha256": "a5c400497c7ba8e5233a7769de5c27a8c5f0b28ee6ec46eac418ce89aa727ec0",
+    "bytes": 5798
+  },
+  {
+    "path": "apps/admin/public/owner/manifest.webmanifest",
+    "sha256": "eaedfdf55ea82f639fa836d3f02440a86b6e5e34e6ff3535bd62e07b947878ec",
+    "bytes": 264
+  },
+  {
+    "path": "apps/admin/public/owner/app.js",
+    "sha256": "80e2fcd6483dc810ee3f2e2a7b2e2453e38ac76b91657014cc4d4ad631fff4a1",
+    "bytes": 17530
+  },
+  {
+    "path": "apps/admin/public/vendor/jsQR.js",
+    "sha256": "9fe288a770b80532943291c7f756ad0df4e8e98ad52403f8dd3848260838d090",
+    "bytes": 256886
+  },
+  {
+    "path": "apps/admin/public/icons/icon-512.png",
+    "sha256": "49c0341ef5291ad000877aad6f3610355b79138b499b86aa42e1d3bee19a171a",
+    "bytes": 5059
+  },
+  {
+    "path": "apps/admin/public/icons/icon-180.png",
+    "sha256": "a8fe299880be89ad6d40dd0511a9bf0123c353f55236402fc944b7267e157f9a",
+    "bytes": 1612
+  },
+  {
+    "path": "apps/admin/public/icons/icon-192.png",
+    "sha256": "9e1feb4203e4027b4f3bb2b1eb497c0348b2bfc6a08c3626b4ee3d417f581de7",
+    "bytes": 1699
+  },
+  {
+    "path": "apps/admin/public/assets/aistudio/image_36f1f1eb.png",
+    "sha256": "36f1f1eb67be26e80ec5f847e7a1bf20ffc14e04fb85dcd25bac3bccc8f674eb",
+    "bytes": 205997
+  },
+  {
+    "path": "apps/admin/public/assets/aistudio/image_abed52ee.png",
+    "sha256": "abed52ee2d9bf42bc907b3617cdc64ff41ed461a81b4b086cc61d9e9cbe5b1a0",
+    "bytes": 335734
+  },
+  {
+    "path": "apps/admin/public/assets/aistudio/image_3937ff8d.png",
+    "sha256": "3937ff8d486b2596d50616574722b6012018b67cb7ce090f42d2d330f547d552",
+    "bytes": 473557
+  },
+  {
+    "path": "apps/admin/public/assets/aistudio/image_48e262a5.png",
+    "sha256": "48e262a511e03eff03347fd163275f640ecc4ab95f2ffc7a641ccdd7af7c4615",
+    "bytes": 227622
+  },
+  {
+    "path": "apps/admin/public/assets/aistudio/image_e31ff4c5.png",
+    "sha256": "e31ff4c5f620215a7ce92142c386649aff7c12809dd8c717d9e937c76e1e75ec",
+    "bytes": 129345
+  },
+  {
+    "path": "apps/admin/public/assets/aistudio/image_6b4837f1.png",
+    "sha256": "6b4837f174a089f8285d62fb4ad1300078be6334434028fdf6f28e5cb3b44bf7",
+    "bytes": 193366
+  },
+  {
+    "path": "apps/admin/public/assets/aistudio/image_e44368af.png",
+    "sha256": "e44368af3c7b58c9c11a07a52f49b45e87de405a535828a1c3ca97a3098c7c4e",
+    "bytes": 364827
+  },
+  {
+    "path": "apps/admin/public/assets/aistudio/image_694a1921.png",
+    "sha256": "694a19216271177989ae4f2362ba7e1a3d33bf58e35b5a7c04eec470585389d8",
+    "bytes": 181954
+  },
+  {
+    "path": "apps/admin/public/assets/aistudio/image_3839e05e.png",
+    "sha256": "1d2f5aba6aadeec22ca2350ed9b915a78bb6619ddf85848e2e4e0550953780bb",
+    "bytes": 417961
+  },
+  {
+    "path": "apps/admin/public/assets/aistudio/image_eb6b5678.png",
+    "sha256": "eb6b5678ab2dbd09848975eff382aabe1acf7750720cef709b42861769c6d5ff",
+    "bytes": 132621
+  },
+  {
+    "path": "apps/admin/public/assets/aistudio/image_93d02900.png",
+    "sha256": "93d029001611938273ee49e418e0cde008f18be4c06aeefa0b9665109810f92a",
+    "bytes": 68865
+  },
+  {
+    "path": "apps/admin/public/assets/aistudio/image_7d1ce165.png",
+    "sha256": "7d1ce165b37a14ea020334edb1365d3394aa7b4cee278d497a8ccdad4305f02e",
+    "bytes": 486953
+  },
+  {
+    "path": "apps/admin/public/assets/aistudio/image_5e9c523a.png",
+    "sha256": "5e9c523aeb9b87ad2dde4503bd5686506f9c4ded6d7d59e0014cbf1f522c410d",
+    "bytes": 126125
+  },
+  {
+    "path": "apps/admin/public/assets/aistudio/image_ec4aac54.png",
+    "sha256": "ec4aac540c07f4bf9954f18234e654f014937986f4e456aeed78924b525ee1b7",
+    "bytes": 423579
+  },
+  {
+    "path": "apps/admin/public/assets/aistudio/image_43d80ace.png",
+    "sha256": "43d80ace40e449cefdf546e9aa5115e605aa5cf2fbc71163fdbb58abacc0f7c8",
+    "bytes": 110020
+  },
+  {
+    "path": "apps/admin/public/assets/aistudio/image_3af27d8d.png",
+    "sha256": "3af27d8d9000eb247c6c0e9e9c08617744b1ccb4cae237b02d8751add521965a",
+    "bytes": 994436
+  },
+  {
+    "path": "apps/admin/public/assets/aistudio/image_158fc4df.png",
+    "sha256": "158fc4df5d72e274f3d4659cb9d8d93ffbf6f9f2298acca5dfa4c6ff3400a824",
+    "bytes": 319089
+  },
+  {
+    "path": "apps/admin/public/assets/aistudio/image_098d4449.png",
+    "sha256": "098d444954ef7b7bc21077c7d629742b8ecb37c811dd824daf118d11a7e3010b",
+    "bytes": 397818
+  },
+  {
+    "path": "apps/admin/public/assets/aistudio/image_52fd6aa1.png",
+    "sha256": "52fd6aa126459753f85aa2043a6ff412582dc297c61209caf23a3bdee8de8fbd",
+    "bytes": 163486
+  },
+  {
+    "path": "apps/admin/public/assets/aistudio/image_4b3c878c.png",
+    "sha256": "4b3c878c1ff5d4e85bfc1c92b1628877127079d11e6960f64bc6a5fd7758df15",
+    "bytes": 169019
+  },
+  {
+    "path": "apps/admin/public/assets/aistudio/image_66da095f.png",
+    "sha256": "66da095f802573cb802d893299d45f963a0b7448f81ca5a35d1bb378b3e7b9b2",
+    "bytes": 421847
+  },
+  {
+    "path": "apps/admin/public/assets/aistudio/image_b56f7240.png",
+    "sha256": "b56f7240891e0bb54b5800cf74eca5543b45be9f635b68cda1235e9c89d25c79",
+    "bytes": 356711
+  },
+  {
+    "path": "apps/admin/public/assets/aistudio/image_73cf9e2e.png",
+    "sha256": "73cf9e2e3b7575afd5bd7d057623300fc404e2e67e486a392c16b10de9804090",
+    "bytes": 379506
+  },
+  {
+    "path": "apps/admin/public/assets/aistudio/image_30e5c6cb.png",
+    "sha256": "30e5c6cbe1b27f9dc1fdf3c0286c996d4aefec2848fd9a26ca5d8e9f4c34cd58",
+    "bytes": 369015
+  },
+  {
+    "path": "apps/admin/public/assets/aistudio/image_733a3a6a.png",
+    "sha256": "733a3a6abadc5370d4c3c3d43997838f60122730a91e5c3badce1529901568b1",
+    "bytes": 340656
+  },
+  {
+    "path": "apps/admin/public/assets/aistudio/image_e8e77a8c.png",
+    "sha256": "e8e77a8c2d84b38cd0cdddb87df64fcf2335a305621ce3b3961b826c4b9931f6",
+    "bytes": 113685
+  },
+  {
+    "path": "apps/admin/public/assets/aistudio/image_5fdfc73b.png",
+    "sha256": "5fdfc73b46bae00c2efa059a6ff056ff3aff7e0e05a42d9bec3fba36a82151bd",
+    "bytes": 449321
+  },
+  {
+    "path": "apps/admin/public/assets/aistudio/image_750f185f.png",
+    "sha256": "750f185f5e67542c5f13f644f5919167d89193a5647f1f3301635aced86cf577",
+    "bytes": 179377
+  },
+  {
+    "path": "apps/admin/public/assets/aistudio/image_50af003c.png",
+    "sha256": "50af003c69c8a7e1d2e23b97f545b203bba891fe3274ee8012d756159deabf70",
+    "bytes": 470629
+  },
+  {
+    "path": "apps/admin/public/assets/aistudio/image_460e3220.png",
+    "sha256": "460e3220a1c8b9e0e78e94909e2c97ddc87dc2c64780800c17c17a67071f3d72",
+    "bytes": 189053
+  },
+  {
+    "path": "apps/admin/public/assets/aistudio/image_9d2027c4.png",
+    "sha256": "9d2027c4314618fb4539f5105ffc83e5f8e347b147eca8630613dd0fabe17462",
+    "bytes": 294212
+  },
+  {
+    "path": "apps/admin/public/assets/aistudio/image_932c4be4.png",
+    "sha256": "932c4be477b97a17986eaadff8f6742c2d482349f8d65aaf69a52329e370737c",
+    "bytes": 274819
+  },
+  {
+    "path": "apps/admin/public/assets/aistudio/image_8b62d664.png",
+    "sha256": "8b62d664005cf665aae5cdd79065d2e95d9a5b4973af742992c53ab8e13babe7",
+    "bytes": 1536565
+  },
+  {
+    "path": "apps/admin/public/assets/aistudio/image_1558ed7d.png",
+    "sha256": "1558ed7da46fab735756dfbb9a915588f8aa634bcffe0a1ba44bb0ad5f433aec",
+    "bytes": 121773
+  },
+  {
+    "path": "apps/admin/public/assets/aistudio/image_bbed1075.png",
+    "sha256": "bbed1075acb0fd0c91b8e27f46c209093e02c301d898a0e2f724ba1caf3cf655",
+    "bytes": 177972
+  },
+  {
+    "path": "apps/admin/public/assets/aistudio/image_a183bc2f.png",
+    "sha256": "a183bc2f47fa215ae8b8e5a075a91776b826b6f9bda25bbacd9b968b03d70d7e",
+    "bytes": 87480
+  },
+  {
+    "path": "apps/admin/public/assets/aistudio/image_e4a0ea39.png",
+    "sha256": "e4a0ea39b5265a7219e3e2828d6929886eb8468600b1e7b579a184c0e456d68c",
+    "bytes": 100075
+  },
+  {
+    "path": "apps/admin/public/assets/aistudio/image_4e65c55c.png",
+    "sha256": "4e65c55ced76d3862550bf7e14924cce109e75dec4576a8dbef3bd6e32f15f6c",
+    "bytes": 158182
+  },
+  {
+    "path": "apps/admin/public/assets/aistudio/image_c5746764.png",
+    "sha256": "c5746764633e37c92bc5d8123eaaa19a4fa28a64bcc1e439d381e27d4e687f46",
+    "bytes": 45674
+  },
+  {
+    "path": "apps/admin/public/assets/aistudio/image_7548612e.png",
+    "sha256": "7548612e370e6ed9a6e09287fe0fe39c6c8db365fc10d25090337f8e9dee9266",
+    "bytes": 257822
+  },
+  {
+    "path": "apps/admin/public/assets/aistudio/image_a5b9d3ec.png",
+    "sha256": "a5b9d3ec3fe8680713d1fbe4cf5c54036962c54e7d49d4ade38ff0fe54305d4c",
+    "bytes": 517819
+  },
+  {
+    "path": "apps/admin/public/assets/aistudio/image_ddc397f8.png",
+    "sha256": "ddc397f8e79b5e7c22cb4577439e5715d419e4a488aca403b596902cb7d5eee3",
+    "bytes": 413855
+  },
+  {
+    "path": "apps/admin/public/assets/aistudio/image_4c01ae0d.png",
+    "sha256": "4c01ae0dff0104e7c8f883918840ebf197df0a9a7e03e96308bcb1677a553913",
+    "bytes": 158037
+  },
+  {
+    "path": "apps/admin/public/assets/aistudio/image_78f11f73.png",
+    "sha256": "78f11f73eb07d1cf12e8ad5b243fd0dcf97b85eaec6b45ecf50d8b92dd8700b8",
+    "bytes": 484584
+  },
+  {
+    "path": "apps/admin/public/assets/aistudio/image_bad54cef.png",
+    "sha256": "bad54cef55a00b1bbcc9d1932502f9f17f5d44ca250068e3838fbb563dbc58db",
+    "bytes": 165411
+  },
+  {
+    "path": "apps/admin/public/assets/aistudio/image_bf1586c4.png",
+    "sha256": "bf1586c4e7e22d4aac75a5642fe4e562d7008604eacd4dc33afcfc33f842bc01",
+    "bytes": 237824
+  },
+  {
+    "path": "apps/admin/public/cosmetics/owner/styles.css",
+    "sha256": "224f2f509765d42a4cd0d875c8d5eeefd6b744afe5cbeca9388262256ee7f606",
+    "bytes": 6554
+  },
+  {
+    "path": "apps/admin/public/cosmetics/owner/manifest.webmanifest",
+    "sha256": "757c69651e71ef04c7088f0a4cd827c3acb0098e64727c8dfec3787165c40d1f",
+    "bytes": 429
+  },
+  {
+    "path": "apps/admin/public/cosmetics/owner/app.js",
+    "sha256": "144477c732ee415cc2ac3e6ad63c6f292c9fea4885415b4d86dd9885d5c3f267",
+    "bytes": 19341
+  },
+  {
+    "path": "apps/salon/.gmp_cache/index.json",
+    "sha256": "97a963f4295b60f14e64ebad1b211f9eea67b9af39913bf58829d6b18a150995",
+    "bytes": 21658
+  },
+  {
+    "path": "apps/salon/src/main.tsx",
+    "sha256": "30d02ee59cb6576973dea4368093b2dcae692a40668f288fdbc66a114873fcd3",
+    "bytes": 159
+  },
+  {
+    "path": "apps/salon/src/App.tsx",
+    "sha256": "26753d3d5863cc8285d5ae26507f492ff9476602b293abbc71aa8f3c61006137",
+    "bytes": 116
+  },
+  {
+    "path": "apps/salon/src/index.css",
+    "sha256": "42070e0b45bb201b2b838a52aaaa6e965f964e0b542d97f1fe517fe59c4b75a8",
+    "bytes": 23
+  },
+  {
+    "path": "apps/salon/owner/owner-publishing.js",
+    "sha256": "3f2b2c6c0daf82ba2fe597d26c9432b1b5116777bf69c3d3683a2cfb777e304c",
+    "bytes": 61276
+  },
+  {
+    "path": "apps/salon/owner/index.html",
+    "sha256": "7e3f9c8f743326cafed8715c3b347b13f8bc26be2bf92eb6ecbf7cd5a9558486",
+    "bytes": 69238
+  },
+  {
+    "path": "apps/salon/owner/styles.css",
+    "sha256": "a5c400497c7ba8e5233a7769de5c27a8c5f0b28ee6ec46eac418ce89aa727ec0",
+    "bytes": 5798
+  },
+  {
+    "path": "apps/salon/owner/manifest.webmanifest",
+    "sha256": "eaedfdf55ea82f639fa836d3f02440a86b6e5e34e6ff3535bd62e07b947878ec",
+    "bytes": 264
+  },
+  {
+    "path": "apps/salon/owner/loyalty-ui.js",
+    "sha256": "fd04a0204e662b099c2a339cee160fe06626c5ae70005548b3fbbae90ec80a6b",
+    "bytes": 1258
+  },
+  {
+    "path": "apps/salon/owner/app.js",
+    "sha256": "80e2fcd6483dc810ee3f2e2a7b2e2453e38ac76b91657014cc4d4ad631fff4a1",
+    "bytes": 17530
+  },
+  {
+    "path": "apps/salon/public/owner-publishing.js",
+    "sha256": "3f2b2c6c0daf82ba2fe597d26c9432b1b5116777bf69c3d3683a2cfb777e304c",
+    "bytes": 61276
+  },
+  {
+    "path": "apps/salon/public/__salonati_ads.js",
+    "sha256": "fb3fd2f999468b04902252a0c3f392edec89ec614461e92d416b719ac363f02e",
+    "bytes": 42806
+  },
+  {
+    "path": "apps/salon/public/project.zip",
+    "sha256": "ef5a4d497046541d17bf8803c9a3f475cdd875d2565028f8fca44a3a0231b7c0",
+    "bytes": 4332055
+  },
+  {
+    "path": "apps/salon/public/manifest.webmanifest",
+    "sha256": "68eb06f1dc3e224eabc00f9cef35f298bf08e69760b082a8203a7569e170baed",
+    "bytes": 215
+  },
+  {
+    "path": "apps/salon/public/loyalty-ui.js",
+    "sha256": "fd04a0204e662b099c2a339cee160fe06626c5ae70005548b3fbbae90ec80a6b",
+    "bytes": 1258
+  },
+  {
+    "path": "apps/salon/public/sw.js",
+    "sha256": "ffcfc769d75c91662cbc8c3aa87edbcacd0201ad8f9dd34fab211b9383a1c91c",
+    "bytes": 127
+  },
+  {
+    "path": "apps/salon/owner/vendor/jsQR.js",
+    "sha256": "9fe288a770b80532943291c7f756ad0df4e8e98ad52403f8dd3848260838d090",
+    "bytes": 256886
+  },
+  {
+    "path": "apps/salon/owner/icons/icon-180.png",
+    "sha256": "a8fe299880be89ad6d40dd0511a9bf0123c353f55236402fc944b7267e157f9a",
+    "bytes": 1612
+  },
+  {
+    "path": "apps/salon/apps/owner/owner-publishing.js",
+    "sha256": "3f2b2c6c0daf82ba2fe597d26c9432b1b5116777bf69c3d3683a2cfb777e304c",
+    "bytes": 61276
+  },
+  {
+    "path": "apps/salon/apps/owner/index.html",
+    "sha256": "7e3f9c8f743326cafed8715c3b347b13f8bc26be2bf92eb6ecbf7cd5a9558486",
+    "bytes": 69238
+  },
+  {
+    "path": "apps/salon/apps/customer/index.html",
+    "sha256": "d3b8aa69691c646d0da7dab7eb57ae35cde648b6e0599ab1cf744c6c5b0525f7",
+    "bytes": 75622
+  },
+  {
+    "path": "apps/salon/apps/admin/index.html",
+    "sha256": "76bbf9e3bc5f90b90229735dca9421b75f0da944c6dd6f908333b2d7fe0d667e",
+    "bytes": 33803
+  },
+  {
+    "path": "apps/salon/apps/cosmetics/owner/index.html",
+    "sha256": "8b6a0a59d19befe9c4b5e266e43ee4faf5fe2329142a5c118dd3c920451af2aa",
+    "bytes": 1324
+  },
+  {
+    "path": "apps/salon/apps/cosmetics/owner/styles.css",
+    "sha256": "224f2f509765d42a4cd0d875c8d5eeefd6b744afe5cbeca9388262256ee7f606",
+    "bytes": 6554
+  },
+  {
+    "path": "apps/salon/apps/cosmetics/owner/manifest.webmanifest",
+    "sha256": "757c69651e71ef04c7088f0a4cd827c3acb0098e64727c8dfec3787165c40d1f",
+    "bytes": 429
+  },
+  {
+    "path": "apps/salon/apps/cosmetics/owner/README.md",
+    "sha256": "06ba07ac4006c1ec50e132d575f25f21ab096fe9287c9800300a86ad38788dc4",
+    "bytes": 1666
+  },
+  {
+    "path": "apps/salon/apps/cosmetics/owner/app.js",
+    "sha256": "144477c732ee415cc2ac3e6ad63c6f292c9fea4885415b4d86dd9885d5c3f267",
+    "bytes": 19341
+  },
+  {
+    "path": "apps/salon/apps/cosmetics/customer/index.html",
+    "sha256": "621445b18643f5096b2de3d38a584063a52f6c6578e71c07efed178c73018d52",
+    "bytes": 19149
+  },
+  {
+    "path": "apps/salon/apps/cosmetics/admin/index.html",
+    "sha256": "6947510eced61c254303e418c67245c0a53b01a038ce0d0e2dc9907bbabd8aba",
+    "bytes": 6742
+  },
+  {
+    "path": "apps/salon/cosmetics/owner/index.html",
+    "sha256": "8b6a0a59d19befe9c4b5e266e43ee4faf5fe2329142a5c118dd3c920451af2aa",
+    "bytes": 1324
+  },
+  {
+    "path": "apps/salon/cosmetics/owner/styles.css",
+    "sha256": "224f2f509765d42a4cd0d875c8d5eeefd6b744afe5cbeca9388262256ee7f606",
+    "bytes": 6554
+  },
+  {
+    "path": "apps/salon/cosmetics/owner/manifest.webmanifest",
+    "sha256": "757c69651e71ef04c7088f0a4cd827c3acb0098e64727c8dfec3787165c40d1f",
+    "bytes": 429
+  },
+  {
+    "path": "apps/salon/cosmetics/owner/app.js",
+    "sha256": "144477c732ee415cc2ac3e6ad63c6f292c9fea4885415b4d86dd9885d5c3f267",
+    "bytes": 19341
+  },
+  {
+    "path": "apps/salon/.aistudio/artifacts/brain/7347352c-b30d-41a0-beae-306a3a2ea864/.tempmediaStorage/media_1793013972161_a2ce5c41.png",
+    "sha256": "750f185f5e67542c5f13f644f5919167d89193a5647f1f3301635aced86cf577",
+    "bytes": 179377
+  },
+  {
+    "path": "apps/salon/.aistudio/artifacts/brain/7347352c-b30d-41a0-beae-306a3a2ea864/.tempmediaStorage/media_1792979160920_b6feffd2.png",
+    "sha256": "4b3c878c1ff5d4e85bfc1c92b1628877127079d11e6960f64bc6a5fd7758df15",
+    "bytes": 169019
+  },
+  {
+    "path": "apps/salon/.aistudio/artifacts/brain/7347352c-b30d-41a0-beae-306a3a2ea864/.tempmediaStorage/media_1792985679062_0e60da58.png",
+    "sha256": "eb6b5678ab2dbd09848975eff382aabe1acf7750720cef709b42861769c6d5ff",
+    "bytes": 132621
+  },
+  {
+    "path": "apps/salon/.aistudio/artifacts/brain/7347352c-b30d-41a0-beae-306a3a2ea864/.tempmediaStorage/media_1793013266903_53dafff2.png",
+    "sha256": "7548612e370e6ed9a6e09287fe0fe39c6c8db365fc10d25090337f8e9dee9266",
+    "bytes": 257822
+  },
+  {
+    "path": "apps/salon/.aistudio/artifacts/brain/7347352c-b30d-41a0-beae-306a3a2ea864/.tempmediaStorage/media_1792978824307_9266f895.png",
+    "sha256": "694a19216271177989ae4f2362ba7e1a3d33bf58e35b5a7c04eec470585389d8",
+    "bytes": 181954
+  },
+  {
+    "path": "apps/salon/.aistudio/artifacts/brain/7347352c-b30d-41a0-beae-306a3a2ea864/.tempmediaStorage/media_1792985202765_6c672f75.png",
+    "sha256": "3af27d8d9000eb247c6c0e9e9c08617744b1ccb4cae237b02d8751add521965a",
+    "bytes": 994436
+  },
+  {
+    "path": "apps/salon/.aistudio/artifacts/brain/7347352c-b30d-41a0-beae-306a3a2ea864/.tempmediaStorage/media_1793013971592_b8eb7e14.png",
+    "sha256": "52fd6aa126459753f85aa2043a6ff412582dc297c61209caf23a3bdee8de8fbd",
+    "bytes": 163486
+  },
+  {
+    "path": "apps/salon/.aistudio/artifacts/brain/7347352c-b30d-41a0-beae-306a3a2ea864/.tempmediaStorage/media_1793012584286_e537b083.png",
+    "sha256": "158fc4df5d72e274f3d4659cb9d8d93ffbf6f9f2298acca5dfa4c6ff3400a824",
+    "bytes": 319089
+  },
+  {
+    "path": "apps/salon/.aistudio/artifacts/brain/7347352c-b30d-41a0-beae-306a3a2ea864/.tempmediaStorage/media_1792984182138_74c441da.png",
+    "sha256": "4e65c55ced76d3862550bf7e14924cce109e75dec4576a8dbef3bd6e32f15f6c",
+    "bytes": 158182
+  },
+  {
+    "path": "apps/salon/.aistudio/artifacts/brain/7347352c-b30d-41a0-beae-306a3a2ea864/.tempmediaStorage/media_1792985202197_a6f19dda.png",
+    "sha256": "8b62d664005cf665aae5cdd79065d2e95d9a5b4973af742992c53ab8e13babe7",
+    "bytes": 1536565
+  },
+  {
+    "path": "apps/salon/.aistudio/artifacts/brain/7347352c-b30d-41a0-beae-306a3a2ea864/.tempmediaStorage/media_1793013427264_e31e0581.png",
+    "sha256": "c5746764633e37c92bc5d8123eaaa19a4fa28a64bcc1e439d381e27d4e687f46",
+    "bytes": 45674
+  },
+  {
+    "path": "apps/salon/.aistudio/artifacts/brain/7347352c-b30d-41a0-beae-306a3a2ea864/.tempmediaStorage/media_1792984592267_a62ffa8d.png",
+    "sha256": "43d80ace40e449cefdf546e9aa5115e605aa5cf2fbc71163fdbb58abacc0f7c8",
+    "bytes": 110020
+  },
+  {
+    "path": "apps/salon/.aistudio/artifacts/brain/04052d60-f8bc-45f8-a01c-9d75643c0d51/.tempmediaStorage/media_1793303855518_68bcfa15.png",
+    "sha256": "098d444954ef7b7bc21077c7d629742b8ecb37c811dd824daf118d11a7e3010b",
+    "bytes": 397818
+  },
+  {
+    "path": "apps/salon/.aistudio/artifacts/brain/04052d60-f8bc-45f8-a01c-9d75643c0d51/.tempmediaStorage/media_1793303319344_b6c61ea2.png",
+    "sha256": "1d2f5aba6aadeec22ca2350ed9b915a78bb6619ddf85848e2e4e0550953780bb",
+    "bytes": 417961
+  },
+  {
+    "path": "apps/salon/public/owner/owner-publishing.js",
+    "sha256": "3f2b2c6c0daf82ba2fe597d26c9432b1b5116777bf69c3d3683a2cfb777e304c",
+    "bytes": 61276
+  },
+  {
+    "path": "apps/salon/public/owner/index.html",
+    "sha256": "7e3f9c8f743326cafed8715c3b347b13f8bc26be2bf92eb6ecbf7cd5a9558486",
+    "bytes": 69238
+  },
+  {
+    "path": "apps/salon/public/owner/styles.css",
+    "sha256": "a5c400497c7ba8e5233a7769de5c27a8c5f0b28ee6ec46eac418ce89aa727ec0",
+    "bytes": 5798
+  },
+  {
+    "path": "apps/salon/public/owner/manifest.webmanifest",
+    "sha256": "eaedfdf55ea82f639fa836d3f02440a86b6e5e34e6ff3535bd62e07b947878ec",
+    "bytes": 264
+  },
+  {
+    "path": "apps/salon/public/owner/app.js",
+    "sha256": "80e2fcd6483dc810ee3f2e2a7b2e2453e38ac76b91657014cc4d4ad631fff4a1",
+    "bytes": 17530
+  },
+  {
+    "path": "apps/salon/public/vendor/jsQR.js",
+    "sha256": "9fe288a770b80532943291c7f756ad0df4e8e98ad52403f8dd3848260838d090",
+    "bytes": 256886
+  },
+  {
+    "path": "apps/salon/public/icons/icon-512.png",
+    "sha256": "49c0341ef5291ad000877aad6f3610355b79138b499b86aa42e1d3bee19a171a",
+    "bytes": 5059
+  },
+  {
+    "path": "apps/salon/public/icons/icon-180.png",
+    "sha256": "a8fe299880be89ad6d40dd0511a9bf0123c353f55236402fc944b7267e157f9a",
+    "bytes": 1612
+  },
+  {
+    "path": "apps/salon/public/icons/icon-192.png",
+    "sha256": "9e1feb4203e4027b4f3bb2b1eb497c0348b2bfc6a08c3626b4ee3d417f581de7",
+    "bytes": 1699
+  },
+  {
+    "path": "apps/salon/public/assets/aistudio/image_36f1f1eb.png",
+    "sha256": "36f1f1eb67be26e80ec5f847e7a1bf20ffc14e04fb85dcd25bac3bccc8f674eb",
+    "bytes": 205997
+  },
+  {
+    "path": "apps/salon/public/assets/aistudio/image_abed52ee.png",
+    "sha256": "abed52ee2d9bf42bc907b3617cdc64ff41ed461a81b4b086cc61d9e9cbe5b1a0",
+    "bytes": 335734
+  },
+  {
+    "path": "apps/salon/public/assets/aistudio/image_3937ff8d.png",
+    "sha256": "3937ff8d486b2596d50616574722b6012018b67cb7ce090f42d2d330f547d552",
+    "bytes": 473557
+  },
+  {
+    "path": "apps/salon/public/assets/aistudio/image_48e262a5.png",
+    "sha256": "48e262a511e03eff03347fd163275f640ecc4ab95f2ffc7a641ccdd7af7c4615",
+    "bytes": 227622
+  },
+  {
+    "path": "apps/salon/public/assets/aistudio/image_e31ff4c5.png",
+    "sha256": "e31ff4c5f620215a7ce92142c386649aff7c12809dd8c717d9e937c76e1e75ec",
+    "bytes": 129345
+  },
+  {
+    "path": "apps/salon/public/assets/aistudio/image_6b4837f1.png",
+    "sha256": "6b4837f174a089f8285d62fb4ad1300078be6334434028fdf6f28e5cb3b44bf7",
+    "bytes": 193366
+  },
+  {
+    "path": "apps/salon/public/assets/aistudio/image_e44368af.png",
+    "sha256": "e44368af3c7b58c9c11a07a52f49b45e87de405a535828a1c3ca97a3098c7c4e",
+    "bytes": 364827
+  },
+  {
+    "path": "apps/salon/public/assets/aistudio/image_694a1921.png",
+    "sha256": "694a19216271177989ae4f2362ba7e1a3d33bf58e35b5a7c04eec470585389d8",
+    "bytes": 181954
+  },
+  {
+    "path": "apps/salon/public/assets/aistudio/image_3839e05e.png",
+    "sha256": "1d2f5aba6aadeec22ca2350ed9b915a78bb6619ddf85848e2e4e0550953780bb",
+    "bytes": 417961
+  },
+  {
+    "path": "apps/salon/public/assets/aistudio/image_eb6b5678.png",
+    "sha256": "eb6b5678ab2dbd09848975eff382aabe1acf7750720cef709b42861769c6d5ff",
+    "bytes": 132621
+  },
+  {
+    "path": "apps/salon/public/assets/aistudio/image_93d02900.png",
+    "sha256": "93d029001611938273ee49e418e0cde008f18be4c06aeefa0b9665109810f92a",
+    "bytes": 68865
+  },
+  {
+    "path": "apps/salon/public/assets/aistudio/image_7d1ce165.png",
+    "sha256": "7d1ce165b37a14ea020334edb1365d3394aa7b4cee278d497a8ccdad4305f02e",
+    "bytes": 486953
+  },
+  {
+    "path": "apps/salon/public/assets/aistudio/image_5e9c523a.png",
+    "sha256": "5e9c523aeb9b87ad2dde4503bd5686506f9c4ded6d7d59e0014cbf1f522c410d",
+    "bytes": 126125
+  },
+  {
+    "path": "apps/salon/public/assets/aistudio/image_ec4aac54.png",
+    "sha256": "ec4aac540c07f4bf9954f18234e654f014937986f4e456aeed78924b525ee1b7",
+    "bytes": 423579
+  },
+  {
+    "path": "apps/salon/public/assets/aistudio/image_43d80ace.png",
+    "sha256": "43d80ace40e449cefdf546e9aa5115e605aa5cf2fbc71163fdbb58abacc0f7c8",
+    "bytes": 110020
+  },
+  {
+    "path": "apps/salon/public/assets/aistudio/image_3af27d8d.png",
+    "sha256": "3af27d8d9000eb247c6c0e9e9c08617744b1ccb4cae237b02d8751add521965a",
+    "bytes": 994436
+  },
+  {
+    "path": "apps/salon/public/assets/aistudio/image_158fc4df.png",
+    "sha256": "158fc4df5d72e274f3d4659cb9d8d93ffbf6f9f2298acca5dfa4c6ff3400a824",
+    "bytes": 319089
+  },
+  {
+    "path": "apps/salon/public/assets/aistudio/image_098d4449.png",
+    "sha256": "098d444954ef7b7bc21077c7d629742b8ecb37c811dd824daf118d11a7e3010b",
+    "bytes": 397818
+  },
+  {
+    "path": "apps/salon/public/assets/aistudio/image_52fd6aa1.png",
+    "sha256": "52fd6aa126459753f85aa2043a6ff412582dc297c61209caf23a3bdee8de8fbd",
+    "bytes": 163486
+  },
+  {
+    "path": "apps/salon/public/assets/aistudio/image_4b3c878c.png",
+    "sha256": "4b3c878c1ff5d4e85bfc1c92b1628877127079d11e6960f64bc6a5fd7758df15",
+    "bytes": 169019
+  },
+  {
+    "path": "apps/salon/public/assets/aistudio/image_66da095f.png",
+    "sha256": "66da095f802573cb802d893299d45f963a0b7448f81ca5a35d1bb378b3e7b9b2",
+    "bytes": 421847
+  },
+  {
+    "path": "apps/salon/public/assets/aistudio/image_b56f7240.png",
+    "sha256": "b56f7240891e0bb54b5800cf74eca5543b45be9f635b68cda1235e9c89d25c79",
+    "bytes": 356711
+  },
+  {
+    "path": "apps/salon/public/assets/aistudio/image_73cf9e2e.png",
+    "sha256": "73cf9e2e3b7575afd5bd7d057623300fc404e2e67e486a392c16b10de9804090",
+    "bytes": 379506
+  },
+  {
+    "path": "apps/salon/public/assets/aistudio/image_30e5c6cb.png",
+    "sha256": "30e5c6cbe1b27f9dc1fdf3c0286c996d4aefec2848fd9a26ca5d8e9f4c34cd58",
+    "bytes": 369015
+  },
+  {
+    "path": "apps/salon/public/assets/aistudio/image_733a3a6a.png",
+    "sha256": "733a3a6abadc5370d4c3c3d43997838f60122730a91e5c3badce1529901568b1",
+    "bytes": 340656
+  },
+  {
+    "path": "apps/salon/public/assets/aistudio/image_e8e77a8c.png",
+    "sha256": "e8e77a8c2d84b38cd0cdddb87df64fcf2335a305621ce3b3961b826c4b9931f6",
+    "bytes": 113685
+  },
+  {
+    "path": "apps/salon/public/assets/aistudio/image_5fdfc73b.png",
+    "sha256": "5fdfc73b46bae00c2efa059a6ff056ff3aff7e0e05a42d9bec3fba36a82151bd",
+    "bytes": 449321
+  },
+  {
+    "path": "apps/salon/public/assets/aistudio/image_750f185f.png",
+    "sha256": "750f185f5e67542c5f13f644f5919167d89193a5647f1f3301635aced86cf577",
+    "bytes": 179377
+  },
+  {
+    "path": "apps/salon/public/assets/aistudio/image_50af003c.png",
+    "sha256": "50af003c69c8a7e1d2e23b97f545b203bba891fe3274ee8012d756159deabf70",
+    "bytes": 470629
+  },
+  {
+    "path": "apps/salon/public/assets/aistudio/image_460e3220.png",
+    "sha256": "460e3220a1c8b9e0e78e94909e2c97ddc87dc2c64780800c17c17a67071f3d72",
+    "bytes": 189053
+  },
+  {
+    "path": "apps/salon/public/assets/aistudio/image_9d2027c4.png",
+    "sha256": "9d2027c4314618fb4539f5105ffc83e5f8e347b147eca8630613dd0fabe17462",
+    "bytes": 294212
+  },
+  {
+    "path": "apps/salon/public/assets/aistudio/image_932c4be4.png",
+    "sha256": "932c4be477b97a17986eaadff8f6742c2d482349f8d65aaf69a52329e370737c",
+    "bytes": 274819
+  },
+  {
+    "path": "apps/salon/public/assets/aistudio/image_8b62d664.png",
+    "sha256": "8b62d664005cf665aae5cdd79065d2e95d9a5b4973af742992c53ab8e13babe7",
+    "bytes": 1536565
+  },
+  {
+    "path": "apps/salon/public/assets/aistudio/image_1558ed7d.png",
+    "sha256": "1558ed7da46fab735756dfbb9a915588f8aa634bcffe0a1ba44bb0ad5f433aec",
+    "bytes": 121773
+  },
+  {
+    "path": "apps/salon/public/assets/aistudio/image_bbed1075.png",
+    "sha256": "bbed1075acb0fd0c91b8e27f46c209093e02c301d898a0e2f724ba1caf3cf655",
+    "bytes": 177972
+  },
+  {
+    "path": "apps/salon/public/assets/aistudio/image_a183bc2f.png",
+    "sha256": "a183bc2f47fa215ae8b8e5a075a91776b826b6f9bda25bbacd9b968b03d70d7e",
+    "bytes": 87480
+  },
+  {
+    "path": "apps/salon/public/assets/aistudio/image_e4a0ea39.png",
+    "sha256": "e4a0ea39b5265a7219e3e2828d6929886eb8468600b1e7b579a184c0e456d68c",
+    "bytes": 100075
+  },
+  {
+    "path": "apps/salon/public/assets/aistudio/image_4e65c55c.png",
+    "sha256": "4e65c55ced76d3862550bf7e14924cce109e75dec4576a8dbef3bd6e32f15f6c",
+    "bytes": 158182
+  },
+  {
+    "path": "apps/salon/public/assets/aistudio/image_c5746764.png",
+    "sha256": "c5746764633e37c92bc5d8123eaaa19a4fa28a64bcc1e439d381e27d4e687f46",
+    "bytes": 45674
+  },
+  {
+    "path": "apps/salon/public/assets/aistudio/image_7548612e.png",
+    "sha256": "7548612e370e6ed9a6e09287fe0fe39c6c8db365fc10d25090337f8e9dee9266",
+    "bytes": 257822
+  },
+  {
+    "path": "apps/salon/public/assets/aistudio/image_a5b9d3ec.png",
+    "sha256": "a5b9d3ec3fe8680713d1fbe4cf5c54036962c54e7d49d4ade38ff0fe54305d4c",
+    "bytes": 517819
+  },
+  {
+    "path": "apps/salon/public/assets/aistudio/image_ddc397f8.png",
+    "sha256": "ddc397f8e79b5e7c22cb4577439e5715d419e4a488aca403b596902cb7d5eee3",
+    "bytes": 413855
+  },
+  {
+    "path": "apps/salon/public/assets/aistudio/image_4c01ae0d.png",
+    "sha256": "4c01ae0dff0104e7c8f883918840ebf197df0a9a7e03e96308bcb1677a553913",
+    "bytes": 158037
+  },
+  {
+    "path": "apps/salon/public/assets/aistudio/image_78f11f73.png",
+    "sha256": "78f11f73eb07d1cf12e8ad5b243fd0dcf97b85eaec6b45ecf50d8b92dd8700b8",
+    "bytes": 484584
+  },
+  {
+    "path": "apps/salon/public/assets/aistudio/image_bad54cef.png",
+    "sha256": "bad54cef55a00b1bbcc9d1932502f9f17f5d44ca250068e3838fbb563dbc58db",
+    "bytes": 165411
+  },
+  {
+    "path": "apps/salon/public/assets/aistudio/image_bf1586c4.png",
+    "sha256": "bf1586c4e7e22d4aac75a5642fe4e562d7008604eacd4dc33afcfc33f842bc01",
+    "bytes": 237824
+  },
+  {
+    "path": "apps/salon/public/cosmetics/owner/styles.css",
+    "sha256": "224f2f509765d42a4cd0d875c8d5eeefd6b744afe5cbeca9388262256ee7f606",
+    "bytes": 6554
+  },
+  {
+    "path": "apps/salon/public/cosmetics/owner/manifest.webmanifest",
+    "sha256": "757c69651e71ef04c7088f0a4cd827c3acb0098e64727c8dfec3787165c40d1f",
+    "bytes": 429
+  },
+  {
+    "path": "apps/salon/public/cosmetics/owner/app.js",
+    "sha256": "144477c732ee415cc2ac3e6ad63c6f292c9fea4885415b4d86dd9885d5c3f267",
+    "bytes": 19341
+  }
+]

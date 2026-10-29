@@ -1,0 +1,236 @@
+(()=>{
+'use strict';
+if(window.__salonatiAdsMounted)return;window.__salonatiAdsMounted=true;
+const ads=[
+ {tag:'صالونات مميزة',title:'لحظة عناية… لكِ وحدكِ',copy:'اكتشفي خدمات الشعر والبشرة في الصالونات، واختاري موعداً يناسبكِ.',cta:'استكشفي الصالونات',target:'search',theme:'rose',img:'https://images.unsplash.com/photo-1560066984-138dadb4c035?w=350'},
+ {tag:'إطلالات أنيقة',title:'إطلالتكِ تبدأ من هنا',copy:'مكياج، شعر وأظافر… اختاري أكثر من خدمة لتكملي إطلالتكِ.',cta:'شاهدي الصالونات',target:'search',theme:'gold',img:'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=350'},
+ {tag:'منتجات وعناية',title:'دلّلي روتينكِ اليومي',copy:'تعرّفي على منتجات العناية بالشعر والبشرة في كتالوج العرض.',cta:'تصفّحي المنتجات',target:'products',theme:'plum',img:'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=350'}
+];
+let index=0,paused=window.matchMedia('(prefers-reduced-motion: reduce)').matches,timer=null,hover=false;
+const root=document.getElementById('app');if(!root)return;
+function resetTimer(){clearInterval(timer);timer=null;if(!paused&&!document.hidden)timer=setInterval(()=>{const banner=document.getElementById('salonati-advert');if(banner&&!hover&&!banner.contains(document.activeElement)){index=(index+1)%ads.length;paint();}},5000);}
+function move(n){index=(index+n+ads.length)%ads.length;paint();resetTimer();}
+function paint(){const banner=document.getElementById('salonati-advert');if(!banner)return;const ad=ads[index];banner.dataset.theme=ad.theme;banner.querySelector('.sa-tag').textContent=ad.tag;banner.querySelector('.sa-title').textContent=ad.title;banner.querySelector('.sa-copy').textContent=ad.copy;banner.querySelector('.sa-cta').textContent=ad.cta;banner.querySelector('.sa-art-img').src=ad.img;banner.querySelector('.sa-position').textContent=`${index+1} من ${ads.length}`;banner.querySelectorAll('.sa-dot').forEach((dot,i)=>{dot.setAttribute('aria-pressed',String(i===index));dot.classList.toggle('sa-active',i===index);});const pause=banner.querySelector('.sa-pause');pause.textContent=paused?'▷':'Ⅱ';pause.setAttribute('aria-label',paused?'تشغيل تبديل الإعلانات':'إيقاف تبديل الإعلانات');pause.setAttribute('aria-pressed',String(paused));}
+function mount(){if(!root.querySelector('header .brand'))return;if(document.getElementById('salonati-advert'))return;
+ const banner=document.createElement('section');banner.id='salonati-advert';banner.className='sa-banner';banner.setAttribute('aria-roledescription','عرض شرائح');banner.setAttribute('aria-label','إعلانات صالوناتي');
+ banner.innerHTML='<div class="sa-content"><span class="sa-tag"></span><h2 class="sa-title"></h2><p class="sa-copy"></p><button type="button" class="sa-cta"></button></div><div class="sa-art" aria-hidden="true"><i></i><img class="sa-art-img" style="position:absolute;width:75px;height:75px;object-fit:cover;border-radius:50%;top:32px;left:14px;border:2px solid rgba(255,255,255,0.85);box-shadow:0 4px 15px rgba(0,0,0,0.18)"><b>✦</b></div><div class="sa-controls"><button type="button" class="sa-prev" aria-label="الإعلان السابق">‹</button><div class="sa-dots"></div><button type="button" class="sa-next" aria-label="الإعلان التالي">›</button><span class="sa-position sa-sr" aria-live="off"></span><button type="button" class="sa-pause"></button></div>';
+ const dots=banner.querySelector('.sa-dots');ads.forEach((ad,i)=>{const b=document.createElement('button');b.type='button';b.className='sa-dot';b.setAttribute('aria-label',`عرض الإعلان ${i+1}: ${ad.title}`);b.onclick=()=>{index=i;paint();resetTimer();};dots.append(b);});
+ banner.querySelector('.sa-prev').onclick=()=>move(-1);banner.querySelector('.sa-next').onclick=()=>move(1);banner.querySelector('.sa-pause').onclick=()=>{paused=!paused;paint();resetTimer();};banner.querySelector('.sa-cta').onclick=()=>{if(typeof window.go==='function')window.go(ads[index].target);};
+ banner.onmouseenter=()=>{hover=true;};banner.onmouseleave=()=>{hover=false;};let touch=null;banner.addEventListener('pointerdown',e=>{touch={x:e.clientX,y:e.clientY};});banner.addEventListener('pointerup',e=>{if(!touch)return;const dx=e.clientX-touch.x,dy=e.clientY-touch.y;touch=null;if(Math.abs(dx)>45&&Math.abs(dx)>Math.abs(dy)*1.5)move(dx>0?1:-1);});banner.addEventListener('pointercancel',()=>touch=null);
+ root.querySelector('header').insertAdjacentElement('afterend',banner);paint();resetTimer();
+}
+new MutationObserver(mount).observe(root,{childList:true});document.addEventListener('visibilitychange',resetTimer);mount();
+})();
+
+(()=>{
+'use strict';
+const root=document.getElementById('app');if(!root)return;
+const svg=body=>'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="36" height="36" fill="none" aria-hidden="true" focusable="false">'+body+'</svg>';
+const icons={
+ hair:svg('<g stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="35" r="6"/><circle cx="27" cy="35" r="6"/><path d="M14 30 35 7c2 7-4 14-12 22M24 29 8 8c-1 7 2 13 8 19"/><circle cx="20" cy="24" r="1.4" fill="currentColor" stroke="none"/></g>'),
+ makeup:svg('<g transform="rotate(36 24 24)" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M19 14h10v23H19z" fill="currentColor" fill-opacity=".25"/><path d="m19 14 5-10 5 10z" fill="currentColor" fill-opacity=".55"/><path d="m22 8 2-4 2 4" fill="currentColor"/><path d="M19 28h10M19 33h10"/><rect x="19" y="37" width="10" height="5" rx="1" fill="currentColor" fill-opacity=".6"/></g>'),
+ skin:svg('<g stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M11 5h26l-2 14H13z" fill="currentColor" fill-opacity=".28"/><path d="m16 5 1 11M22 5v11M28 5v11M34 5l-1 11"/><path d="M13 19h22v6H13z" fill="currentColor" fill-opacity=".5"/><path d="M19 25h10l-1 15a4 4 0 0 1-8 0z" fill="currentColor" fill-opacity=".18"/></g>'),
+ nails:svg('<g stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><rect x="18" y="4" width="12" height="16" rx="2" fill="currentColor" fill-opacity=".5"/><path d="M20 8h8M20 12h8" stroke-opacity=".45"/><path d="M18 20h12l5 7v13a4 4 0 0 1-4 4H17a4 4 0 0 1-4-4V27z" fill="currentColor" fill-opacity=".22"/><path d="M14 31h20v9a3 3 0 0 1-3 3H17a3 3 0 0 1-3-3z" fill="currentColor" fill-opacity=".45"/><path d="M18 27v11" stroke="#fff0f2" stroke-opacity=".6" stroke-linecap="round"/></g>')
+};
+const search=svg('<circle cx="21" cy="21" r="12" stroke="currentColor" stroke-width="3"/><path d="m30 30 10 10" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>');
+function enhance(){
+ for(const h of root.querySelectorAll('h3'))if(h.textContent.trim()==='عروض الصالونات')h.textContent='العروض الخاصة';
+ for(const b of root.querySelectorAll('button'))if(b.textContent.trim()==='منتجات وعروض')b.textContent='العروض الخاصة';
+ for(const button of root.querySelectorAll('.categories .cat')){
+  if(button.dataset.salonatiIcon)continue;
+  const label=button.textContent,key=label.includes('عناية بالشعر')?'hair':label.includes('مكياج')?'makeup':label.includes('بشرة')?'skin':label.includes('أظافر')?'nails':null;
+  const span=button.querySelector('span');if(key&&span){span.innerHTML=icons[key];span.setAttribute('aria-hidden','true');button.dataset.salonatiIcon=key;}
+ }
+ const explore=root.querySelector('.nav button.plus');
+ if(explore){explore.classList.remove('plus');explore.classList.add('salonati-explore');const b=explore.querySelector('b');if(b){b.innerHTML=search;b.setAttribute('aria-hidden','true');}explore.setAttribute('aria-label','استكشاف');}
+}
+new MutationObserver(enhance).observe(root,{childList:true});enhance();
+})();
+
+(()=>{
+'use strict';
+if(typeof window.salonPage!=='function')return;
+const originalPage=window.salonPage,originalChoose=window.chooseSalon;
+const names={1:['سارة','نور','ريم'],2:['ياسمين','هدى','آية'],3:['رنا','مريم','زينب'],4:['لمى','فرح','داليا']};
+function team(){return (names[state.salon]||names[1]).flatMap((name,i)=>[0,1].map(j=>({id:state.salon+'-'+i+'-'+j,name:j?['ليلى','هبة','دانا'][i]:name,specialty:['شعر وتصفيف','مكياج وبشرة','العناية بالأظافر'][i],group:i})));}
+function staffFor(id){const s=services.find(x=>x.id===id);const n=s?.name||'',c=s?.cat||'';const g=/مناكير|بديكير|أظافر/.test(n+c)?2:/مكياج|بشرة|وجه|ماسك/.test(n+c)?1:0;const list=team().filter(w=>w.group===g);return [...list,{id:'any',name:'كادر عشوائي',specialty:''}];}
+window.salonatiServiceStaff=function(serviceId,id){
+ if(!state.selectedServices.includes(serviceId)||!staffFor(serviceId).some(w=>w.id===id))return;
+ state.serviceStaff=state.serviceStaff||{};state.serviceStaff[serviceId]=[id];state.pendingStaffService=null;render();
+};
+const staffStyles=document.createElement('style');
+staffStyles.textContent=`
+ .staff-dialog{width:min(430px,calc(100% - 28px));max-height:85dvh;overflow:auto;border:1px solid var(--line);border-radius:22px;padding:20px;background:var(--card);color:var(--text);box-shadow:0 18px 60px rgba(75,12,155,.22);direction:rtl}
+ .staff-dialog::backdrop{background:rgba(37,7,67,.38);backdrop-filter:blur(4px)}
+ .staff-dialog header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 8px}
+ .staff-dialog h2{margin:0;font-size:18px;color:var(--pink)}
+ .staff-dialog .staff-dialog-close{width:36px;height:36px;border-radius:50%;background:var(--soft);color:var(--pink);font-size:22px}
+ .staff-dialog .salon-staff-card{cursor:pointer;margin:0;min-height:76px}
+ .staff-dialog .salon-staff-card:has(input:checked){border-color:var(--pink);background:var(--tint)}
+ .staff-dialog input{width:18px;height:18px;accent-color:var(--pink);flex-shrink:0}
+ .staff-dialog .staff-dialog-actions{display:flex;gap:10px;margin-top:18px;position:sticky;bottom:0;background:var(--card);padding-top:8px}
+ .staff-dialog-actions button{flex:1;min-height:44px}
+ .service-staff-choice{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:10px;width:100%}
+ .service-staff-choice .outline{min-height:42px;padding:8px 12px;white-space:nowrap}
+`;
+document.head.append(staffStyles);
+window.salonatiOpenStaff=function(serviceId){
+ if(!state.selectedServices.includes(serviceId)||document.getElementById('service-staff-dialog'))return;
+ state.pendingStaffService=null;
+ const item=services.find(s=>s.id===serviceId),workers=staffFor(serviceId),picked=state.serviceStaff?.[serviceId]?.[0]||'any';
+ const dialog=document.createElement('dialog');dialog.id='service-staff-dialog';dialog.className='staff-dialog';
+ dialog.setAttribute('aria-labelledby','staff-dialog-title');dialog.setAttribute('aria-describedby','staff-dialog-description');
+ dialog.innerHTML=`<form method="dialog"><header><h2 id="staff-dialog-title">اختاري كادر ${esc(item.name)}</h2><button type="button" class="staff-dialog-close" aria-label="إغلاق اختيار الكادر">×</button></header><p id="staff-dialog-description" class="small">المختصات بخدمة ${esc(item.name)} في الصالون المختار</p><div class="salon-staff-list">${workers.map(w=>`<label class="salon-staff-card"><span class="salon-staff-avatar" aria-hidden="true">${w.id==='any'?'✦':'♙'}</span><span class="salon-staff-text"><strong>${esc(w.name)}</strong><small>${esc(w.specialty||'أي مختصة متاحة لهذه الخدمة')}</small></span><input type="radio" name="service-staff" value="${esc(w.id)}" ${picked===w.id?'checked':''}></label>`).join('')}</div><div class="staff-dialog-actions"><button type="submit" class="primary">تأكيد الاختيار</button><button type="button" class="outline staff-dialog-cancel">إلغاء</button></div></form>`;
+ const restoreFocus=()=>document.querySelector(`[data-staff-service="${serviceId}"]`)?.focus();
+ dialog.addEventListener('close',()=>{dialog.remove();restoreFocus();},{once:true});
+ dialog.querySelector('.staff-dialog-close').onclick=()=>dialog.close();
+ dialog.querySelector('.staff-dialog-cancel').onclick=()=>dialog.close();
+ dialog.addEventListener('click',event=>{if(event.target!==dialog)return;const r=dialog.getBoundingClientRect();if(event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom)dialog.close();});
+ dialog.querySelector('form').onsubmit=event=>{event.preventDefault();const value=dialog.querySelector('input:checked')?.value;if(!value)return;dialog.close();window.salonatiServiceStaff(serviceId,value);restoreFocus();};
+ document.body.append(dialog);dialog.showModal();
+};
+
+window.salonatiInlineStaff=function(){return '';};
+
+function chosen(){return team().find(w=>w.id===state.selectedStaff);}
+window.chooseSalon=function(id){state.selectedStaff='';state.serviceStaff={};state.pendingStaffService=null;return originalChoose(id);};
+window.salonatiChooseTab=function(tab){if(!['services','products','staff','brides'].includes(tab))return;state.tab=tab;render();};
+window.salonatiChooseStaff=function(id){if(id!==''&&!team().some(w=>w.id===id))return;state.selectedStaff=id;render();};
+function productContent(){return '<section class="salon-tab-content"><h3>منتجات الصالون</h3><p class="small">منتجات مختارة للعناية بالجمال من أفضل الماركات لدى الصالون.</p><div class="salon-product-list">'+products.map(p=>`<article class="salon-product-card"><img src="${esc(p.img)}" alt="${esc(p.name)}"><div><h3>${esc(p.name)}</h3><p class="pink">${fmt(p.price)} د.ع</p><button class="outline" onclick="notify('خدمة الطلب المباشر للمنتجات تتوفر قريباً')">عرض المنتج</button></div></article>`).join('')+'</div></section>';}
+function bridesContent(){return '<section class="salon-tab-content"><h3>قسم العرائس</h3><p class="small">خدمات متكاملة لتجهيز العروس لدى الصالون المختار.</p><div class="panel"><h3>مكياج العروس</h3><p>اختاري الإطلالة والمختصات داخل بطاقة الخدمة.</p><button class="primary" onclick="salonatiOpenSalonService(5)">إطلالات المكياج</button></div><div class="panel"><h3>شعر العروس</h3><p>تصفيف وقصّات وتحضير الشعر للمناسبة.</p><button class="primary" onclick="salonatiOpenSalonService(1)">خدمات الشعر</button></div><button class="outline" onclick="salonatiOffers()">باقات وعروض العرائس</button></section>';}
+function staffContent(){return '<section class="salon-tab-content"><h3>قسم المحجبات</h3><p class="small">قسم مخصص لخدمات الشعر والعناية مع مراعاة الخصوصية.</p><div class="panel"><h3>خصوصية وراحة</h3><p>مساحة خاصة للسيدات وكادر نسائي.</p><p>يُنسّق توفر القسم وموعد الخدمة مع الصالون.</p></div><div class="panel"><h3>الخدمات</h3><p>قص وتصفيف الشعر · الصبغ · العناية بالشعر</p><button class="primary" onclick="salonatiChooseTab(\'services\')">عرض الخدمات</button></div><p class="category-demo-note">قسم مخصص للخدمات والمرافق الخاصة مع توفير أعلى درجات الراحة والخصوصية.</p></section>';}
+
+window.salonPage=function(){
+ const active=['services','products','staff','brides'].includes(state.tab)?state.tab:'services';state.tab=active;
+ // Reuse the current services view so all selection, totals and booking controls survive.
+ state.tab='services';let html;try{html=originalPage();}finally{state.tab=active;}
+ const template=document.createElement('template');template.innerHTML=html;const tabs=template.content.querySelector('.tabs');if(!tabs)return html;
+ tabs.setAttribute('role','tablist');tabs.setAttribute('aria-label','أقسام الصالون');
+ tabs.innerHTML=[['services','الخدمات'],['staff','قسم المحجبات'],['brides','قسم العرائس'],['products','المنتجات']].map(([id,title])=>`<button type="button" role="tab" aria-selected="${id===active}" class="${id===active?'on':''}" onclick="salonatiChooseTab('${id}')">${title}</button>`).join('');
+ if(active!=='services'){while(tabs.nextElementSibling)tabs.nextElementSibling.remove();tabs.insertAdjacentHTML('afterend',active==='products'?productContent():active==='brides'?bridesContent():staffContent());}
+ 
+ for(const remove of template.content.querySelectorAll('.remove')){remove.textContent='−';remove.classList.add('small-service-minus');}
+ if(active==='services')for(const row of template.content.querySelectorAll('.chosen-line')){
+ const remove=row.querySelector('.remove'),id=state.selectedServices.find(id=>remove?.getAttribute('aria-label')==='حذف '+services.find(s=>s.id===id)?.name);if(!id)continue;
+ const workers=staffFor(id),picked=workers.filter(w=>(state.serviceStaff?.[id]||[]).includes(w.id));
+ row.insertAdjacentHTML('beforeend',`<div class="service-staff-choice"><small class="small">الكادر: <strong>${picked.length?picked.map(w=>esc(w.name)).join('، '):'كادر عشوائي'}</strong></small><button type="button" class="outline" data-staff-service="${id}" onclick="salonatiOpenStaff(${id})">${picked.length?'تغيير الكادر':'اختيار الكادر'}</button></div>`);
+ }
+
+ return template.innerHTML;
+};
+function withStaff(html){const t=document.createElement('template');t.innerHTML=html;for(const p of t.content.querySelectorAll('p'))if(p.textContent.startsWith('الكادر:'))p.remove();const header=t.content.querySelector('header');if(header)header.insertAdjacentHTML('afterend',`<div class="salon-staff-summary">${state.selectedServices.map(id=>{const worker=staffFor(id).filter(w=>(state.serviceStaff?.[id]||[]).includes(w.id));return `<p>${esc(services.find(s=>s.id===id)?.name||'')} — ${worker.length?worker.map(w=>esc(w.name)).join('، '):'كادر عشوائي'}</p>`;}).join('')}</div>`);return t.innerHTML;}
+
+const originalBooking=window.booking,originalSummary=window.summary,originalConfirm=window.confirmBooking,originalBookings=window.bookings;
+window.booking=function(){const t=document.createElement('template');t.innerHTML=withStaff(originalBooking());const times=t.content.querySelector('.times');if(times)times.innerHTML=Array.from({length:15},(_,i)=>{const hour=8+i,label=`${(hour%12)||12}:00 ${hour<12?'ص':'م'}`;return `<button class="${state.time===label?'on':''}" onclick="state.time='${label}';render()">${label}</button>`;}).join('');return t.innerHTML;};window.summary=function(){return withStaff(originalSummary());};
+window.confirmBooking=function(){const previous=state.bookings[0]?.id,w=chosen();const result=originalConfirm();const b=state.bookings[0];if(b&&b.id!==previous){b.serviceStaff={...(state.serviceStaff||{})};b.staffName=state.selectedServices.map(id=>{const person=staffFor(id).filter(x=>(state.serviceStaff?.[id]||[]).includes(x.id));return (services.find(x=>x.id===id)?.name||'')+': '+(person.length?person.map(x=>x.name).join('، '):'كادر عشوائي');}).join('، ');save('salonati_bookings',state.bookings);render();}return result;};
+window.bookings=function(){const template=document.createElement('template');template.innerHTML=originalBookings();for(const panel of template.content.querySelectorAll('.panel')){const b=state.bookings.find(x=>panel.textContent.includes(x.id));if(b?.staffName){const p=document.createElement('p');p.className='small';p.textContent='الكادر: '+b.staffName;panel.appendChild(p);}}return template.innerHTML;};
+if(state.page==='salon')render();
+})();
+
+(()=>{
+'use strict';
+const groups={
+ hair:{title:'العناية بالشعر',subtitle:'اختاري القصّة أو خدمة الشعر التي تناسبكِ',image:serviceImgs[0],items:[['قصّة كاريه',25000,60],['قصّة بوب قصيرة',25000,60],['قصّة شعر مدرّج',30000,60],['قصّة بيكسي',25000,60],['قصّ الغرّة والأطراف',15000,30],['قصّة شعر طويل',25000,60],['تصفيف واستشوار',20000,45],['صبغ الشعر',60000,90]]},
+ makeup:{title:'المكياج',subtitle:'إطلالات مختلفة للمناسبات واليوم العادي',image:serviceImgs[1],items:[['مكياج ناعم',30000,60],['مكياج مناسبات',40000,75],['مكياج عروس',120000,120],['مكياج عيون',20000,40]]},
+ skin:{title:'العناية بالبشرة',subtitle:'اختاري جلسة العناية المناسبة لكِ',image:serviceImgs[3],items:[['تنظيف البشرة',35000,60],['ترطيب البشرة',30000,45],['ماسك وعناية بالوجه',25000,40],['جلسة عناية متكاملة',50000,75]]},
+ nails:{title:'العناية بالأظافر',subtitle:'ألوان وعناية وإطلالات للأظافر',image:serviceImgs[2],items:[['مناكير كلاسيكي',10000,30],['مناكير جل',15000,45],['بديكير',20000,45],['رسم وتزيين الأظافر',25000,60]]}
+};
+let nextId=1100;
+for(const [key,g] of Object.entries(groups))g.items=g.items.map(([name,price,min])=>{const existing=services.find(s=>s.name===name);const item={id:existing?existing.id:nextId++,name,price,min,cat:{hair:'شعر',makeup:'مكياج',skin:'بشرة',nails:'أظافر'}[key],img:g.image,group:key};if(!services.some(s=>s.id===item.id))services.push(item);return item;});
+let activeGroup='hair',pendingItem=null;
+window.salonatiOpenCategory=function(key){if(!groups[key])return;activeGroup=key;pendingItem=null;go('category-'+key);};
+window.salonatiCategoryService=function(id){const item=Object.values(groups).flatMap(g=>g.items).find(s=>s.id===id);if(!item)return;pendingItem=item;go('category-salons');};
+window.salonatiCategorySalon=function(id){if(!pendingItem)return;const item=pendingItem;chooseSalon(id);state.selectedServices=[item.id];state.pendingStaffService=item.id;state.tab='services';render();};
+function bindCategoryButtons(){const labels=[['عناية بالشعر','hair'],['مكياج','makeup'],['عناية بالبشرة','skin'],['أظافر','nails']];for(const b of document.querySelectorAll('#app .categories .cat')){const key=labels.find(([label])=>b.textContent.includes(label))?.[1];if(key){b.onclick=()=>window.salonatiOpenCategory(key);b.setAttribute('aria-label','فتح '+groups[key].title);}}}
+function categoryPage(key){const g=groups[key];return `<header><button class="back" onclick="go('home')" aria-label="العودة للرئيسية">❯</button><h3 class="pink">${g.title}</h3><span></span></header><section class="category-page-intro"><span class="pill">${key==='hair'?'قصّات وخدمات الشعر':'خدمات '+g.title}</span><h1>${g.title}</h1><p>${g.subtitle}</p></section><p class="category-demo-note">تفاصيل الخدمات والأسعار للحجز المباشر.</p><div class="category-service-grid">${g.items.map(item=>`<article class="category-service-card"><img src="${item.img}" alt="صورة توضيحية لقسم ${g.title}" loading="lazy"><div><h2>${item.name}</h2><p>${item.min} دقيقة</p><strong>${fmt(item.price)} د.ع</strong><button class="primary" onclick="salonatiCategoryService(${item.id})">اختاري الصالون</button></div></article>`).join('')}</div>`;}
+function categorySalonPage(){if(!pendingItem)return categoryPage(activeGroup);return `<header><button class="back" onclick="salonatiOpenCategory('${activeGroup}')" aria-label="العودة للخدمات">❯</button><h3 class="pink">اختاري الصالون</h3><span></span></header><div class="panel"><h3>${pendingItem.name}</h3><p>${fmt(pendingItem.price)} د.ع · ${pendingItem.min} دقيقة</p><p class="small">الخدمات والأسعار المعتمدة من قبل الصالون.</p></div><div class="category-salon-list">${salons.map(s=>`<article class="salon"><img src="${s.img}" alt="صورة صالون توضيحية"><div class="info"><h3>${s.name}</h3><p>بغداد · ${s.area}</p><div class="actions"><button onclick="salonatiCategorySalon(${s.id})">اختاري واحجزي</button></div></div></article>`).join('')}</div>`;}
+// Keep the salon's general services concise; a chosen catalogue style is added to the visible selection.
+const previousSalonPage=window.salonPage;
+window.salonPage=function(){const template=document.createElement('template');template.innerHTML=previousSalonPage();for(const row of template.content.querySelectorAll('.service')){const name=row.querySelector('.txt b')?.textContent;const item=services.find(s=>s.name===name);if(item?.id>=1100&&!state.selectedServices.includes(item.id))row.remove();}return template.innerHTML;};
+const previousRender=window.render;
+window.render=function(){previousRender();const root=document.getElementById('app');if(state.page==='category-salons')root.innerHTML=categorySalonPage()+nav();else if(state.page.startsWith('category-')){const key=state.page.slice(9);if(groups[key])root.innerHTML=categoryPage(key)+nav();}bindCategoryButtons();};
+render();
+})();
+
+(()=>{
+'use strict';
+const originalSalonPage=window.salonPage,originalRender=window.render;
+let galleryContext=null;
+// Every salon owns a separate demonstration catalogue; real portfolio uploads replace these samples later.
+const haircutNames={1:['قصّة كاريه','قصّة بوب قصيرة','قصّة شعر مدرّج'],2:['قصّة بيكسي','قصّة شعر طويل','قصّة بوب قصيرة'],3:['قصّة شعر مدرّج','قصّة شعر طويل','قصّ الغرّة والأطراف'],4:['قصّة بوب قصيرة','قصّة كاريه','قصّة بيكسي']};
+const baseIds=[1,2,3,4,5],catalogues={};
+for(const salon of salons){
+ const byName=name=>services.find(s=>s.name===name);
+ catalogues[salon.id]={
+  1:(haircutNames[salon.id]||haircutNames[1]).map(byName).filter(Boolean).map(s=>({...s,salonId:salon.id,sample:true})),
+  3:['مناكير كلاسيكي','مناكير جل','رسم وتزيين الأظافر'].map(byName).filter(Boolean).map(s=>({...s,salonId:salon.id,sample:true})),
+  4:['تنظيف البشرة','ترطيب البشرة','ماسك وعناية بالوجه'].map(byName).filter(Boolean).map(s=>({...s,salonId:salon.id,sample:true})),
+  5:['مكياج ناعم','مكياج مناسبات','مكياج عروس'].map(byName).filter(Boolean).map(s=>({...s,salonId:salon.id,sample:true}))
+ };
+ catalogues[salon.id][2]=[['صبغة لون واحد',60000,90],['خصل وهايلايت',70000,100],['تدرّج ألوان الشعر',80000,120]].map(([name,price,min],i)=>{const item={id:2100+salon.id*10+i,name,price,min,cat:'شعر',img:serviceImgs[0],salonId:salon.id,sample:true};if(!services.some(s=>s.id===item.id))services.push(item);return item;});
+}
+const serviceActionIcons={
+  1:'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="transform:scaleX(-1)" aria-hidden="true"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="14.47" y1="14.48" x2="20" y2="20"/><line x1="8.12" y1="8.12" x2="12" y2="12"/></svg>',
+  2:'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 4-2 4 4 2 2-4-4-2Z"/><path d="m11 8-7 7a2 2 0 0 0 0 2.83l.17.17a2 2 0 0 0 2.83 0l7-7"/><path d="M14.5 9.5 17 12"/></svg>',
+  3:'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 10V6a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v4"/><rect x="5" y="10" width="14" height="11" rx="3"/><line x1="12" y1="4" x2="12" y2="10"/><line x1="9" y1="14" x2="15" y2="14"/></svg>',
+  4:'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/><path d="M9 13a3 3 0 0 0 6 0"/></svg>',
+  5:'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 21 8.5-8.5"/><path d="M12.5 11.5 17 7l4 4-4.5 4.5"/><path d="m14 10 2 2"/></svg>'
+};
+const serviceNames={1:'قص الشعر',2:'صبغ الشعر',3:'العناية بالأظافر',4:'العناية بالبشرة',5:'المكياج'};
+window.salonatiOpenSalonService=function(serviceId){if(!baseIds.includes(serviceId))return;galleryContext={salonId:state.salon,serviceId};go('salon-service-gallery');};
+window.salonatiBackToSalon=function(){if(galleryContext)state.salon=galleryContext.salonId;state.tab='services';go('salon');};
+window.salonatiChooseSalonStyle=function(id){if(!galleryContext||state.salon!==galleryContext.salonId)return;const items=catalogues[galleryContext.salonId]?.[galleryContext.serviceId]||[],item=items.find(x=>x.id===id&&x.salonId===state.salon);if(!item)return;const replaceIds=new Set([galleryContext.serviceId,...items.map(x=>x.id)]);state.selectedServices=state.selectedServices.filter(x=>!replaceIds.has(x));state.selectedServices.push(item.id);state.pendingStaffService=item.id;state.date='';state.time='';state.tab='services';render();};
+function gallery(){if(!galleryContext)return '';const salon=salons.find(s=>s.id===galleryContext.salonId),items=catalogues[salon.id]?.[galleryContext.serviceId]||[];return `<header><button class="back" onclick="salonatiBackToSalon()" aria-label="العودة لخدمات الصالون">❯</button><h3 class="pink">${serviceNames[galleryContext.serviceId]}</h3><span></span></header><section class="category-page-intro"><span class="pill">${esc(salon.name)}</span><h1>${galleryContext.serviceId===1?'أنواع قصّات الشعر':serviceNames[galleryContext.serviceId]}</h1><p>اختاري من معرض ${esc(salon.name)} — ${esc(salon.area)}</p></section><p class="category-demo-note">نماذج ملهمة من أحدث صيحات وقصّات وإطلالات الصالون.</p><div class="category-service-grid salon-private-gallery" data-salon-id="${salon.id}">${items.map(item=>`<article class="category-service-card" data-salon-id="${salon.id}"><img src="${item.img}" alt="نموذج توضيحي لخدمة ${esc(item.name)} ضمن عرض ${esc(salon.name)}"><div><h2>${esc(item.name)}</h2><p>${item.min} دقيقة</p><strong>${fmt(item.price)} د.ع</strong><button class="primary" onclick="salonatiChooseSalonStyle(${item.id})">${state.selectedServices.includes(item.id)?'تم الاختيار ✓':galleryContext.serviceId===1?'اختيار القصّة':'اختيار الخدمة'}</button></div></article>`).join('')}</div><button class="primary gallery-continue" onclick="salonatiBackToSalon()">متابعة الخدمات المختارة (${state.selectedServices.length})</button>`;}
+window.salonPage=function(){const template=document.createElement('template');template.innerHTML=originalSalonPage();if(state.tab==='services'){
+ for(const row of [...template.content.querySelectorAll('.service')]){
+  const name=row.querySelector('.txt b')?.textContent,item=services.find(s=>s.name===name);
+  if(!item||!baseIds.includes(item.id)){row.remove();continue;}
+  const link=document.createElement('button');link.type='button';link.className='salon-service-link';link.setAttribute('onclick',`salonatiOpenSalonService(${item.id})`);link.setAttribute('aria-label','فتح '+serviceNames[item.id]+' في '+salons.find(s=>s.id===state.salon).name);
+  const actionIcon=serviceActionIcons[item.id]||serviceActionIcons[1];link.innerHTML=`<img src="${item.img}" alt=""><span class="txt"><strong>${serviceNames[item.id]}</strong><small>${item.id===1?'أنواع القصّات وصور الصالون':'الأنواع والصور الخاصة بالصالون'}</small></span><span class="salon-service-arrow" aria-label="عرض ${serviceNames[item.id]}" title="فتح ${serviceNames[item.id]}">${actionIcon}</span>`;row.replaceWith(link);
+ }
+ for(const p of template.content.querySelectorAll('p'))if(p.textContent.includes('اضغطي +'))p.textContent='افتحي الخدمة واختاري النوع المناسب لكِ';
+ }else if(state.tab==='products'){const h=template.content.querySelector('.salon-tab-content h3');if(h)h.textContent='منتجات '+salons.find(s=>s.id===state.salon).name;}
+ return template.innerHTML;};
+window.render=function(){originalRender();if(state.page==='salon-service-gallery')document.getElementById('app').innerHTML=gallery()+nav();};
+const staffRender=window.render;window.render=function(){staffRender();if(state.pendingStaffService){salonatiOpenStaff(state.pendingStaffService);}};
+render();
+})();
+
+(()=>{
+'use strict';
+const previousRender=window.render,previousSalonPage=window.salonPage;let offerSalon=0,offerCategory='الكل',fromProfile=false;
+const sections=[['شعر','قص وتصفيف الشعر',35000,25000,'تخفيض 29٪','عناية وإطلالة جديدة'],['مكياج','مكياج مناسبات',60000,45000,'تخفيض 25٪','للسهرات والحفلات'],['بشرة','تنظيف وترطيب البشرة',50000,40000,'تخفيض 20٪','جلسة عناية متكاملة'],['أظافر','مناكير وبديكير',30000,22500,'تخفيض 25٪','ألوان ولمسة أنيقة'],['مناسبات','باقة العروس',250000,200000,'باقة خاصة · 20٪','شعر ومكياج وعناية بالأظافر'],['مناسبات','باقة العيد',100000,75000,'عرض العيد · 25٪','تصفيف شعر ومكياج ناعم']];
+window.salonatiOffers=function(){fromProfile=false;offerSalon=state.salon;offerCategory='الكل';go('special-offers');};
+window.salonatiOfferSalon=function(id){if(id===0)fromProfile=true;offerSalon=id;go('special-offers');};
+window.salonatiOfferCategory=function(i){offerCategory=['الكل','شعر','مكياج','بشرة','أظافر','مناسبات'][i]||'الكل';render();};
+window.salonatiReturnFromOffers=function(){if(fromProfile){if(offerSalon){offerSalon=0;go('special-offers');}else go('profile');return;}state.tab='services';go('salon');};
+function templateOfferAppend(t,html){const holder=document.createElement('template');holder.innerHTML=html;t.content.appendChild(holder.content);}
+window.salonPage=function(){return previousSalonPage();};
+function page(){const current=salons.find(s=>s.id===offerSalon);return `<header><button class="back" onclick="salonatiReturnFromOffers()" aria-label="العودة للصالون">❯</button><h3 class="pink">العروض الخاصة</h3><span></span></header><section class="category-page-intro"><h1>${current?esc(current.name):'عروض الصالونات'}</h1><p>${current?'تخفيضات وباقات لكل إطلالة ومناسبة':'اختاري صالوناً لمشاهدة عروضه وتخفيضاته وباقات المناسبات'}</p></section><p class="category-demo-note">عروض وتخفيضات حصرية مميزة متوفرة لدى الصالونات المعتمدة.</p>${current?`<div class="offer-filters" role="group" aria-label="أقسام العروض">${['الكل','شعر','مكياج','بشرة','أظافر','مناسبات'].map((c,i)=>`<button aria-pressed="${offerCategory===c}" onclick="salonatiOfferCategory(${i})">${c}</button>`).join('')}</div><div class="offer-list">${sections.filter(x=>offerCategory==='الكل'||x[0]===offerCategory).map((x,i)=>{const extra=(current.id-1)*2500,before=x[2]+extra,after=x[3]+extra;return `<article class="offer-card"><span class="pill">${x[0]}</span><span class="offer-badge">${extra?'عرض خاص':x[4]}</span><h2>${x[1]}</h2><p>${x[5]}</p><p class="offer-price"><del>${fmt(before)} د.ع</del><strong>${fmt(after)} د.ع</strong></p><small>عرض حصري · التفاصيل والتوفر يحددهما الصالون</small></article>`;}).join('')}</div><button class="primary offer-salon-button" onclick="chooseSalon(${current.id})">زيارة ${esc(current.name)}</button>`:`<div class="offer-list">${salons.map(s=>`<article class="offer-card"><span class="pill">6 عروض مميزة</span><h2>${esc(s.name)}</h2><p>${esc(s.area)} · شعر، مكياج، بشرة، أظافر ومناسبات</p><strong>باقات وتخفيضات مميزة</strong><button class="primary" onclick="salonatiOfferSalon(${s.id})">عروض ${esc(s.name)}</button></article>`).join('')}</div>`}`;}
+function wire(){if(state.page==='home')for(const b of document.querySelectorAll('#app .banner'))if(b.querySelector('h3')?.textContent.trim()==='العروض الخاصة')b.remove();}
+window.render=function(){previousRender();if(state.page==='special-offers')document.getElementById('app').innerHTML=page()+nav();wire();};
+new MutationObserver(wire).observe(document.getElementById('app'),{childList:true});render();
+})();
+
+(()=>{
+const themes={lavender:['بنفسجي صالوناتي','#4b0c9b','#f3ebfa','#fffcff','#d9baff','#250743','#70518e','#eee0f8','#c6a0fa']};
+let current='lavender';
+function apply(id='lavender'){current='lavender';const t=themes.lavender,keys=['--pink','--bg','--card','--line','--text','--muted','--outside','--tint'];keys.forEach((k,i)=>document.documentElement.style.setProperty(k,t[i+1]));document.documentElement.style.setProperty('--soft','#eee0f8');document.documentElement.dataset.themeMode='light';try{localStorage.setItem('salonati-preview-theme','lavender');}catch{}document.querySelectorAll('[data-preview-theme]').forEach(b=>b.setAttribute('aria-pressed','true'));}
+window.salonatiSetTheme=()=>apply('lavender');
+function mount(){const root=document.getElementById('app');if(!root)return;root.querySelector('.theme-preview')?.remove();}
+new MutationObserver(mount).observe(document.getElementById('app'),{childList:true});apply();mount();
+})();
+
+(()=>{
+function update(){const root=document.getElementById('app');if(!root)return;const header=root.querySelector('header h3');if(header?.textContent.trim()!=='الملف الشخصي')return;for(const b of root.querySelectorAll('button')){if(b.textContent.includes('منتجات وعروض')){b.innerHTML='العروض الخاصة <span>‹</span>';b.setAttribute('onclick','salonatiOfferSalon(0)');}if(b.textContent.includes('استكشاف الصالونات'))b.setAttribute('onclick',"go('search')");}for(const p of root.querySelectorAll('p'))if(p.textContent.includes('أسود ووردي ثابت'))p.textContent='صالوناتي';}
+const previous=window.render;window.render=function(){previous();update();};new MutationObserver(update).observe(document.getElementById('app'),{childList:true});update();
+})();
+
+(()=>{function enhance(){if(state.page!=='home')return;const cats=document.querySelector('#app .categories');if(!cats)return;if(!cats.querySelector('.discount-category')){const button=document.createElement('button');button.className='cat discount-category';button.innerHTML='<span style="font-size:25px">٪</span>الخصومات';button.onclick=()=>salonatiOfferSalon(0);cats.insertBefore(button,cats.children[2]);}if(!document.getElementById('popularServices')){const section=document.createElement('section');section.id='popularServices';section.innerHTML='<h3>الخدمات الأكثر طلبًا</h3><p class="muted small">اختيارات مميزة لاكتشاف الخدمات</p><div class="popular-row">'+[['قصّات الشعر','hair',0],['مكياج مناسبات','makeup',1],['مناكير جل','nails',2]].map(([title,key,img])=>`<button class="popular-card" onclick="salonatiOpenCategory('${key}')"><img src="${serviceImgs[img]}" alt="${title}"><b>${title}</b></button>`).join('')+'</div>';cats.after(section);}}const original=window.render;window.render=function(){original();enhance();};new MutationObserver(enhance).observe(document.getElementById('app'),{childList:true});enhance();})();
+
+(()=>{let ads=[],index=0;const escText=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));function markup(){const a=ads[index%ads.length];return '<span class="pill">إعلان إدارة لمسة</span><details><summary style="cursor:pointer"><h3>'+escText(a.title)+'</h3><p>'+escText(a.text)+'</p><small>عرض التفاصيل</small></summary><p>'+escText(a.details)+'</p></details>';}function mount(){if(!ads.length||state.page!=='home')return;const header=document.querySelector('#app header');if(!header||document.getElementById('centralCustomerAd'))return;const box=document.createElement('section');box.id='centralCustomerAd';box.className='card';box.style.cssText='padding:16px;border:1px solid var(--line);border-radius:16px;margin:14px 0;background:var(--tint)';box.innerHTML=markup();const old=document.getElementById('salonati-advert');if(old){old.hidden=true;old.after(box);}else header.after(box);}fetch('https://lamsa-central.arjwan307.workers.dev/config').then(r=>{if(!r.ok)throw Error();return r.json()}).then(d=>{ads=d.ads.filter(a=>a.active&&['both','customer'].includes(a.target));mount();}).catch(()=>{});new MutationObserver(mount).observe(document.getElementById('app'),{childList:true});setInterval(()=>{const box=document.getElementById('centralCustomerAd');if(box&&!box.querySelector('details[open]')&&!box.matches(':hover')&&!box.contains(document.activeElement)&&!document.hidden){index++;box.innerHTML=markup();}},5000);})();
+
+(()=>{'use strict';if(window.__salonatiUsage)return;window.__salonatiUsage=true;const API='https://lamsa-central.arjwan307.workers.dev/usage/collect';const app=location.pathname.startsWith('/admin')?'admin':location.hostname.includes('owner')?'owner':'customer';const uuid=()=>Array.from(crypto.getRandomValues(new Uint8Array(16)),x=>x.toString(16).padStart(2,'0')).join('');let sid;try{sid=sessionStorage.getItem('salonati-usage-session');if(!sid){sid=uuid();sessionStorage.setItem('salonati-usage-session',sid)}}catch{sid=uuid()}let sent=0,lastPage='',lastAt=0;const allowedPages=new Set(['home','salon','bookings','booking','summary','profile','search','favorites','products','services','more','staff','login','special-offers','category-hair','category-makeup','category-skin','category-nails','category-salons','registrations','ads','locations','external','finance','settings','success','unknown']);function page(){let value='unknown';try{if(app==='admin'&&typeof adminPage!=='undefined')value=adminPage;else if(app==='owner'&&typeof window.__salonatiOwnerPage==='string')value=window.__salonatiOwnerPage;else if(app==='customer'&&typeof state!=='undefined')value=state.page}catch{}return allowedPages.has(value)?value:'unknown'}function track(event){if(sent>=180)return;sent++;fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:uuid(),sid,app,event,page:page()}),keepalive:true}).catch(()=>{})}function view(){const p=page(),now=Date.now();if(p!==lastPage&&now-lastAt>250){lastPage=p;lastAt=now;track('page_view')}}let timer;function schedule(){clearTimeout(timer);timer=setTimeout(view,300)}function notice(){/* Notice removed as requested */}function wrap(name,kind,storageKey){const original=window[name];if(typeof original!=='function'||original.__usage)return;const next=function(...args){track(kind+'_attempt');let before='';try{before=storageKey?localStorage.getItem(storageKey)||'':''}catch{}const check=()=>{try{if(storageKey&&(localStorage.getItem(storageKey)||'')!==before)track(kind+'_saved')}catch{}schedule()};const result=original.apply(this,args);if(result&&typeof result.then==='function')result.then(check,()=>{});else check();return result};next.__usage=true;window[name]=next}if(app==='owner'){for(const [fn,k] of [['saveSalon','salon'],['saveService','service'],['saveProduct','product'],['saveContentMedia','media'],['changeBooking','booking_status']])wrap(fn,k,'salonati-owner-v2')}if(app==='customer'){for(const fn of ['confirmBooking','saveBooking','submitBooking'])wrap(fn,'booking','salonati_bookings');wrap('cancelBooking','booking_status','salonati_bookings')}
+// Track only predefined action names; never forward labels, field values or request bodies.
+document.addEventListener('submit',e=>{const id=e.target.id;const kind=({loginForm:'login',registrationForm:'registration',demoBookingForm:'booking',financeForm:'finance'})[id];if(kind)track(kind+'_attempt')},true);document.addEventListener('click',e=>{const button=e.target.closest('button');if(!button)return;const action=button.getAttribute('onclick')||'';if(/saveSalon\(/.test(action))track('salon_attempt');if(app==='admin'&&button.id==='save')track(page()==='locations'?'salon_attempt':'ad_attempt');schedule()},true);
+const nativeSet=Storage.prototype.setItem;Storage.prototype.setItem=function(key,value){const result=nativeSet.call(this,key,value);if(app==='admin'){const kind=({'lamsa-admin-finance-v1':'finance','lamsa-admin-registrations-v1':'registration','lamsa-admin-bookings-v1':'booking_status'})[key];if(kind)track(kind+'_saved')}return result};const originalFetch=window.fetch;window.fetch=function(input,options){const result=originalFetch.apply(this,arguments);const url=typeof input==='string'?input:'';if(app==='admin'&&url==='https://lamsa-central.arjwan307.workers.dev/config'&&options?.method==='PUT')result.then(r=>{if(r.ok)track(page()==='locations'?'salon_saved':'ad_saved')},()=>{});return result};const root=document.getElementById('app')||document.querySelector('main')||document.body;new MutationObserver(()=>{schedule();notice()}).observe(root,{childList:true});track('app_open');notice();schedule();})();

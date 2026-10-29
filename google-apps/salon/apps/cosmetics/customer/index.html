@@ -1,0 +1,327 @@
+<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#f3ebfa"><title>صالوناتي كوزمتك | متجر ومستحضرات التجميل والعطور</title><link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icons/icon-180.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="apple-mobile-web-app-title" content="صالوناتي كوزمتك"><meta name="format-detection" content="telephone=no"><style>
+:root{color-scheme:light;--bg:#f3ebfa;--outside:#e6d5fa;--card:#ffffff;--line:#d9baff;--pink:#7a1574;--soft:#f5e2f3;--tint:#f8ebf7;--text:#320a30;--muted:#825280}
+*{box-sizing:border-box}
+html{background:var(--outside,#e6d5fa);color-scheme:light}
+body{margin:0;background:linear-gradient(125deg,#e5d3fa 0%,#f7f0fd 35%,#e8d8fb 68%,#f6edff 100%)!important;background-attachment:fixed;color:var(--text);font-family:Tahoma,"Noto Sans Arabic",Arial,sans-serif;line-height:1.7;font-size:14px}
+body::before,body::after{content:'';position:fixed;inset:-15%;pointer-events:none;z-index:0;display:block;border-radius:45%;will-change:transform,background-position;mix-blend-mode:screen}
+body::before{opacity:.75;background:radial-gradient(ellipse at 22% 35%,rgba(255,255,255,.9),transparent 32%),radial-gradient(ellipse at 78% 62%,rgba(219,119,255,.42),transparent 38%),linear-gradient(130deg,transparent 20%,rgba(255,255,255,.66) 31%,rgba(235,166,255,.25) 40%,transparent 52%);filter:blur(12px)}
+body>main{position:relative;z-index:1;max-width:480px;min-height:100dvh;margin:auto;background:linear-gradient(145deg,rgba(255,252,255,.78),rgba(245,226,255,.68),rgba(232,196,250,.72))!important;backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);border:1px solid rgba(255,255,255,.78)!important;box-shadow:0 22px 80px rgba(122,21,116,0.14);padding:18px 17px 115px}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer;border:0;background:none;color:inherit}
+header{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:8px 0 20px}
+.brand{font-size:30px;font-weight:900;color:var(--pink)}
+.sub{color:var(--muted);font-size:12px}
+.pink{color:var(--pink)}
+h1,h2,h3,p{margin:0}
+h1,h2,h3,strong{font-weight:700}
+h2{font-size:21px;margin:21px 0 13px}
+h3{font-size:16px}
+.primary{background:var(--pink);color:#ffffff;border-radius:13px;padding:13px 18px;font-weight:800;width:100%;text-align:center}
+.primary:disabled{opacity:.4}
+.search{width:100%;background:#ffffff;color:var(--text);border:1px solid var(--line);border-radius:15px;padding:14px;margin:12px 0;outline:none}
+.categories{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;margin:12px 0}
+.cat{border:1px solid var(--line);border-radius:13px;padding:10px 4px;font-size:11px;text-align:center;background:var(--card);color:var(--text);min-height:76px}
+.cat span{display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:4px;color:var(--pink)}
+.cat.active{background:var(--pink)!important;color:#ffffff!important}
+.cat.active span{color:#ffffff!important}
+.salon{display:flex;flex-direction:row-reverse;align-items:center;gap:12px;border:1px solid var(--line);border-radius:17px;padding:12px;margin:11px 0;background:var(--card);box-shadow:0 3px 12px rgba(122,21,116,0.05)}
+.salon img{width:115px;height:115px;object-fit:cover;border-radius:14px;flex-shrink:0}
+.salon .info{flex:1;min-width:0;text-align:right}
+.salon h3{font-size:16px;line-height:1.5}
+.salon p{font-size:12px;color:var(--muted);margin-top:5px}
+.salon button{background:var(--pink);color:#ffffff;border-radius:9px;padding:7px 12px;font-size:11px;font-weight:bold;margin-top:8px}
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(480px,100%);background:rgba(255,252,255,0.96);backdrop-filter:blur(14px);border-top:1px solid var(--line);border-radius:24px 24px 0 0;display:grid;grid-template-columns:repeat(5,1fr);padding:10px 5px calc(12px + env(safe-area-inset-bottom));z-index:9;box-shadow:0 -4px 20px rgba(122,21,116,0.08)}
+.nav button{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;color:var(--muted)}
+.nav button b{font-size:21px;font-weight:normal}
+.nav button.on{color:var(--pink);font-weight:bold}
+.tabs{display:flex;gap:7px;margin:15px 0;overflow-x:auto}
+.tabs button{flex:1;padding:10px 8px;border:1px solid var(--line);border-radius:11px;font-size:12px;background:var(--card);color:var(--text);white-space:nowrap}
+.tabs .on{background:var(--pink)!important;color:#ffffff!important}
+.product-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px;margin:12px 0}
+.product-card{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden;padding:10px}
+.product-card img{width:100%;height:130px;object-fit:cover;border-radius:11px}
+.product-card h3{font-size:14px;margin:8px 0 4px;line-height:1.4}
+.product-card p{font-size:12px;color:var(--muted)}
+.product-card .price{color:var(--pink);font-weight:bold;font-size:14px;margin:6px 0}
+.product-card button{width:100%;padding:9px;background:var(--pink);color:#fff;border-radius:10px;font-size:12px;font-weight:bold}
+.banner-ad{background:linear-gradient(130deg,#f8dff5,#ebd2f7);border:1px solid var(--line);border-radius:18px;padding:16px;margin:15px 0}
+.banner-ad h3{color:var(--pink);font-size:18px;margin-bottom:6px}
+.banner-ad p{font-size:13px;color:var(--muted);line-height:1.6}
+.toast{position:fixed;bottom:115px;left:50%;transform:translateX(-50%);background:var(--pink);color:#fff;padding:11px 18px;border-radius:12px;font-weight:bold;z-index:30;display:none;box-shadow:0 6px 20px rgba(122,21,116,0.3)}
+.field{display:block;width:100%;padding:13px;margin:10px 0;background:#fff;border:1px solid var(--line);border-radius:11px;outline:none}
+.empty{text-align:center;color:var(--muted);padding:40px 10px}
+.switch-bar{background:#ebd2f7;border:1px solid var(--line);border-radius:14px;padding:12px;text-align:center;margin-bottom:15px;font-size:13px;font-weight:bold}
+.switch-bar a{color:var(--pink);text-decoration:underline}
+</style></head><body><main id="app"><p>جارٍ التحميل...</p></main><div id="toast" class="toast"></div><script>
+const cats={makeup:'المكياج',skincare:'العناية بالبشرة',perfumes:'العطور',hair:'العناية بالشعر',accessories:'الإكسسوارات'};
+const catIcons={makeup:'💄',skincare:'🌿',perfumes:'🌸',hair:'💇‍♀️',accessories:'✨'};
+let page='home',selectedCategory='',selectedStore=null,searchQuery='',basket=[];
+
+function getOwnerData(){
+  try{
+    return JSON.parse(localStorage.getItem('salonati-cosmetics-owner-v2')) || {};
+  }catch{
+    return {};
+  }
+}
+
+function getStores(){
+  let od = getOwnerData();
+  let st = od.store || {};
+  return [
+    {
+      id:'s1',
+      name: st.name || 'متجر ليلي للكوزمتك',
+      area: st.area || 'الكرادة',
+      about: st.about || 'أرقى مستحضرات التجميل العالمية والعطور الأصلية',
+      image: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=400&q=80',
+      active: st.open !== false
+    },
+    {id:'s2',name:'بيرفيوم سنتر بغداد',area:'الجادرية',about:'تشكيلة واسعة من العطور الفرنسية والشرقية الفاخرة',image:'https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?w=400&q=80',active:true},
+    {id:'s3',name:'عالم الجمال والعناية',area:'المنصور',about:'منتجات أصلية للعناية بالبشرة والشعر ومستحضرات التجميل',image:'https://images.unsplash.com/photo-1571781926291-c477ebfd024b?w=400&q=80',active:true}
+  ];
+}
+
+function getProducts(){
+  let od = getOwnerData();
+  let ownerProds = od.products || [];
+  let defaultProds = [
+    {id:'p1',storeId:'s1',name:'حمره ممتدة الثبات مات',category:'makeup',price:18000,description:'ألوان جذابة تدوم طوال اليوم دون جفاف الشفاه',image:'https://images.unsplash.com/photo-1586495777744-4413f21062fa?w=400&q=80',active:true},
+    {id:'p2',storeId:'s1',name:'سيروم فيتامين سي للبشرة',category:'skincare',price:28000,description:'نضارة واشراقة فورية وتفتيح البقع الداكنة',image:'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=400&q=80',active:true},
+    {id:'p3',storeId:'s2',name:'عطر شانيل الاصدار الخاص',category:'perfumes',price:145000,description:'عطر فخم يناسب السهرات والمناسبات الخاصة',image:'https://images.unsplash.com/photo-1541643600914-78b084683601?w=400&q=80',active:true}
+  ];
+  if(ownerProds.length > 0){
+    return ownerProds.map(p=>({
+      id: String(p.id),
+      storeId: 's1',
+      name: p.name,
+      category: p.category || 'makeup',
+      price: Number(p.price),
+      description: p.description || '',
+      image: p.image || 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=400&q=80',
+      active: true
+    }));
+  }
+  return defaultProds;
+}
+
+function getOffers(){
+  let od = getOwnerData();
+  let ownerOffers = od.offers || [];
+  let defaultOffers = [
+    {id:'a1',title:'مهرجان الجمال والعطور الكبرى',discount:'خصم 40%',text:'خصومات تصل لغاية 40% في جميع متاجر الكوزمتك المعتمدة لدى صالوناتي',details:'استمتعي بأقوى عروض العناية والتجميل من أرقى الماركات العالمية.'}
+  ];
+  if(ownerOffers.length > 0){
+    return ownerOffers.map(o=>({
+      id: String(o.id),
+      title: o.title,
+      discount: o.discount || 'خصم خاص',
+      text: o.details || '',
+      details: o.details || ''
+    }));
+  }
+  return defaultOffers;
+}
+
+let orders=JSON.parse(localStorage.getItem('salonati_cosmetics_orders')||'[]');
+
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.style.display='block';setTimeout(()=>t.style.display='none',3200)}
+function money(n){return Number(n||0).toLocaleString('en-US')+' د.ع'}
+
+function renderNav(){
+  return `<nav class="nav">
+    <button onclick="page='home';render()" class="${page==='home'?'on':''}"><b style="font-size:18px">⌂</b>الرئيسية</button>
+    <button onclick="page='stores';render()" class="${page==='stores'?'on':''}"><b style="font-size:18px">🛍</b>المتاجر</button>
+    <button onclick="page='offers';render()" class="${page==='offers'?'on':''}"><b style="font-size:18px">◇</b>العروض</button>
+    <button onclick="page='basket';render()" class="${page==='basket'?'on':''}"><b style="font-size:18px">🛒</b>السلة (${basket.length})</button>
+    <button onclick="page='profile';render()" class="${page==='profile'?'on':''}"><b style="font-size:18px">♙</b>حسابي</button>
+  </nav>`;
+}
+
+function renderHeader(title='صالوناتي كوزمتك'){
+  return `<div class="switch-bar">✨ هل تبحثين عن صالونات التجميل؟ <a href="/">انتقلي إلى صالوناتي</a></div>
+  <header>
+    <div>
+      <small class="sub">مستحضرات وعطور أصلية معتمدة</small>
+      <h1 class="brand">${title}</h1>
+    </div>
+    <div style="font-size:28px">💄</div>
+  </header>`;
+}
+
+function renderHome(){
+  const products = getProducts();
+  const stores = getStores();
+  const offers = getOffers();
+  const filteredProducts = searchQuery ? products.filter(p=>p.name.includes(searchQuery)||p.description.includes(searchQuery)) : products;
+  const filteredStores = selectedCategory ? stores.filter(s=>products.some(p=>p.storeId===s.id&&p.category===selectedCategory)) : stores;
+  
+  return `${renderHeader()}
+  <input class="search" placeholder="ابحثي عن منتج، ماركة، أو عطر..." value="${searchQuery}" oninput="searchQuery=this.value;render()">
+  
+  <div class="banner-ad">
+    <h3>${offers[0]?.title||'عروض الكوزمتك الحصرية'}</h3>
+    <p>${offers[0]?.text||offers[0]?.details||''}</p>
+  </div>
+
+  <h2>تصنيفات التجميل والعطور</h2>
+  <div class="categories">
+    <button onclick="selectedCategory='';render()" class="cat ${!selectedCategory?'active':''}"><span>✨</span>الكل</button>
+    ${Object.entries(cats).map(([k,n])=>`<button onclick="selectedCategory='${k}';render()" class="cat ${selectedCategory===k?'active':''}"><span>${catIcons[k]}</span>${n}</button>`).join('')}
+  </div>
+
+  <h2>متاجر الكوزمتك المعتمدة</h2>
+  <div>${filteredStores.map(s=>`
+    <div class="salon">
+      <img src="${s.image}" alt="${s.name}">
+      <div class="info">
+        <h3>${s.name}</h3>
+        <p>📍 ${s.area} · ${s.about}</p>
+        <button onclick="selectedStore='${s.id}';page='store-detail';render()">زيارة المتجر ←</button>
+      </div>
+    </div>
+  `).join('')}</div>
+
+  <h2>أبرز المنتجات والعروض</h2>
+  <div class="product-grid">
+    ${filteredProducts.map(p=>`
+      <div class="product-card">
+        <img src="${p.image}" alt="${p.name}">
+        <h3>${p.name}</h3>
+        <p class="price">${money(p.price)}</p>
+        <button onclick="addToBasket('${p.id}')">إضافة للسلة 🛒</button>
+      </div>
+    `).join('')}
+  </div>
+  ${renderNav()}`;
+}
+
+function renderStores(){
+  const stores = getStores();
+  return `${renderHeader('المتاجر')}
+  <input class="search" placeholder="ابحثي عن متجر..." value="${searchQuery}" oninput="searchQuery=this.value;render()">
+  <h2>متاجر التجميل والعطور المعتمدة</h2>
+  <div>${stores.map(s=>`
+    <div class="salon">
+      <img src="${s.image}" alt="${s.name}">
+      <div class="info">
+        <h3>${s.name}</h3>
+        <p>📍 ${s.area} · ${s.about}</p>
+        <button onclick="selectedStore='${s.id}';page='store-detail';render()">تصفح المنتجات</button>
+      </div>
+    </div>
+  `).join('')}</div>
+  ${renderNav()}`;
+}
+
+function renderStoreDetail(){
+  const stores = getStores();
+  const products = getProducts();
+  const s = stores.find(x=>x.id===selectedStore);
+  if(!s) return `${renderHeader()}<p class="empty">المتجر غير موجود</p><button onclick="page='home';render()" class="primary">الرجوع للرئيسية</button>${renderNav()}`;
+  const storeProducts = products.filter(p=>p.storeId===s.id||s.id==='s1');
+  return `${renderHeader(s.name)}
+  <button onclick="page='home';render()" style="color:var(--pink);margin-bottom:12px;font-weight:bold">← رجوع</button>
+  <div class="banner-ad" style="text-align:center">
+    <img src="${s.image}" style="width:90px;height:90px;border-radius:50%;object-fit:cover;margin-bottom:10px">
+    <h3>${s.name}</h3>
+    <p>${s.about} (${s.area})</p>
+  </div>
+  <h2>منتجات المتجر</h2>
+  <div class="product-grid">
+    ${storeProducts.map(p=>`
+      <div class="product-card">
+        <img src="${p.image}" alt="${p.name}">
+        <h3>${p.name}</h3>
+        <p class="price">${money(p.price)}</p>
+        <button onclick="addToBasket('${p.id}')">إضافة للسلة 🛒</button>
+      </div>
+    `).join('')||'<p class="empty">لا توجد منتجات منشورة حالياً لهذا المتجر</p>'}
+  </div>
+  ${renderNav()}`;
+}
+
+function renderOffers(){
+  const offers = getOffers();
+  return `${renderHeader('عروض الكوزمتك')}
+  ${offers.map(a=>`
+    <div class="banner-ad" style="margin-bottom:15px">
+      <h3>${a.title}</h3>
+      <p><b>${a.discount}</b></p>
+      <p style="margin-top:8px">${a.details}</p>
+    </div>
+  `).join('')}
+  ${renderNav()}`;
+}
+
+function renderBasket(){
+  const products = getProducts();
+  const items = basket.map(id=>products.find(p=>p.id===id)).filter(Boolean);
+  const total = items.reduce((sum,i)=>sum+i.price,0);
+  return `${renderHeader('سلة المشتريات')}
+  ${items.length===0?`<div class="empty">السلة فارغة حالياً. تسوقي من المتاجر الآن.</div><button onclick="page='home';render()" class="primary" style="margin-top:15px">تصفح المنتجات</button>`:`
+    <div>
+      ${items.map((i,idx)=>`
+        <div style="display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px;margin-bottom:10px">
+          <img src="${i.image}" style="width:60px;height:60px;object-fit:cover;border-radius:8px">
+          <div style="flex:1">
+            <strong>${i.name}</strong>
+            <p style="color:var(--pink);font-weight:bold">${money(i.price)}</p>
+          </div>
+          <button onclick="removeFromBasket(${idx})" style="color:var(--pink);font-weight:bold;padding:5px 10px">✕</button>
+        </div>
+      `).join('')}
+    </div>
+    <div style="background:#fff;border:1px solid var(--line);border-radius:14px;padding:15px;margin-top:15px">
+      <div style="display:flex;justify-content:space-between;font-size:16px;font-weight:bold;margin-bottom:12px">
+        <span>الإجمالي:</span>
+        <span style="color:var(--pink)">${money(total)}</span>
+      </div>
+      <button onclick="checkout()" class="primary">تأكيد إرسال الطلب للمتجر 🛍</button>
+    </div>
+  `}
+  ${renderNav()}`;
+}
+
+function renderProfile(){
+  return `${renderHeader('حسابي')}
+  <div style="background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px;margin-bottom:15px">
+    <h3>سارة المحترمة</h3>
+    <p class="sub">زبونة معتمدة في صالوناتي كوزمتك</p>
+  </div>
+  <h2>طلباتي السابقة</h2>
+  <div>${orders.map(o=>`
+    <div style="background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:10px">
+      <strong>طلب رقم #${o.id}</strong>
+      <p class="sub">المبلغ: ${money(o.total)} · الحالة: قيد التوصيل 🚚</p>
+    </div>
+  `).join('')||'<p class="empty">لا توجد طلبات سابقة</p>'}
+  <button onclick="localStorage.clear();location.reload()" style="display:block;width:100%;padding:12px;margin-top:20px;border:1px solid var(--pink);border-radius:12px;color:var(--pink);font-weight:bold">إعادة ضبط التطبيق</button>
+  ${renderNav()}`;
+}
+
+function addToBasket(id){
+  basket.push(id);
+  toast('تمت إضافة المنتج إلى السلة 🛒');
+}
+
+function removeFromBasket(idx){
+  basket.splice(idx,1);
+  render();
+}
+
+function checkout(){
+  if(basket.length===0)return;
+  const products = getProducts();
+  const items = basket.map(id=>products.find(p=>p.id===id)).filter(Boolean);
+  const total = items.reduce((s,i)=>s+i.price,0);
+  orders.push({id:Date.now().toString().slice(-6),items,total});
+  localStorage.setItem('salonati_cosmetics_orders',JSON.stringify(orders));
+  basket=[];
+  alert('تم إرسال طلبك بنجاح إلى متجر الكوزمتك وسيتم التواصل معكِ للتوصيل!');
+  page='profile';
+  render();
+}
+
+render();
+</script></body></html>

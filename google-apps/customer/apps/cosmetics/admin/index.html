@@ -1,0 +1,100 @@
+<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#100e11"><title>صالوناتي كوزمتك | إدارة النظام</title><style>
+:root{--bg:#100e11;--panel:#1c171c;--panel2:#261d24;--line:#49343f;--pink:#f3a3bb;--pink2:#ffd0df;--text:#fff5f9;--muted:#bbaab2;--green:#7fd5a9;--red:#ff999f}
+*{box-sizing:border-box}body{margin:0;background:#080708;color:var(--text);font:14px Tahoma,Arial,sans-serif}
+.app{max-width:520px;margin:auto;min-height:100dvh;padding:18px 15px 105px;background:var(--bg)}
+header{display:flex;align-items:center;justify-content:space-between;margin:4px 0 20px}
+h1{font-size:20px;margin:0;color:var(--pink)}h2{font-size:17px;margin:20px 0 12px;color:var(--pink2)}h3{font-size:15px;margin:0 0 7px}
+small,.muted{color:var(--muted)}.logo{border-radius:15px;background:#39212f;color:var(--pink);padding:12px;font-size:20px}
+.card{border:1px solid var(--line);border-radius:16px;background:var(--panel);padding:13px;margin-bottom:10px}
+.between{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.tag{display:inline-block;border-radius:20px;padding:6px 9px;background:#513044;color:var(--pink2);font-size:11px}
+.tag.ok{background:#183e31;color:#a3f5cb}.tag.no{background:#50252d;color:#ffb4bd}
+button{font:inherit;font-weight:bold;background:var(--pink);border:0;color:#24141c;padding:11px 14px;border-radius:12px;cursor:pointer}
+button.secondary{background:#332631;color:var(--pink2);border:1px solid #694357}
+input,textarea{width:100%;background:#241d23;color:white;border:1px solid #654455;border-radius:11px;padding:12px;font:inherit;outline:none}
+label{display:block;margin:12px 0 6px;color:var(--pink2)}
+nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:520px;display:grid;grid-template-columns:repeat(3,1fr);background:#191218f5;border-top:1px solid #654455;padding:9px 4px calc(10px + env(safe-area-inset-bottom));z-index:5}
+nav button{background:transparent;color:#bba9b1;padding:8px 0;font-size:11px;font-weight:normal}
+nav button.active{color:var(--pink);font-weight:bold}
+nav span{display:block;font-size:22px;margin-bottom:3px}
+.notice{border:1px solid #74516a;background:#30202c;border-radius:13px;padding:12px;margin:10px 0;font-size:12px}
+#toast{position:fixed;bottom:95px;left:50%;transform:translateX(-50%);background:#f3a3bb;color:#201019;border-radius:14px;padding:12px 17px;display:none;max-width:90%;z-index:10;text-align:center}
+</style></head><body><div class="app"><header><div><small>صالوناتي كوزمتك • إدارة النظام</small><h1>لوحة الإدارة</h1></div><div class="logo">⚙️</div></header><main id="main"></main></div><nav id="nav"></nav><div id="toast"></div><script>
+const KEY='salonati-cosmetics-admin-v1';
+const initial={
+  stores:[
+    {id:'s1',name:'متاجر ليلى للكوزمتك',area:'الكرادة',status:'active'},
+    {id:'s2',name:'بيرفيوم سنتر بغداد',area:'الجادرية',status:'active'}
+  ],
+  ads:[
+    {id:'a1',title:'مهرجان الجمال والعطور الكبرى',text:'خصومات تصل لغاية 40% في جميع متاجر الكوزمتك المعتمدة'}
+  ]
+};
+let db;try{db=JSON.parse(localStorage.getItem(KEY))||structuredClone(initial)}catch(e){db=JSON.parse(JSON.stringify(initial))}
+const save=()=>{localStorage.setItem(KEY,JSON.stringify(db));render()};
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let page='stores';
+
+function toast(s){let t=document.getElementById('toast');t.textContent=s;t.style.display='block';setTimeout(()=>t.style.display='none',2600)}
+
+function renderStores(){
+  return `<h2>متاجر الكوزمتك المسجلة</h2>
+  ${db.stores.map(s=>`
+    <div class="card">
+      <div class="between"><h3>${esc(s.name)}</h3><span class="tag ${s.status==='active'?'ok':'no'}">${s.status==='active'?'نشط ومفعل':'بانتظار الموافقة'}</span></div>
+      <p class="muted">📍 ${esc(s.area)}</p>
+      <div style="margin-top:10px">
+        <button onclick="toggleStore('${s.id}')" class="secondary">${s.status==='active'?'إيقاف المتجر':'تفعيل المتجر'}</button>
+      </div>
+    </div>
+  `).join('')}
+  <div class="notice">يمكنك مراجعة وتفعيل أو إيقاف متاجر الكوزمتك لتظهر في تطبيق الزبونة فوراً.</div>`;
+}
+
+function renderAds(){
+  return `<h2>إعلانات وعروض الكوزمتك</h2>
+  ${db.ads.map(a=>`
+    <div class="card">
+      <h3>${esc(a.title)}</h3>
+      <p class="muted">${esc(a.text)}</p>
+    </div>
+  `).join('')}
+  <div class="card">
+    <label>عنوان الإعلان</label><input id="atitle" placeholder="عنوان العرض أو المهرجان">
+    <label>نص الإعلان</label><textarea id="atext" placeholder="تفاصيل العرض الترويجي..."></textarea>
+    <div style="margin-top:12px"><button onclick="addAd()">نشر إعلان جديد في تطبيق الزبونة</button></div>
+  </div>`;
+}
+
+function renderSettings(){
+  return `<h2>إعدادات منصة الكوزمتك</h2>
+  <div class="card">
+    <p class="muted">منصة صالوناتي كوزمتك متكاملة لإدارة متاجر التجميل والعطور وعرضها للزبونات.</p>
+    <button onclick="localStorage.clear();location.reload()" style="margin-top:15px;background:#4d2934;color:#ffbdc6">إعادة ضبط النظام</button>
+  </div>`;
+}
+
+function render(){
+  document.getElementById('main').innerHTML=({stores:renderStores,ads:renderAds,settings:renderSettings})[page]();
+  document.getElementById('nav').innerHTML=`
+    <button class="${page==='stores'?'active':''}" onclick="page='stores';render()"><span>🛍</span>المتاجر</button>
+    <button class="${page==='ads'?'active':''}" onclick="page='ads';render()"><span>📢</span>الإعلانات</button>
+    <button class="${page==='settings'?'active':''}" onclick="page='settings';render()"><span>⚙️</span>الإعدادات</button>
+  `;
+}
+
+function toggleStore(id){
+  let s=db.stores.find(x=>x.id===id);
+  if(s){s.status=s.status==='active'?'blocked':'active';save();toast('تم تحديث حالة المتجر')}
+}
+
+function addAd(){
+  let title=document.getElementById('atitle')?.value?.trim();
+  let text=document.getElementById('atext')?.value?.trim();
+  if(!title)return toast('أدخل عنوان الإعلان');
+  db.ads.push({id:Date.now().toString(),title,text});
+  save();toast('تم نشر الإعلان بنجاح');
+}
+
+render();
+</script></body></html>

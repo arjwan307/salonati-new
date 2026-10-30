@@ -25,3 +25,17 @@ await writeFile(resolve(output, '_headers'), '/*\n  X-Content-Type-Options: nosn
 // No SPA fallback for missing scripts/API paths; missing backend must stay visible.
 await writeFile(resolve(output, '404.html'), '<!doctype html><html lang="ar" dir="rtl"><meta charset="utf-8"><title>404</title><p>الصفحة غير موجودة</p></html>');
 console.log(`Built ${role}: ${entries[role]} -> release/${role}/index.html`);
+if (process.argv.includes('--live')) {
+  let html = await readFile(resolve(output, 'index.html'), 'utf8');
+  html = html.replace(/<script>window\.SALONATI_TRIAL=true<\/script>/g, '');
+  if (role === 'admin') {
+    html = html.replace('<label for="email">البريد الإلكتروني</label><input id="email" type="email"', '<label for="email">رقم الهاتف</label><input id="email" type="tel" inputmode="tel"');
+    html = html.replace('البريد أو كلمة المرور غير صحيحة.', 'رقم الهاتف أو كلمة المرور غير صحيحة.');
+  }
+  if (role === 'customer') {
+    html = html.replace('</body>', '<script src="/loyalty-ui.js"></script><script src="/salonati-link.js"></script></body>');
+  }
+  await writeFile(resolve(output, 'index.html'), html);
+  const worker = await readFile(resolve(root, 'deployment/live-worker.mjs'), 'utf8');
+  await writeFile(resolve(output, '_worker.js'), worker.replaceAll('__APP_ROLE__', role));
+}

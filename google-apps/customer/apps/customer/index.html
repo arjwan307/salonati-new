@@ -337,36 +337,6 @@ const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 function go(page){state.page=page;window.scrollTo(0,0);render()}
 function notify(t){state.toast=t;render();setTimeout(()=>{state.toast='';render()},2200)}
 
-function loadMap(lat, lng, name) {
-  setTimeout(() => {
-    const mapEl = document.getElementById('salonMap');
-    if (!mapEl || !window.google || !window.google.maps) return;
-    try {
-      const map = new google.maps.Map(mapEl, {
-        center: { lat, lng },
-        zoom: 15,
-        mapId: 'DEMO_MAP_ID',
-        internalUsageAttributionIds: ['gmp_mcp_codeassist_v1_aistudio']
-      });
-      if (google.maps.marker && google.maps.marker.AdvancedMarkerElement) {
-        new google.maps.marker.AdvancedMarkerElement({
-          map,
-          position: { lat, lng },
-          title: name
-        });
-      } else {
-        new google.maps.Marker({
-          map,
-          position: { lat, lng },
-          title: name
-        });
-      }
-    } catch(e) {
-      console.error(e);
-    }
-  }, 250);
-}
-
 function applyTheme(theme){
   let root=document.documentElement;
   if(theme==='rose'){
@@ -447,7 +417,7 @@ function openTimeModal(){
   d.showModal();
 }
 function nav(){return `<nav class="nav"><button class="${state.page==='home'?'on':''}" onclick="go('home')"><b>⌂</b>الرئيسية</button><button class="${state.page==='bookings'?'on':''}" onclick="go('bookings')"><b>▦</b>الحجوزات</button><button class="${state.page==='profile'?'on':''}" onclick="go('profile')"><b>♙</b>الحساب</button><button class="${state.page==='favorites'?'on':''}" onclick="go('favorites')"><b>♡</b>المفضلة</button><button class="${state.page==='support'?'on':''}" onclick="go('support')"><b><svg xmlns="http://www.w3.org/2000/svg" width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-5a9 9 0 0 1 18 0v5a2 2 0 0 1-2 2h3"/><path d="M21 16v2a4 4 0 0 1-4 4h-5"/></svg></b>طلب الدعم</button></nav>`}
-function card(s){return `<div class="salon"><img src="${s.img}" alt="صورة صالون" onclick="chooseSalon(${s.id})"><div class="info"><div class="sectiontop"><h3 onclick="chooseSalon(${s.id})">${s.name}</h3><button class="heart" onclick="fav(${s.id})">${state.favs.includes(s.id)?'♥':'♡'}</button></div><p><span class="pink">★ ${s.rating}</span> (${s.reviews} تقييم)</p><p>⌖ بغداد · ${s.area} · 1.5 كم</p><div class="actions"><span class="small">من <b class="pink">${fmt(s.price)} د.ع</b></span><button onclick="chooseSalon(${s.id})">احجز الآن</button></div></div></div>`}
+function card(s){return `<div class="salon"><img src="${s.img}" alt="صورة صالون" onclick="chooseSalon(${s.id})"><div class="info"><div class="sectiontop"><h3 onclick="chooseSalon(${s.id})">${s.name}</h3><button class="heart" onclick="fav(${s.id})">${state.favs.includes(s.id)?'♥':'♡'}</button></div><p><span class="pink">★ ${s.rating}</span> (${s.reviews} تقييم)</p><p>⌖ ${esc(s.area||'')} ${salonDistance(s)!==null?'· '+salonDistance(s).toFixed(1)+' كم':''}</p><div class="actions"><span class="small">من <b class="pink">${fmt(s.price)} د.ع</b></span><button onclick="chooseSalon(${s.id})">احجز الآن</button></div></div></div>`}
 function head(title){return `<header><button class="back" onclick="historyBack()">❯</button><h3 class="pink">${title}</h3><span style="width:25px"></span></header>`}
 function historyBack(){go(state.page==='booking'?'salon':'home')}
 let cosmeticsState = {
@@ -637,8 +607,8 @@ function home(){return `
       <span style="display:inline-block;background:var(--pink);color:#fff;font-size:11px;font-weight:bold;padding:4px 12px;border-radius:8px">استكشفي 💄</span><div id="cosmeticsManagementAd" class="cosmetics-management-ad" aria-label="إعلانات مواد الكوزمتك"><div class="cosmetics-ad-slides"></div></div>
       
     </div></div><div class="ornament"></div><div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h2>التصنيفات</h2></div><div class="categories">${[['شعر','♨','عناية بالشعر'],['مكياج','✧','مكياج'],['بشرة','❀','عناية بالبشرة'],['أظافر','♧','أظافر']].map(c=>`<button class="cat ${state.cat===c[0]?'active':''}" onclick="state.cat=state.cat==='${c[0]}'?'الكل':'${c[0]}';drawCards()"><span>${c[1]}</span>${c[2]}</button>`).join('')}</div><input class="search" id="searchHome" style="margin:10px 0;width:100%" placeholder="⌕ ابحث عن صالون، خدمة أو منطقة..." value="${esc(state.query)}" oninput="state.query=this.value;drawCards()"><div id="cards"></div><div class="banner"><h3>عروض الصالونات</h3><p class="small">تعرّفي على الخدمات والمنتجات المتوفرة</p><button class="primary" onclick="go('products')">منتجات وعروض</button></div>`}
-function drawCards(){const root=$('#cards');if(!root)return;let q=state.query.toLowerCase().trim();let arr=salons.filter(s=>(s.name+' '+s.area).toLowerCase().includes(q));if(state.cat!=='الكل')arr=arr.filter(s=>true);root.innerHTML=arr.map(card).join('')||'<div class="empty">لا توجد نتائج مطابقة</div>'}
-function salonPage(){let s=salons.find(x=>x.id===state.salon);return `${head(s.name)}<img class="hero" src="${s.img}" alt="صورة الصالون"><div class="thumbs">${[s.img,...salonImgs.filter(x=>x!==s.img)].map(x=>`<img src="${x}" alt="صورة داخل الصالون" onclick="$('.hero').src=this.src">`).join('')}</div><h2 class="pink">${s.name}</h2><p>★ ${s.rating} (${s.reviews} تقييم) · بغداد، ${s.area}</p><p class="small" style="margin-top:10px">● مفتوح الآن</p><div class="tabs">${[['services','الخدمات'],['about','معلومات'],['reviews','التقييمات']].map(t=>`<button class="${state.tab===t[0]?'on':''}" onclick="state.tab='${t[0]}';render()">${t[1]}</button>`).join('')}</div>${state.tab==='services'?services.map(v=>`<div class="service"><img src="${v.img}"><div class="txt"><b>${v.name}</b><p>◷ ${v.min} دقيقة</p><p class="pink">${fmt(v.price)} د.ع</p></div><button aria-label="إضافة أو حذف ${v.name}" onclick="toggleService(${v.id})">${state.selectedServices.includes(v.id)?'−':'+'}</button></div>`).join(''):state.tab==='about'?`<div class="panel"><h3>عن الصالون</h3><p>صالون راقٍ في بغداد يقدم خدمات الشعر والبشرة والأظافر. العنوان وأوقات العمل بيانات توضيحية.</p><p>أوقات العمل: 8:00 صباحاً – 10:00 ليلاً</p><h3 style="margin:15px 0 10px;font-size:16px;color:var(--pink)">موقع الصالون على الخريطة التفاعلية</h3><div id="salonMap" style="width:100%;height:230px;border-radius:14px;border:1px solid var(--line);background:#e5d5f4;"></div></div>`:`<div class="panel"><h3>التقييمات</h3><p>★ ${s.rating} · ${s.reviews} تقييم</p><p>لا توجد مراجعات حقيقية بعد.</p></div>`}<div class="panel"><h3>الخدمات المختارة (${state.selectedServices.length})</h3>${state.selectedServices.length?services.filter(v=>state.selectedServices.includes(v.id)).map(v=>`<div class="chosen-line"><span>${v.name}</span><button class="remove" onclick="toggleService(${v.id})" aria-label="حذف ${v.name}">حذف ×</button></div>`).join(''):'<p>اضغطي + لاختيار الخدمات</p>'}<p>الإجمالي: <b class="pink">${fmt(selectedTotal())} د.ع</b> · المدة: ${selectedMinutes()} دقيقة</p></div><button class="primary sticky" onclick="proceedBooking()" ${!state.selectedServices.length?'disabled':''}>متابعة الحجز (${state.selectedServices.length})</button>`}
+function drawCards(){const root=$('#cards');if(!root)return;let q=state.query.toLowerCase().trim();let arr=salons.filter(s=>(s.name+' '+s.area).toLowerCase().includes(q));if(state.cat!=='الكل')arr=arr.filter(s=>true);if(state.nearbyLocation)arr.sort((a,b)=>(salonDistance(a)??Infinity)-(salonDistance(b)??Infinity));root.innerHTML=arr.map(card).join('')||'<div class="empty">لا توجد نتائج مطابقة</div>'}
+function salonPage(){let s=salons.find(x=>x.id===state.salon);return `${head(s.name)}<img class="hero" src="${s.img}" alt="صورة الصالون"><div class="thumbs">${[s.img,...salonImgs.filter(x=>x!==s.img)].map(x=>`<img src="${x}" alt="صورة داخل الصالون" onclick="$('.hero').src=this.src">`).join('')}</div><h2 class="pink">${s.name}</h2><p>★ ${s.rating} (${s.reviews} تقييم) · بغداد، ${s.area}</p><p class="small" style="margin-top:10px">● مفتوح الآن</p><div class="tabs">${[['services','الخدمات'],['about','معلومات'],['reviews','التقييمات']].map(t=>`<button class="${state.tab===t[0]?'on':''}" onclick="state.tab='${t[0]}';render()">${t[1]}</button>`).join('')}</div>${state.tab==='services'?services.map(v=>`<div class="service"><img src="${v.img}"><div class="txt"><b>${v.name}</b><p>◷ ${v.min} دقيقة</p><p class="pink">${fmt(v.price)} د.ع</p></div><button aria-label="إضافة أو حذف ${v.name}" onclick="toggleService(${v.id})">${state.selectedServices.includes(v.id)?'−':'+'}</button></div>`).join(''):state.tab==='about'?`<div class="panel"><h3>عن الصالون</h3><p>صالون راقٍ في بغداد يقدم خدمات الشعر والبشرة والأظافر. العنوان وأوقات العمل بيانات توضيحية.</p><p>أوقات العمل: 8:00 صباحاً – 10:00 ليلاً</p></div>`:`<div class="panel"><h3>التقييمات</h3><p>★ ${s.rating} · ${s.reviews} تقييم</p><p>لا توجد مراجعات حقيقية بعد.</p></div>`}<div class="panel"><h3>الخدمات المختارة (${state.selectedServices.length})</h3>${state.selectedServices.length?services.filter(v=>state.selectedServices.includes(v.id)).map(v=>`<div class="chosen-line"><span>${v.name}</span><button class="remove" onclick="toggleService(${v.id})" aria-label="حذف ${v.name}">حذف ×</button></div>`).join(''):'<p>اضغطي + لاختيار الخدمات</p>'}<p>الإجمالي: <b class="pink">${fmt(selectedTotal())} د.ع</b> · المدة: ${selectedMinutes()} دقيقة</p></div><button class="primary sticky" onclick="proceedBooking()" ${!state.selectedServices.length?'disabled':''}>متابعة الحجز (${state.selectedServices.length})</button>`}
 function booking(){let s=salons.find(x=>x.id===state.salon),v=services.find(x=>x.id===state.selectedServices[0]),start=new Date();start.setHours(12,0,0,0);let days=Array.from({length:21},(_,i)=>{let d=new Date(start);d.setDate(d.getDate()+i);let unavail=(i%7===5);return {iso:d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'),day:d.getDate(),week:['أحد','اثنين','ثلاثاء','أربعاء','خميس','جمعة','سبت'][d.getDay()],unavail}});let timesList=['8:00 ص','9:00 ص','10:00 ص','11:00 ص','12:00 م','1:00 م','2:00 م','3:00 م','4:00 م','5:00 م','6:00 م','7:00 م','8:00 م','9:00 م','10:00 م'];return `${head('حجز الموعد')}<div class="panel"><h3>${s.name}</h3>${services.filter(v=>state.selectedServices.includes(v.id)).map(v=>`<p>${v.name} — ${fmt(v.price)} د.ع</p>`).join('')}<p>الإجمالي ${fmt(selectedTotal())} د.ع · ${selectedMinutes()} دقيقة</p><button class="outline" onclick="go('salon')">تعديل الخدمات</button></div><h2>اختاري التاريخ</h2><div class="calendar">${days.map(d=>`<button class="${state.date===d.iso?'on':''}" ${d.unavail?'disabled':''} onclick="state.date='${d.iso}';state.time='';render()"><small>${d.week}</small><br>${d.day}</button>`).join('')}</div><h2>اختاري الوقت</h2><div class="times">${timesList.map(t=>{let unavail=['2:00 م','8:00 م'].includes(t);return `<button class="${state.time===t?'on':''}" ${unavail?'disabled':''} onclick="state.time='${t}';render()">${t}</button>`}).join('')}</div><button class="primary sticky" ${!state.date||!state.time?'disabled':''} onclick="go('summary')">متابعة ←</button><p class="small" style="margin-top:14px">أوقات المواعيد متاحة، وسيتم تأكيد التوفر مباشرة.</p>`}
 function summary(){
   let s=salons.find(x=>x.id===state.salon);
@@ -687,48 +657,9 @@ function completeBooking(id){
   }
 }
 function favorites(){return `${head('المفضلة')}${salons.filter(s=>state.favs.includes(s.id)).map(card).join('')||'<div class="empty">لم تضيفي صالونات إلى المفضلة بعد</div>'}`}
-function search(){
-  return `${head('استكشاف الصالونات')}<div class="panel" style="margin-bottom:15px"><h3 style="margin-bottom:8px;font-size:15px;color:var(--pink)">خريطة الصالونات القريبة</h3><div id="exploreMap" style="width:100%;height:240px;border-radius:14px;border:1px solid var(--line);background:#e5d5f4;"></div></div><input class="search" placeholder="ابحثي بالاسم أو المنطقة" value="${esc(state.query)}" oninput="state.query=this.value;drawCards()"><div id="cards"></div>`;
-}
-
-function loadExploreMap() {
-  setTimeout(() => {
-    const mapEl = document.getElementById('exploreMap');
-    if (!mapEl || !window.google || !window.google.maps) return;
-    try {
-      const map = new google.maps.Map(mapEl, {
-        center: { lat: 33.3152, lng: 44.3661 },
-        zoom: 13,
-        mapId: 'DEMO_MAP_ID',
-        internalUsageAttributionIds: ['gmp_mcp_codeassist_v1_aistudio']
-      });
-      salons.forEach(s => {
-        if (google.maps.marker && google.maps.marker.AdvancedMarkerElement) {
-          const marker = new google.maps.marker.AdvancedMarkerElement({
-            map,
-            position: { lat: s.lat, lng: s.lng },
-            title: s.name
-          });
-          marker.addListener('click', () => {
-            chooseSalon(s.id);
-          });
-        } else {
-          const marker = new google.maps.Marker({
-            map,
-            position: { lat: s.lat, lng: s.lng },
-            title: s.name
-          });
-          marker.addListener('click', () => {
-            chooseSalon(s.id);
-          });
-        }
-      });
-    } catch(e) {
-      console.error(e);
-    }
-  }, 250);
-}
-
+function search(){return `${head('استكشاف الصالونات')}<button class="outline" style="width:100%;margin-bottom:12px" onclick="locateNearbySalons()">⌖ تحديد موقعي وعرض أقرب صالون</button><input class="search" placeholder="ابحثي بالاسم أو المنطقة" value="${esc(state.query)}" oninput="state.query=this.value;drawCards()"><div id="cards"></div>`;}
+function salonDistance(s){if(!state.nearbyLocation)return null;const lat=Number(s.lat),lng=Number(s.lng);if(!Number.isFinite(lat)||!Number.isFinite(lng)||Math.abs(lat)>90||Math.abs(lng)>180||(!lat&&!lng))return null;const a=(state.nearbyLocation.lat-lat)*Math.PI/180,b=(state.nearbyLocation.lng-lng)*Math.PI/180,x=Math.sin(a/2)**2+Math.cos(lat*Math.PI/180)*Math.cos(state.nearbyLocation.lat*Math.PI/180)*Math.sin(b/2)**2;return 12742*Math.asin(Math.min(1,Math.sqrt(x)));}
+function locateNearbySalons(){if(!navigator.geolocation)return notify('GPS غير متاح على هذا الجهاز');navigator.geolocation.getCurrentPosition(p=>{state.nearbyLocation={lat:p.coords.latitude,lng:p.coords.longitude};drawCards();},()=>notify('يرجى السماح بالوصول للموقع لعرض الأقرب'),{enableHighAccuracy:true,timeout:12000,maximumAge:60000});}
 function productsPage(){return `${head('منتجات وعروض')}<div class="banner"><h3>منتجات الصالونات</h3><p>منتجات وعناية مميزة من أرقى الصالونات</p></div><div class="prod">${products.map(p=>`<div class="panel"><img src="${p.img}"><h3>${p.name}</h3><p class="pink">${fmt(p.price)} د.ع</p><button class="outline" onclick="notify('خدمة الطلب المباشر للمنتجات تتوفر قريباً')">عرض المنتج</button></div>`).join('')}</div>`}
 function supportPage(){
   return `${head('طلب الدعم والمساعدة')}
@@ -767,13 +698,6 @@ function render(){if(['salon','booking','summary'].includes(state.page)&&(!salon
   let views={home,search,salon:salonPage,booking,summary,success,bookings,favorites,products:productsPage,profile,support:supportPage,cosmetics:cosmeticsPage,'cosmetics-basket':cosmeticsBasketPage};
   $('#app').innerHTML=(views[state.page]||home)()+nav()+(state.toast?`<div class="toast">${esc(state.toast)}</div>`:'');
   if(['home','search'].includes(state.page))drawCards();
-  if(state.page==='salon'&&state.tab==='about'){
-    let s=salons.find(x=>x.id===state.salon);
-    if(s) loadMap(s.lat, s.lng, s.name);
-  }
-  if(state.page==='search'){
-    loadExploreMap();
-  }
 }
 
 render();

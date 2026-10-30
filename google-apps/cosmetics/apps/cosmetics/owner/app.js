@@ -253,14 +253,14 @@ function renderOffers() {
   <div class="card">
     <label>عنوان العرض</label><input id="otitle" placeholder="مثال: عروض نهاية الأسبوع على العطور">
     <label>نسبة أو قيمة الخصم</label><input id="odiscount" placeholder="مثال: خصم 30%">
-    <label>تفاصيل العرض والمنتجات المشمولة</label><textarea id="odesc" placeholder="تفاصيل العرض الترويجي للزبونات..."></textarea>
+    <label>تفاصيل العرض والمنتجات المشمولة</label><textarea id="odesc" placeholder="تفاصيل العرض الترويجي للزبونات..."></textarea><label>صورة أو فيديو للعرض (حتى 8 ميغابايت)</label><input id="offerMediaFile" type="file" accept="image/png,image/jpeg,image/webp,image/gif,video/mp4,video/webm" onchange="uploadOfferMedia(event)"><div id="offerMediaPreview"></div>
     <div class="actions"><button onclick="saveOffer()">نشر العرض الخاص 🌟</button></div>
   </div>
   <h2>العروض الفعالة (${db.offers.length})</h2>
   ${db.offers.length ? db.offers.map(off => `
     <div class="card">
       <div class="between"><h3>${esc(off.title)}</h3><span class="tag ok">${esc(off.discount)}</span></div>
-      <p class="muted" style="margin:8px 0">${esc(off.details)}</p>
+      <p class="muted" style="margin:8px 0">${esc(off.details)}</p>${off.mediaUrl ? (off.mediaType?.startsWith("video/") ? `<video src="${esc(off.mediaUrl)}" controls playsinline style="max-width:100%;max-height:200px"></video>` : `<img src="${esc(off.mediaUrl)}" alt="صورة العرض" style="max-width:100%;max-height:200px;object-fit:contain">`) : ""}
       <div class="actions"><button class="danger" onclick="deleteOffer(${off.id})">حذف العرض</button></div>
     </div>
   `).join('') : '<div class="empty">لا توجد عروض مضافة حالياً</div>'}`;
@@ -413,7 +413,7 @@ function saveOffer() {
     discount = val('odiscount'),
     details = val('odesc');
   if (!title) return toast('يرجى إدخال عنوان العرض الخاص');
-  db.offers.unshift({ id: Date.now(), title, discount: discount || 'خصم خاص', details });
+  db.offers.unshift({ id: Date.now(), title, discount: discount || 'خصم خاص', details, mediaUrl: window.cosmeticsOfferMedia?.url || '', mediaType: window.cosmeticsOfferMedia?.type || '' }); window.cosmeticsOfferMedia=null;
   save();
   toast('✓ تم نشر العرض الخاص بنجاح 🌟');
 }

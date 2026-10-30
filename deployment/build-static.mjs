@@ -35,6 +35,18 @@ if (process.argv.includes('--live')) {
   if (role === 'customer') {
     html = html.replace('</body>', '<script src="/loyalty-ui.js"></script><script src="/salonati-link.js"></script></body>');
   }
+  if (role === 'salon') {
+    const file = resolve(output, 'owner-publishing.js');
+    let js = await readFile(file, 'utf8');
+    js = js.replaceAll('البريد الإلكتروني', 'رقم الهاتف')
+      .replaceAll('id="catalogEmail" type="email"', 'id="catalogEmail" type="tel" inputmode="tel"')
+      .replaceAll('placeholder="salon@example.com"', 'placeholder="07xxxxxxxxx"')
+      .replaceAll('minlength="4"', 'minlength="10"')
+      .replaceAll('value="12345678"', '')
+      .replace("const defaultEmail=account?.email||savedAcc?.email||'maryam@salonati.iq';", "const defaultEmail=account?.phone||'';")
+      .replace("esc(account?.email||savedAcc?.email||'')", "esc(account?.phone||'')");
+    await writeFile(file, js);
+  }
   await writeFile(resolve(output, 'index.html'), html);
   const worker = await readFile(resolve(root, 'deployment/live-worker.mjs'), 'utf8');
   await writeFile(resolve(output, '_worker.js'), worker.replaceAll('__APP_ROLE__', role));

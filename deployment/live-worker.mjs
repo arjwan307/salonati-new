@@ -58,38 +58,93 @@ async function phoneLogin(request, env, url) {
   // Use an unavailable identity for misses so upstream rate limits also apply.
   const body = customer ? {name:row?.identity || 'unavailable-phone-account',password:d.password} : {email:row?.identity || 'unavailable-phone@salonati.invalid',password:d.password};
   const headers = new Headers(request.headers);headers.delete('x-salonati-app');headers.delete('content-length');headers.set('content-type','application/json');
-  return env.SALONATI_API.fetch(new Request(request.url,{method:'POST',headers,body:JSON.stringify(body)}));
+  const target=role==='cosmetics'?new URL('/api/catalog/login',request.url):request.url;
+  return env.SALONATI_API.fetch(new Request(target,{method:'POST',headers,body:JSON.stringify(body)}));
 }
 function allowed(path) {
   if (backendAssets.has(path)) return true;
-  if (path === '/api/catalog/public' || path.startsWith('/api/catalog/media/')) return true;
-  if (role === 'customer') return path === '/api/link/public' || path === '/api/link/session' || path.startsWith('/api/link/customer/') || path.startsWith('/api/catalog/workflow/customer/');
-  if (role === 'cosmetics') return path.startsWith('/api/cosmetics/');
+  if (path === '/api/catalog/public' || path.startsWith('/api/catalog/media/') || path==='/api/cosmetics/public' || path.startsWith('/api/cosmetics/media/')) return true;
+  if (role === 'customer') return path === '/api/link/public' || path === '/api/link/session' || path.startsWith('/api/link/customer/') || path.startsWith('/api/catalog/workflow/customer/') || path.startsWith('/api/cosmetics/customer/');
+  if (role === 'cosmetics') return ['/api/cosmetics/me','/api/cosmetics/login','/api/cosmetics/register','/api/cosmetics/logout','/api/cosmetics/state','/api/cosmetics/media','/api/cosmetics/orders','/api/cosmetics/orders/status'].includes(path);
   if (['/api/catalog/login','/api/catalog/logout','/api/catalog/me'].includes(path)) return true;
   if (role === 'admin') return path.startsWith('/api/catalog/admin/') || path.startsWith('/api/catalog/finance/') || /^\/api\/catalog\/(reviews|product-reviews|ad-reviews)(\/|$)/.test(path) || path === '/api/catalog/workflow/notifications' || path === '/api/catalog/media' || path === '/api/catalog/setup';
   return path === '/api/link/team' || path.startsWith('/api/catalog/workflow/owner/') || ['/api/catalog/register','/api/catalog/registration','/api/catalog/location','/api/catalog/services','/api/catalog/products','/api/catalog/advertisements','/api/catalog/media','/api/catalog/finance/payment-notifications','/api/catalog/finance/payment-notifications/read','/api/catalog/finance/statement','/api/catalog/finance/options'].includes(path) || /^\/api\/catalog\/(services|products|advertisements)\//.test(path);
 }
+async function catalogAppSession(request,env){
+  if(!env.IDENTITY_DB)return {status:503};
+  const token=/(?:^|;\s*)__Host-catalog=([a-f0-9]{64})(?:;|$)/.exec(request.headers.get('cookie')||'')?.[1];
+  if(!token)return {status:401};
+  const hash=asHex(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(token)));
+  const row=await env.IDENTITY_DB.prepare("SELECT p.account_id FROM catalog_sessions s JOIN salonati_phone_identities p ON p.account_id=s.account_id WHERE s.token_hash=? AND p.app=? AND julianday(s.expires_at)>julianday('now')").bind(hash,role).first();
+  return row?{status:200,accountId:row.account_id}:{status:401};
+}
 export default {
   async fetch(request, env) {
+    try {
     const url = new URL(request.url);
+    let accountId = 'guest';
     if (url.hostname !== `salonati-${role}-clean.pages.dev`) return Response.json({error:'live_host_required'}, {status:403});
     if (role === 'customer' && ['/', '/index.html'].includes(url.pathname) && ['GET','HEAD'].includes(request.method)) {
       if (!env.SALONATI_API) return Response.json({error:'api_not_configured'},{status:503});
       const me = await env.SALONATI_API.fetch(new Request(url.origin+'/api/link/customer/me',{headers:request.headers}));
       if (me.status===401) return new Response(request.method==='HEAD'?null:customerEntry,{headers:{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store'}});
       if (!me.ok) return Response.json({error:'service_unavailable'},{status:503});
+      accountId = (await me.json()).account?.id;
+      if (typeof accountId !== 'string' || !/^[a-zA-Z0-9-]{16,80}$/.test(accountId)) return Response.json({error:'invalid_session'},{status:401});
+    }
+    if (role === 'salon' && ['/', '/index.html'].includes(url.pathname) && ['GET','HEAD'].includes(request.method)) {
+      if (!env.SALONATI_API) return Response.json({error:'api_not_configured'},{status:503});
+      const me=await env.SALONATI_API.fetch(new Request(url.origin+'/api/catalog/me',{headers:request.headers}));
+      if (me.ok) {
+        const account=(await me.json()).account;
+        if (account?.role!=='owner' || !/^[a-zA-Z0-9-]{16,80}$/.test(account.id)) return Response.json({error:'owner_required'},{status:403});
+        accountId=account.id;
+        const appSession=await catalogAppSession(request,env);if(appSession.status!==200)return Response.json({error:'app_session_required'},{status:appSession.status});
+      } else if (me.status!==401) return Response.json({error:'service_unavailable'},{status:503});
+    }
+    if (role === 'cosmetics' && ['/', '/index.html'].includes(url.pathname) && ['GET','HEAD'].includes(request.method)) {
+      if (!env.SALONATI_API || !env.IDENTITY_DB) return Response.json({error:'api_not_configured'},{status:503});
+      const owner=await cosmeticsSession(request,env,'owner');
+      if (!owner) return new Response(request.method==='HEAD'?null:customerEntry.replaceAll('/api/link/customer/','/api/cosmetics/').replace('>الاسم<','>اسم الكوزمتك<'),{headers:{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store'}});
+      accountId=owner.id;
+      if(!/^[a-zA-Z0-9-]{16,80}$/.test(accountId))return Response.json({error:'invalid_session'},{status:401});
     }
     if (url.pathname.startsWith('/api/') || backendAssets.has(url.pathname)) {
       if (!allowed(url.pathname)) return Response.json({error:'app_route_denied'}, {status:403});
       if (!env.SALONATI_API) return Response.json({error:'api_not_configured'}, {status:503});
-      if (request.method === 'POST' && (url.pathname === '/api/catalog/register' || url.pathname === '/api/link/customer/register')) return registerPhone(request,env,url);
-      if (request.method === 'POST' && (url.pathname === '/api/catalog/login' || url.pathname === '/api/link/customer/login')) return phoneLogin(request,env,url);
+      if (request.method === 'POST' && ['/api/catalog/register','/api/link/customer/register','/api/cosmetics/register'].includes(url.pathname)) return await registerPhone(request,env,url);
+      if (request.method === 'POST' && ['/api/catalog/login','/api/link/customer/login','/api/cosmetics/login'].includes(url.pathname)) return await phoneLogin(request,env,url);
+      const cosmetics=await cosmeticsRoutes(request,env,url);if(cosmetics)return cosmetics;
       const headers = new Headers(request.headers);
       // Never forward the demo privilege header to the live service.
       headers.delete('x-salonati-app');
-      try { return await env.SALONATI_API.fetch(new Request(request,{headers})); }
+      const publicPath=['/api/link/public','/api/catalog/public'].includes(url.pathname)||backendAssets.has(url.pathname);
+      const mediaPath=url.pathname.startsWith('/api/catalog/media/');
+      if(['admin','salon'].includes(role)&&!publicPath){
+        const session=await catalogAppSession(request,env);
+        if(session.status!==200){if(mediaPath)headers.delete('cookie');else return Response.json({error:'app_session_required'},{status:session.status});}
+      }else if(publicPath||mediaPath)headers.delete('cookie');
+      try {
+        const result=await env.SALONATI_API.fetch(new Request(request,{headers}));
+        if(result.ok&&request.method==='GET'&&['/api/link/public','/api/catalog/public'].includes(url.pathname)&&env.IDENTITY_DB){
+          const data=JSON.parse(new TextDecoder().decode(await cosmeticsBody(result,4194304)));
+          const samples=new Set((await env.IDENTITY_DB.prepare('SELECT owner_id FROM catalog_sample_owners').all()).results.map(r=>r.owner_id));
+          for(const [key,value] of Object.entries(data))if(Array.isArray(value))data[key]=value.filter(item=>!samples.has(item?.ownerId||item?.owner_id||item?.salonId||item?.id));
+          const responseHeaders=new Headers(result.headers);for(const name of ['content-length','etag'])responseHeaders.delete(name);responseHeaders.set('Cache-Control','no-store');
+          return Response.json(data,{status:result.status,headers:responseHeaders});
+        }
+        return await protectOwnerBookingContacts(request,url,result);
+      }
       catch { return Response.json({error:'service_unavailable'}, {status:503,headers:{'Cache-Control':'no-store'}}); }
     }
-    return env.ASSETS.fetch(request);
+    const response = await env.ASSETS.fetch(request);
+    if (['customer','salon','cosmetics'].includes(role) && response.ok && response.headers.get('content-type')?.includes('text/html')) {
+      const headers=new Headers(response.headers);
+      for(const name of ['content-length','etag','content-md5','digest','content-digest','repr-digest'])headers.delete(name);
+      headers.set('Cache-Control','private, no-store');
+      return new HTMLRewriter().on('head',{element(el){el.prepend('<script>window.SALONATI_ACCOUNT_ID='+JSON.stringify(accountId)+'</script>',{html:true});}}).transform(new Response(response.body,{status:response.status,headers}));
+    }
+    return response;
+    } catch {return Response.json({error:'service_unavailable'},{status:503,headers:{'Cache-Control':'no-store'}});}
   }
 };

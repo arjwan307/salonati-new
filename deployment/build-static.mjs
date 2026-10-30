@@ -25,17 +25,68 @@ await writeFile(resolve(output, '_headers'), '/*\n  X-Content-Type-Options: nosn
 // No SPA fallback for missing scripts/API paths; missing backend must stay visible.
 await writeFile(resolve(output, '404.html'), '<!doctype html><html lang="ar" dir="rtl"><meta charset="utf-8"><title>404</title><p>الصفحة غير موجودة</p></html>');
 console.log(`Built ${role}: ${entries[role]} -> release/${role}/index.html`);
-if (process.argv.includes('--live')) {
+if (process.argv.includes('--live') || process.argv.includes('--review')) {
+  const review=process.argv.includes('--review');
   let html = await readFile(resolve(output, 'index.html'), 'utf8');
   html = html.replace(/<script>window\.SALONATI_TRIAL=true<\/script>/g, '');
+  if(review)html=html.replace('<head>','<head><script>window.SALONATI_TRIAL=true;window.SALONATI_REVIEW=true</script>');
   if (role === 'admin') {
     html = html.replace('<label for="email">البريد الإلكتروني</label><input id="email" type="email"', '<label for="email">رقم الهاتف</label><input id="email" type="tel" inputmode="tel"');
     html = html.replace('البريد أو كلمة المرور غير صحيحة.', 'رقم الهاتف أو كلمة المرور غير صحيحة.');
+    if(review)html=html.replace("if(window.SALONATI_TRIAL){location.reload();return}", "if(window.SALONATI_TRIAL){const f=document.createElement('form');f.method='POST';f.action='/review-logout';document.body.append(f);f.submit();return}");
+    if(review)html=html.replace('</body>', '<script>function mountReviewExit(){const box=document.getElementById("account");if(user&&!document.getElementById("reviewExit")){const b=document.createElement("button");b.id="reviewExit";b.textContent="تسجيل الخروج";b.onclick=()=>{const f=document.createElement("form");f.method="POST";f.action="/review-logout";document.body.append(f);f.submit()};box.append(b)}}new MutationObserver(mountReviewExit).observe(document.getElementById("account"),{childList:true});mountReviewExit();</script></body>');
   }
   if (role === 'customer') {
-    html = html.replace('</body>', '<script src="/loyalty-ui.js"></script><script src="/salonati-link.js"></script><script>window.salonatiCustomerLogout=async()=>{try{const r=await fetch("/api/link/customer/logout",{method:"POST",credentials:"same-origin",headers:{"Content-Type":"application/json"},body:"{}"});if(!r.ok)throw Error("تعذر تسجيل الخروج");location.reload()}catch(e){notify(e.message)}};</script></body>');
+    html = html.replace('localStorage.getItem(k)', "localStorage.getItem('salonati:'+window.SALONATI_ACCOUNT_ID+':'+k)")
+      .replace('localStorage.setItem(k,JSON.stringify(v))', "localStorage.setItem('salonati:'+window.SALONATI_ACCOUNT_ID+':'+k,JSON.stringify(v))")
+      .replace("bookings:get('salonati_bookings',[])", 'bookings:[]')
+      .replace("isLoggedIn:get('salonati_logged_in',false)", 'isLoggedIn:true');
+    const productStart=html.indexOf('const cosmeticProducts = [');
+    const productEnd=html.indexOf('\n];',productStart);
+    if(productStart<0||productEnd<0)throw new Error('Customer product array changed');
+    html=html.slice(0,productStart)+'const cosmeticProducts = [];'+html.slice(productEnd+3);
+    for(const field of ['cs.name','cs.img','cs.region','cs.offer','cs.discount','p.img','p.name','p.desc']) html=html.replaceAll('${'+field+'}', '${esc('+field+')}');
+    html=html.replace('if(prods.length === 0) prods = cosmeticProducts.slice(0, 3);','')
+      .replace('★ 4.9 (142 تقييم)','بيانات المتجر')
+      .replace('🕒 أوقات العمل: 8:00 صباحاً – 10:00 ليلاً (مفتوح الآن)','🕒 أوقات العمل: ${esc(cs.openTime)} – ${esc(cs.closeTime)}')
+      .replace('onclick="notify(\'جاري فتح محادثة واتساب مع ${esc(cs.name)}...\')"','onclick="salonatiCosmeticsWhatsApp(\'${cs.id}\')"')
+      .replace('onclick="notify(\'✓ تم حفظ المتجر في مفضلة المتاجر\')"','onclick="salonatiFavoriteCosmetics(\'${cs.id}\')"');
+    if(!html.includes('تم إرسال طلب مشتريات الكوزمتك بنجاح'))throw new Error('Cosmetics checkout hook changed');
+    html=html.replace(/onclick="notify\('✓ تم إرسال طلب مشتريات الكوزمتك[^\"]*"/,'onclick="salonatiCosmeticsCheckout()"');
+    await cp(resolve(root,'deployment/cosmetics-customer-live.js'),resolve(output,'cosmetics-customer-live.js'));
+    html = html.replace('</body>', '<script src="/loyalty-ui.js"></script><script src="/salonati-link.js"></script><script src="/cosmetics-customer-live.js"></script><script>window.salonatiCustomerLogout=async()=>{try{const r=await fetch("/api/link/customer/logout",{method:"POST",credentials:"same-origin",headers:{"Content-Type":"application/json"},body:"{}"});if(!r.ok)throw Error("تعذر تسجيل الخروج");location.reload()}catch(e){notify(e.message)}};</script></body>');
+    if(review)html=html.replace('fetch("/api/link/customer/logout",','fetch("/review-logout",');
+  }
+  if(role==='cosmetics'){
+    html=html.replace('<h1 id="storeTitle">روز كوزمتك</h1>', '<h1 id="storeTitle">صالوناتي كوزمتك</h1>');
+    const file=resolve(output,'cosmetics/owner/app.js');
+    let js=await readFile(file,'utf8');
+    js=js.replace("const KEY = 'salonati-cosmetics-owner-v2';", "const KEY = 'salonati-cosmetics-owner-v2:'+window.SALONATI_ACCOUNT_ID;")
+      .replace('let db;', "initial.store={name:'',area:'',address:'',phone:'',openTime:'8:00 ص',closeTime:'10:00 م',about:'',lat:'',lng:'',active:false};initial.products=[];initial.offers=[];initial.orders=[];\nlet db;")
+      .replace(/const save = \(\) => \{[\s\S]*?\n\};/, 'const save=async()=>persistCosmetics();');
+    const imageStart=js.indexOf('function handleImageUpload(e) {'),imageEnd=js.indexOf('function startEdit(',imageStart);
+    if(imageStart<0||imageEnd<0)throw new Error('Cosmetics image handler changed');
+    js=js.slice(0,imageStart)+'async function handleImageUpload(e){return uploadCosmeticsImage(e);}\n\n'+js.slice(imageEnd);
+    for(const name of ['saveProductData','deleteProduct','saveOffer','deleteOffer','saveStore','updateOrder'])js=js.replace('function '+name+'(', 'async function '+name+'(');
+    js=js.replace('    pos => {','    async pos => {').replaceAll('save();','if(!await save())return;')
+      .replace('p.stock = stock || 1;', 'p.stock = stock;').replace('stock: stock || 1,', 'stock: stock,')
+      .replace('✓ تمت إضافة المنتج ونشره في المتجر بنجاح 💄','تمت إضافة المنتج وإرساله لموافقة الإدارة')
+      .replace('✓ تم تحديث بيانات المنتج بنجاح','تم حفظ تعديل المنتج للمراجعة')
+      .replace('✓ تم نشر العرض الخاص بنجاح 🌟','تم إرسال العرض لموافقة الإدارة');
+    const productSaveStart=js.indexOf('async function saveProductData()'),productSaveEnd=js.indexOf('async function deleteProduct(',productSaveStart);
+    if(productSaveStart<0||productSaveEnd<0)throw new Error('Cosmetics product save changed');
+    let productSave=js.slice(productSaveStart,productSaveEnd).replace("toast('تم حفظ تعديل المنتج للمراجعة');",'').replace("toast('تمت إضافة المنتج وإرساله لموافقة الإدارة');",'').replace('if(!await save())return;', "if(!await save())return;toast('تم حفظ المنتج وإرساله لموافقة الإدارة');");
+    js=js.slice(0,productSaveStart)+productSave+js.slice(productSaveEnd);
+    if(!/\nrender\(\);\s*$/.test(js))throw new Error('Cosmetics startup changed');
+    js=js.replace(/\nrender\(\);\s*$/, '\n')+'\n'+await readFile(resolve(root,'deployment/cosmetics-owner-live.js'),'utf8')+'\nvoid restoreCosmetics();\n';
+    await writeFile(file,js);
+  }
+  if(role==='admin'){
+    await cp(resolve(root,'deployment/cosmetics-admin-live.js'),resolve(output,'cosmetics-admin-live.js'));
+    html=html.replace('</body>','<script src="/cosmetics-admin-live.js"></script></body>');
   }
   if (role === 'salon') {
+    html = html.replace("const KEY='salonati-owner-production-v1';", "const KEY='salonati-owner-production-v1:'+window.SALONATI_ACCOUNT_ID;");
     html = html.replace('<title>Remix صالوناتي - تجربة الزبونة</title>', '<title>صالوناتي | تطبيق الصالون</title>');
     const file = resolve(output, 'owner-publishing.js');
     let js = await readFile(file, 'utf8');
@@ -46,6 +97,11 @@ if (process.argv.includes('--live')) {
       .replaceAll('value="12345678"', '')
       .replace("const defaultEmail=account?.email||savedAcc?.email||'maryam@salonati.iq';", "const defaultEmail=account?.phone||'';")
       .replace("esc(account?.email||savedAcc?.email||'')", "esc(account?.phone||'')");
+    if(review){
+      js=js.replace("if(window.SALONATI_TRIAL){authChecking=false;account=null;authMode='login';render();return}", "if(window.SALONATI_TRIAL&&!window.SALONATI_REVIEW){authChecking=false;account=null;authMode='login';render();return}")
+        .replace('window.catalogOwnerLogout=async()=>{', "window.catalogOwnerLogout=async()=>{if(window.SALONATI_REVIEW){const f=document.createElement('form');f.method='POST';f.action='/review-logout';document.body.append(f);f.submit();return}");
+    }
+    js = js.replace("page='home';await refresh();toast(submission?", "page='home';await refresh();location.reload();toast(submission?");
     const start = js.indexOf('window.salonAccountPage=()=>{');
     const end = js.indexOf('function authMarkup()', start);
     if (start < 0 || end < 0) throw new Error('Owner account screens changed');
@@ -66,6 +122,14 @@ if (process.argv.includes('--live')) {
   }
   await writeFile(resolve(output, 'index.html'), html);
   await writeFile(resolve(output, 'index.html'), html);
-  const worker = await readFile(resolve(root, 'deployment/live-worker.mjs'), 'utf8');
-  await writeFile(resolve(output, '_worker.js'), worker.replaceAll('__APP_ROLE__', role));
+  const liveWorker=await readFile(resolve(root, 'deployment/live-worker.mjs'),'utf8');
+  let worker = review?await readFile(resolve(root,'deployment/review-worker.mjs'),'utf8'):liveWorker;
+  if(review){
+    const normalizeStart=liveWorker.indexOf('function normalizePhone('),normalizeEnd=liveWorker.indexOf('async function registerPhone(');
+    const allowedStart=liveWorker.indexOf('function allowed(path)'),allowedEnd=liveWorker.indexOf('export default',allowedStart);
+    if([normalizeStart,normalizeEnd,allowedStart,allowedEnd].some(n=>n<0))throw new Error('Shared app boundary hooks changed');
+    worker+='\n'+liveWorker.slice(normalizeStart,normalizeEnd)+'\n'+liveWorker.slice(allowedStart,allowedEnd);
+  }
+  const cosmeticsApi = await readFile(resolve(root, 'deployment/cosmetics-api.mjs'), 'utf8');
+  await writeFile(resolve(output, '_worker.js'), worker.replaceAll('__APP_ROLE__', role)+'\n'+cosmeticsApi);
 }

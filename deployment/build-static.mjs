@@ -33,9 +33,10 @@ if (process.argv.includes('--live')) {
     html = html.replace('البريد أو كلمة المرور غير صحيحة.', 'رقم الهاتف أو كلمة المرور غير صحيحة.');
   }
   if (role === 'customer') {
-    html = html.replace('</body>', '<script src="/loyalty-ui.js"></script><script src="/salonati-link.js"></script></body>');
+    html = html.replace('</body>', '<script src="/loyalty-ui.js"></script><script src="/salonati-link.js"></script><script>window.salonatiCustomerLogout=async()=>{try{const r=await fetch("/api/link/customer/logout",{method:"POST",credentials:"same-origin",headers:{"Content-Type":"application/json"},body:"{}"});if(!r.ok)throw Error("تعذر تسجيل الخروج");location.reload()}catch(e){notify(e.message)}};</script></body>');
   }
   if (role === 'salon') {
+    html = html.replace('<title>Remix صالوناتي - تجربة الزبونة</title>', '<title>صالوناتي | تطبيق الصالون</title>');
     const file = resolve(output, 'owner-publishing.js');
     let js = await readFile(file, 'utf8');
     js = js.replaceAll('البريد الإلكتروني', 'رقم الهاتف')
@@ -45,8 +46,25 @@ if (process.argv.includes('--live')) {
       .replaceAll('value="12345678"', '')
       .replace("const defaultEmail=account?.email||savedAcc?.email||'maryam@salonati.iq';", "const defaultEmail=account?.phone||'';")
       .replace("esc(account?.email||savedAcc?.email||'')", "esc(account?.phone||'')");
+    const start = js.indexOf('window.salonAccountPage=()=>{');
+    const end = js.indexOf('function authMarkup()', start);
+    if (start < 0 || end < 0) throw new Error('Owner account screens changed');
+    let auth = js.slice(start, end);
+    auth = auth.replace(/const g=typeof getSalonGreetingInfo[^\n]+/, "const g={icon:'🌸',headline:'أهلاً بكِ في صالوناتي',sub:'سجّلي الدخول إلى حساب الصالون'};")
+      .replace(/const salonImg=[^\n]+/, "const salonImg='/icons/icon-180.png';")
+      .replaceAll("db.salon?.name||'الصالون'", "'صالوناتي'")
+      .replaceAll("db.salon?.name||'صالون لؤلؤة بغداد'", "'حساب الصالون'")
+      .replaceAll("db.salon?.area||'الكرادة'", "'دخول آمن'")
+      .replace("+(typeof frontNotificationsMarkup==='function'?frontNotificationsMarkup(true):'')", '')
+      .replaceAll("esc(db.salon?.name||'')", "''")
+      .replaceAll("esc(db.salon?.area||'الكرادة')", "''")
+      .replaceAll("esc(db.salon?.lat||'33.3128')", "''")
+      .replaceAll("esc(db.salon?.lng||'44.4322')", "''")
+      .replace("registrationFields({contactName:db.salon?.ownerName||'ست مريم',phone:db.salon?.phone||'',address:db.salon?.address||'',facadeUrl:db.salon?.image||''},true)", 'registrationFields({},true)');
+    js = js.slice(0,start)+auth+js.slice(end);
     await writeFile(file, js);
   }
+  await writeFile(resolve(output, 'index.html'), html);
   await writeFile(resolve(output, 'index.html'), html);
   const worker = await readFile(resolve(root, 'deployment/live-worker.mjs'), 'utf8');
   await writeFile(resolve(output, '_worker.js'), worker.replaceAll('__APP_ROLE__', role));

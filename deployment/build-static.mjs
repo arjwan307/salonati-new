@@ -25,7 +25,7 @@ await writeFile(resolve(output, '_headers'), '/*\n  X-Content-Type-Options: nosn
 // No SPA fallback for missing scripts/API paths; missing backend must stay visible.
 // Local offline records live in IndexedDB, scoped to both application and signed-in account.
 // Never cache credentials or grant server permissions from local state.
-const offlineDatabaseSource = String.raw\`
+const offlineDatabaseSource = String.raw`
 (()=>{'use strict';
 const role=__ROLE__;
 const account=String(window.SALONATI_ACCOUNT_ID||'guest');
@@ -58,7 +58,7 @@ const local={
 Object.defineProperty(window,'salonatiLocalDB',{value:Object.freeze(local),configurable:false});
 ready.catch(()=>{});
 })();
-\`.replace('__ROLE__',JSON.stringify(role));
+`.replace('__ROLE__',JSON.stringify(role));
 await writeFile(resolve(output,'salonati-offline-db.js'),offlineDatabaseSource);
 {
   const path=resolve(output,'index.html');

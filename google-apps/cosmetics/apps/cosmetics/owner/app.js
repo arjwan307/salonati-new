@@ -333,7 +333,7 @@ function render() {
       <button class="${page === 'orders' ? 'active' : ''}" onclick="setPage('orders')"><span>📋</span>الطلبات</button>
       <button class="${page === 'products' ? 'active' : ''}" onclick="setPage('products')"><span>💄</span>المنتجات</button>
       <button class="${page === 'offers' ? 'active' : ''}" onclick="setPage('offers')"><span>✨</span>العروض</button>
-      <button class="${page === 'more' ? 'active' : ''}" onclick="setPage('more')"><span>☰</span>المزيد</button>
+      <button class="${page === 'more' ? 'active' : ''}" onclick="setPage('more')"><span>⚙</span>الإعدادات</button>
     `;
   }
 }

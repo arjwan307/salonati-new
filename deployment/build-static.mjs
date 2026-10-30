@@ -21,6 +21,9 @@ await cp(resolve(source, 'public'), output, {
   filter: p => !['.zip', '.bak', '.html'].includes(extname(p)),
 });
 await writeFile(resolve(output, 'index.html'), await readFile(resolve(source, entries[role])));
+if (!process.argv.includes('--live') && !process.argv.includes('--review')) {
+  // The generated store asset remains available in the standalone preview too.
+}
 await writeFile(resolve(output, '_headers'), '/*\n  X-Content-Type-Options: nosniff\n  Referrer-Policy: strict-origin-when-cross-origin\n  X-Robots-Tag: noindex, nofollow\n');
 // No SPA fallback for missing scripts/API paths; missing backend must stay visible.
 // Local offline records live in IndexedDB, scoped to both application and signed-in account.
@@ -60,12 +63,6 @@ ready.catch(()=>{});
 })();
 `.replace('__ROLE__',JSON.stringify(role));
 await writeFile(resolve(output,'salonati-offline-db.js'),offlineDatabaseSource);
-{
-  const path=resolve(output,'index.html');
-  let offlineHtml=await readFile(path,'utf8');
-  offlineHtml=offlineHtml.replace('</head>','<script src="/salonati-offline-db.js" defer></script></head>');
-  await writeFile(path,offlineHtml);
-}
 await writeFile(resolve(output, '404.html'), '<!doctype html><html lang="ar" dir="rtl"><meta charset="utf-8"><title>404</title><p>الصفحة غير موجودة</p></html>');
 console.log(`Built ${role}: ${entries[role]} -> release/${role}/index.html`);
 if (process.argv.includes('--live') || process.argv.includes('--review')) {
@@ -165,7 +162,7 @@ if (process.argv.includes('--live') || process.argv.includes('--review')) {
     js = js.slice(0,start)+auth+js.slice(end);
     await writeFile(file, js);
   }
-  await writeFile(resolve(output, 'index.html'), html);
+  html=html.replace('</head>','<script src="/salonati-offline-db.js" defer></script></head>');
   await writeFile(resolve(output, 'index.html'), html);
   const liveWorker=await readFile(resolve(root, 'deployment/live-worker.mjs'),'utf8');
   let worker = review?await readFile(resolve(root,'deployment/review-worker.mjs'),'utf8'):liveWorker;

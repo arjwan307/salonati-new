@@ -23,6 +23,49 @@ await cp(resolve(source, 'public'), output, {
 await writeFile(resolve(output, 'index.html'), await readFile(resolve(source, entries[role])));
 await writeFile(resolve(output, '_headers'), '/*\n  X-Content-Type-Options: nosniff\n  Referrer-Policy: strict-origin-when-cross-origin\n  X-Robots-Tag: noindex, nofollow\n');
 // No SPA fallback for missing scripts/API paths; missing backend must stay visible.
+// Local offline records live in IndexedDB, scoped to both application and signed-in account.
+// Never cache credentials or grant server permissions from local state.
+const offlineDatabaseSource = String.raw\`
+(()=>{'use strict';
+const role=__ROLE__;
+const account=String(window.SALONATI_ACCOUNT_ID||'guest');
+const name='salonati-offline-'+role+'-'+account;
+const ready=new Promise((resolve,reject)=>{
+ if(!('indexedDB' in window)){reject(Error('offline_database_unavailable'));return;}
+ const request=indexedDB.open(name,1);
+ request.onupgradeneeded=()=>{const db=request.result;
+   if(!db.objectStoreNames.contains('records'))db.createObjectStore('records',{keyPath:'key'});
+   if(!db.objectStoreNames.contains('outbox'))db.createObjectStore('outbox',{keyPath:'id',autoIncrement:true});
+ };
+ request.onsuccess=()=>resolve(request.result);
+ request.onerror=()=>reject(request.error);
+});
+const transact=async(store,mode,operation)=>{const db=await ready;return new Promise((resolve,reject)=>{
+ const tx=db.transaction(store,mode),req=operation(tx.objectStore(store));
+ req.onsuccess=()=>resolve(req.result);
+ req.onerror=()=>reject(req.error);
+ tx.onabort=()=>reject(tx.error||Error('offline_write_failed'));
+});};
+const key=(kind,id)=>{if(!/^[a-zA-Z0-9_-]{1,50}$/.test(kind))throw Error('invalid_kind');return kind+':'+String(id)};
+const local={
+ ready,
+ get:async(kind,id)=>{const row=await transact('records','readonly',s=>s.get(key(kind,id)));return row?.data??null},
+ list:async(kind)=>{const rows=await transact('records','readonly',s=>s.getAll());return rows.filter(x=>x.kind===kind).map(x=>x.data)},
+ put:async(kind,id,data)=>{if(account==='guest')throw Error('account_required');return transact('records','readwrite',s=>s.put({key:key(kind,id),kind,data,updatedAt:Date.now()}))},
+ remove:async(kind,id)=>transact('records','readwrite',s=>s.delete(key(kind,id))),
+ clear:async(kind)=>{const rows=await local.list(kind);for(const row of rows){if(row&&row.id!=null)await local.remove(kind,row.id)}},
+};
+Object.defineProperty(window,'salonatiLocalDB',{value:Object.freeze(local),configurable:false});
+ready.catch(()=>{});
+})();
+\`.replace('__ROLE__',JSON.stringify(role));
+await writeFile(resolve(output,'salonati-offline-db.js'),offlineDatabaseSource);
+{
+  const path=resolve(output,'index.html');
+  let offlineHtml=await readFile(path,'utf8');
+  offlineHtml=offlineHtml.replace('</head>','<script src="/salonati-offline-db.js" defer></script></head>');
+  await writeFile(path,offlineHtml);
+}
 await writeFile(resolve(output, '404.html'), '<!doctype html><html lang="ar" dir="rtl"><meta charset="utf-8"><title>404</title><p>الصفحة غير موجودة</p></html>');
 console.log(`Built ${role}: ${entries[role]} -> release/${role}/index.html`);
 if (process.argv.includes('--live') || process.argv.includes('--review')) {

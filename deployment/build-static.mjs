@@ -62,6 +62,8 @@ if (process.argv.includes('--live') || process.argv.includes('--review')) {
     const file=resolve(output,'cosmetics/owner/app.js');
     let js=await readFile(file,'utf8');
     js=js.replace("const KEY = 'salonati-cosmetics-owner-v2';", "const KEY = 'salonati-cosmetics-owner-v2:'+window.SALONATI_ACCOUNT_ID;")
+    // Live/review accounts load their records from the server, never stale browser demo storage.
+    js=js.replace('db = JSON.parse(localStorage.getItem(KEY)) || structuredClone(initial);','db = structuredClone(initial);');
       .replace('let db;', "initial.store={name:'',area:'',address:'',phone:'',openTime:'8:00 ص',closeTime:'10:00 م',about:'',lat:'',lng:'',active:false};initial.products=[];initial.offers=[];initial.orders=[];\nlet db;")
       .replace(/const save = \(\) => \{[\s\S]*?\n\};/, 'const save=async()=>persistCosmetics();');
     const imageStart=js.indexOf('function handleImageUpload(e) {'),imageEnd=js.indexOf('function startEdit(',imageStart);

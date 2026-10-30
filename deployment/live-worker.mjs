@@ -83,6 +83,8 @@ export default {
     try {
     const url = new URL(request.url);
     let accountId = 'guest';
+    // Support legacy entrypoint links without changing login or API boundaries.
+    if (request.method === 'GET' && (url.pathname === '/تطبيق' || url.pathname === '/%D8%AA%D8%B7%D8%A8%D9%8A%D9%82' || url.pathname === '/تطبيق/')) return Response.redirect(url.origin + '/', 302);
     if (url.hostname !== `salonati-${role}-clean.pages.dev`) return Response.json({error:'live_host_required'}, {status:403});
     if (role === 'customer' && ['/', '/index.html'].includes(url.pathname) && ['GET','HEAD'].includes(request.method)) {
       if (!env.SALONATI_API) return Response.json({error:'api_not_configured'},{status:503});

@@ -128,6 +128,8 @@ if (process.argv.includes('--live') || process.argv.includes('--review')) {
     html=html.replace('</body>','<script src="/cosmetics-admin-live.js"></script></body>');
   }
   if (role === 'salon') {
+    await cp(resolve(root, 'deployment/salon-hours-ui.js'), resolve(output, 'salon-hours-ui.js'));
+    html = html.replace('</body>', '<script src="/salon-hours-ui.js"></script></body>');
     html = html.replace("const KEY='salonati-owner-production-v1';", "const KEY='salonati-owner-production-v1:'+window.SALONATI_ACCOUNT_ID;");
     html = html.replace('<title>Remix صالوناتي - تجربة الزبونة</title>', '<title>صالوناتي | تطبيق الصالون</title>');
     const file = resolve(output, 'owner-publishing.js');

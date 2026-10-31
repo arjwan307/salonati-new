@@ -128,13 +128,15 @@ export default {
       const id=decodeURIComponent(url.pathname.split('/').pop()),db=env.IDENTITY_DB;
       const service=await db.prepare("SELECT s.id,s.owner_id,s.published_revision,r.status FROM catalog_services s JOIN catalog_revisions r ON r.id=s.latest_revision WHERE s.id=? AND s.owner_id=?").bind(id,session.accountId).first();
       if(!service)return Response.json({error:'service_not_found'},{status:404});
-      if(service.published_revision || service.status!=='rejected')return Response.json({error:'only_unpublished_rejected_services_removable'},{status:409});
-      const referenced=(await db.prepare("SELECT COUNT(*) AS count FROM catalog_revisions WHERE service_id=? AND status!='rejected'").bind(id).first())?.count;
-      if(referenced)return Response.json({error:'service_has_other_revisions'},{status:409});
+      // Historical bookings keep their immutable service snapshots; loyalty references must remain valid.
+      const loyalty=await db.prepare("SELECT owner_id FROM catalog_loyalty_settings WHERE service_id=?").bind(id).first();
+      if(loyalty)return Response.json({error:'service_used_for_loyalty'},{status:409});
       try{
         await db.batch([
+          db.prepare("DELETE FROM catalog_visual_services WHERE service_id=? AND owner_id=?").bind(id,session.accountId),
+          db.prepare("UPDATE catalog_services SET published_revision=NULL,latest_revision=NULL WHERE id=? AND owner_id=?").bind(id,session.accountId),
           db.prepare("DELETE FROM catalog_revisions WHERE service_id=? AND owner_id=?").bind(id,session.accountId),
-          db.prepare("DELETE FROM catalog_services WHERE id=? AND owner_id=? AND published_revision IS NULL").bind(id,session.accountId)
+          db.prepare("DELETE FROM catalog_services WHERE id=? AND owner_id=?").bind(id,session.accountId)
         ]);
       }catch{return Response.json({error:'service_delete_blocked'},{status:409});}
       return Response.json({ok:true},{headers:{'Cache-Control':'no-store'}});

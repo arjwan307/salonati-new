@@ -98,6 +98,10 @@ try {
 } catch (e) {
   db = JSON.parse(JSON.stringify(initial));
 }
+// Repair legacy or incomplete browser state without erasing actual entered records.
+if(!db||typeof db!=='object')db=structuredClone(initial);
+if(!db.store||typeof db.store!=='object')db.store=structuredClone(initial.store);
+for(const key of ['products','offers','orders'])if(!Array.isArray(db[key]))db[key]=[];
 if (!db.store.openTime) db.store.openTime = '8:00 ص';
 if (!db.store.closeTime) db.store.closeTime = '10:00 م';
 
@@ -477,4 +481,4 @@ window.updateOrder = updateOrder;
 window.fetchStoreGPS = fetchStoreGPS;
 window.saveStore = saveStore;
 
-render();
+try{render()}catch(error){console.error('Cosmetics screen error:',error);const main=document.getElementById('main');if(main)main.innerHTML='<div class="card"><h3>تعذر تحميل بيانات الكوزمتك</h3><p>حدث خطأ في عرض البيانات. يرجى إعادة فتح التطبيق.</p></div>';const nav=document.getElementById('nav');if(nav)nav.innerHTML='<button onclick="location.reload()">إعادة تحميل</button>';}

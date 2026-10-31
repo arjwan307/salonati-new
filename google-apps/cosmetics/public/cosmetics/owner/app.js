@@ -481,4 +481,4 @@ window.updateOrder = updateOrder;
 window.fetchStoreGPS = fetchStoreGPS;
 window.saveStore = saveStore;
 
-try{render()}catch(error){console.error('Cosmetics screen error:',error);const main=document.getElementById('main');if(main)main.innerHTML='<div class="card"><h3>تعذر تحميل بيانات الكوزمتك</h3><p>حدث خطأ في عرض البيانات. يرجى إعادة فتح التطبيق.</p></div>';const nav=document.getElementById('nav');if(nav)nav.innerHTML='<button onclick="location.reload()">إعادة تحميل</button>';}
+render();

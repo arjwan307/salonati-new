@@ -654,8 +654,8 @@ function summary(){
 }
 let salonatiBookingBusy=false;
 function salonatiBookingStartsAt(date,time){
- const match=String(time).match(/^(\\d{1,2}):(\\d{2})\\s*([صم])$/);
- if(!match||!/^\\d{4}-\\d{2}-\\d{2}$/.test(date))throw Error('invalid_time');
+ const match=String(time).match(/^(\d{1,2}):(\d{2})\s*([صم])$/);
+ if(!match||!/^\d{4}-\d{2}-\d{2}$/.test(date))throw Error('invalid_time');
  let hours=Number(match[1])%12;if(match[3]==='م')hours+=12;
  const local=new Date(date+'T'+String(hours).padStart(2,'0')+':'+match[2]+':00+03:00');
  if(!Number.isFinite(local.getTime()))throw Error('invalid_time');
@@ -667,16 +667,18 @@ async function salonatiSubmitBooking(event){
  if(!state.selectedServices.length||!state.date||!state.time)return notify('أكملي اختيار الخدمة والتاريخ والوقت أولاً');
  const name=document.getElementById('customerName')?.value?.trim()||'';
  const rawPhone=document.getElementById('customerPhone')?.value?.trim()||'';
- const phone=rawPhone.replace(/[٠-٩]/g,c=>String('٠١٢٣٤٥٦٧٨٩'.indexOf(c))).replace(/[۰-۹]/g,c=>String('۰۱۲۳۴۵۶۷۸۹'.indexOf(c))).replace(/[\\s()-]/g,'');
+ const phone=rawPhone.replace(/[٠-٩]/g,c=>String('٠١٢٣٤٥٦٧٨٩'.indexOf(c))).replace(/[۰-۹]/g,c=>String('۰۱۲۳۴۵۶۷۸۹'.indexOf(c))).replace(/[\s()-]/g,'');
  const notes=document.getElementById('customerNotes')?.value?.trim()||'';
  if(name.length<2)return notify('يرجى إدخال الاسم (حرفين على الأقل)');
- if(!/^(07[0-9]{9}|\\+9647[0-9]{9}|009647[0-9]{9})$/.test(phone))return notify('يرجى إدخال رقم هاتف عراقي صحيح مثل 07701234567');
+ if(!/^(07[0-9]{9}|\+9647[0-9]{9}|009647[0-9]{9})$/.test(phone))return notify('يرجى إدخال رقم هاتف عراقي صحيح مثل 07701234567');
  const salon=salons.find(x=>x.id===state.salon);
  const chosen=services.filter(v=>state.selectedServices.includes(v.id));
  if(!salon||chosen.length!==state.selectedServices.length)return notify('راجعي الصالون والخدمات المختارة');
+ let startsAt;
+ try{startsAt=salonatiBookingStartsAt(state.date,state.time)}catch{return notify('تعذر قراءة موعد الحجز، اختاري التاريخ والوقت مرة أخرى')}
  salonatiBookingBusy=true;
  const key=crypto.randomUUID();
- const payload={requestKey:key,ownerId:salon.ownerId,serviceIds:chosen.map(v=>v.serverId),startsAt:salonatiBookingStartsAt(state.date,state.time),expectedTotal:selectedTotal(),name,phone,notes,paymentMethod:state.payment,staffId:state.staffChoices?.[chosen[0].id]?.id||null};
+ const payload={requestKey:key,ownerId:salon.ownerId,serviceIds:chosen.map(v=>v.serverId),startsAt,expectedTotal:selectedTotal(),name,phone,notes,paymentMethod:state.payment,staffId:state.staffChoices?.[chosen[0].id]?.id||null};
  try{
   if(!navigator.onLine)throw Error('offline');
   const response=await fetch('/api/catalog/workflow/customer/bookings',{method:'POST',credentials:'same-origin',cache:'no-store',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});

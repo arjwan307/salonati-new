@@ -367,7 +367,7 @@ function showSpecialists(service){
  dialog.style.cssText='width:min(92vw,420px);max-height:80vh;overflow:auto;border:1px solid var(--line);border-radius:20px;background:var(--card);color:var(--text);padding:20px';
  const h=document.createElement('h3');h.textContent='اختاري الموظفة المختصة: '+service.name;dialog.append(h);
  if(!matching.length){const p=document.createElement('p');p.textContent='لا توجد موظفة مسجلة لهذا الاختصاص حالياً';dialog.append(p);}
- for(const staff of [...matching,{id:'',name:'اختيار عشوائي',specialty:''}]{
+ for(const staff of [...matching,{id:'',name:'اختيار عشوائي',specialty:''}]){
   const button=document.createElement('button');button.className='outline';button.type='button';button.style.cssText='display:block;width:100%;text-align:right;margin:8px 0;padding:12px';
   button.textContent=staff.name+(staff.specialty?' — '+staff.specialty:'');
   button.onclick=()=>{state.staffChoices=state.staffChoices||{};state.staffChoices[service.id]={id:staff.id,name:staff.name};state.selectedStaff=staff.id?staff.name:'اختيار عشوائي';dialog.close();render();};

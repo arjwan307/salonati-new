@@ -109,7 +109,7 @@ if (process.argv.includes('--live') || process.argv.includes('--review')) {
     const imageStart=js.indexOf('function handleImageUpload(e) {'),imageEnd=js.indexOf('function startEdit(',imageStart);
     if(imageStart<0||imageEnd<0)throw new Error('Cosmetics image handler changed');
     js=js.slice(0,imageStart)+'async function handleImageUpload(e){return uploadCosmeticsImage(e);}\n\n'+js.slice(imageEnd);
-    for(const name of ['saveProductData','deleteProduct','saveOffer','deleteOffer','saveStore','updateOrder'])js=js.replace('function '+name+'(', 'async function '+name+'(');
+    for(const name of ['saveProductData','deleteProduct','saveOffer','deleteOffer','saveStore','updateOrder'])js=js.replace(new RegExp('(?<!async )function '+name+'\\('), 'async function '+name+'(');
     js=js.replace('    pos => {','    async pos => {').replaceAll('save();','if(!await save())return;')
       .replace('p.stock = stock || 1;', 'p.stock = stock;').replace('stock: stock || 1,', 'stock: stock,')
       .replace('✓ تمت إضافة المنتج ونشره في المتجر بنجاح 💄','تمت إضافة المنتج وإرساله لموافقة الإدارة')

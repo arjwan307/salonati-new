@@ -111,6 +111,14 @@ export default {
       accountId=owner.id;
       if(!/^[a-zA-Z0-9-]{16,80}$/.test(accountId))return Response.json({error:'invalid_session'},{status:401});
     }
+    // Public, read-only approved catalog for the customer app. Published services only.
+    if (role === 'customer' && url.pathname === '/api/customer/approved-catalog' && request.method === 'GET') {
+      if (!env.IDENTITY_DB) return Response.json({error:'catalog_unavailable'},{status:503});
+      const db=env.IDENTITY_DB;
+      const salons=(await db.prepare("SELECT a.id AS ownerId,a.salon_name AS name,a.area,a.latitude AS lat,a.longitude AS lng,r.facade_media_id AS facadeId FROM catalog_accounts a JOIN catalog_registrations r ON r.owner_id=a.id WHERE a.role='owner' AND r.status='approved' ORDER BY a.salon_name").all()).results;
+      const services=(await db.prepare("SELECT s.id,s.owner_id AS ownerId,r.name,r.category,r.price,r.minutes,r.media_id AS mediaId FROM catalog_services s JOIN catalog_revisions r ON r.id=s.published_revision JOIN catalog_registrations reg ON reg.owner_id=s.owner_id WHERE reg.status='approved' AND r.status='approved' AND r.active=1").all()).results;
+      return Response.json({salons,services},{headers:{'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}});
+    }
     if (url.pathname.startsWith('/api/') || backendAssets.has(url.pathname)) {
       if (!allowed(url.pathname)) return Response.json({error:'app_route_denied'}, {status:403});
       if (!env.SALONATI_API) return Response.json({error:'api_not_configured'}, {status:503});

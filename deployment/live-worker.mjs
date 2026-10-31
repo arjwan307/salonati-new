@@ -120,6 +120,25 @@ export default {
       const team=(await db.prepare("SELECT t.id,t.owner_id AS ownerId,t.name,t.specialty FROM catalog_team t JOIN catalog_registrations reg ON reg.owner_id=t.owner_id WHERE reg.status='approved' AND t.active=1").all()).results;
       return Response.json({salons,services,team},{headers:{'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}});
     }
+    if (role === 'salon' && request.method === 'DELETE' && /^\\/api\\/catalog\\/services\\/[a-zA-Z0-9-]{16,80}$/.test(url.pathname)) {
+      if (!env.IDENTITY_DB) return Response.json({error:'catalog_unavailable'},{status:503});
+      if (request.headers.get('origin') && request.headers.get('origin') !== url.origin) return Response.json({error:'invalid_origin'},{status:403});
+      const session=await catalogAppSession(request,env);
+      if(session.status!==200)return Response.json({error:'app_session_required'},{status:session.status});
+      const id=decodeURIComponent(url.pathname.split('/').pop()),db=env.IDENTITY_DB;
+      const service=await db.prepare("SELECT s.id,s.owner_id,s.published_revision,r.status FROM catalog_services s JOIN catalog_revisions r ON r.id=s.latest_revision WHERE s.id=? AND s.owner_id=?").bind(id,session.accountId).first();
+      if(!service)return Response.json({error:'service_not_found'},{status:404});
+      if(service.published_revision || service.status!=='rejected')return Response.json({error:'only_unpublished_rejected_services_removable'},{status:409});
+      const referenced=(await db.prepare("SELECT COUNT(*) AS count FROM catalog_revisions WHERE service_id=? AND status!='rejected'").bind(id).first())?.count;
+      if(referenced)return Response.json({error:'service_has_other_revisions'},{status:409});
+      try{
+        await db.batch([
+          db.prepare("DELETE FROM catalog_revisions WHERE service_id=? AND owner_id=?").bind(id,session.accountId),
+          db.prepare("DELETE FROM catalog_services WHERE id=? AND owner_id=? AND published_revision IS NULL").bind(id,session.accountId)
+        ]);
+      }catch{return Response.json({error:'service_delete_blocked'},{status:409});}
+      return Response.json({ok:true},{headers:{'Cache-Control':'no-store'}});
+    }
     if (url.pathname.startsWith('/api/') || backendAssets.has(url.pathname)) {
       if (!allowed(url.pathname)) return Response.json({error:'app_route_denied'}, {status:403});
       if (!env.SALONATI_API) return Response.json({error:'api_not_configured'}, {status:503});

@@ -658,9 +658,11 @@ async function salonatiSubmitBooking(event){
  if(salonatiBookingBusy)return;
  if(!state.selectedServices.length||!state.date||!state.time)return notify('أكملي اختيار الخدمة والتاريخ والوقت أولاً');
  const name=document.getElementById('customerName')?.value?.trim()||'';
- const phone=document.getElementById('customerPhone')?.value?.trim()||'';
+ const rawPhone=document.getElementById('customerPhone')?.value?.trim()||'';
+ const phone=rawPhone.replace(/[٠-٩]/g,c=>String('٠١٢٣٤٥٦٧٨٩'.indexOf(c))).replace(/[۰-۹]/g,c=>String('۰۱۲۳۴۵۶۷۸۹'.indexOf(c))).replace(/[\\s()-]/g,'');
  const notes=document.getElementById('customerNotes')?.value?.trim()||'';
- if(name.length<2||!/^\\+?[0-9٠-٩\\s-]{9,17}$/.test(phone))return notify('أدخلي اسماً ورقم هاتف صحيحين');
+ if(name.length<2)return notify('يرجى إدخال الاسم (حرفين على الأقل)');
+ if(!/^(07[0-9]{9}|\\+9647[0-9]{9}|009647[0-9]{9})$/.test(phone))return notify('يرجى إدخال رقم هاتف عراقي صحيح مثل 07701234567');
  const salon=salons.find(x=>x.id===state.salon);
  const chosen=services.filter(v=>state.selectedServices.includes(v.id));
  if(!salon||chosen.length!==state.selectedServices.length)return notify('راجعي الصالون والخدمات المختارة');

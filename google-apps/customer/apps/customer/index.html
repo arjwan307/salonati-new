@@ -650,9 +650,40 @@ function summary(){
     </button>
   </div>
 
-  <h2>معلومات الزبونة</h2><label>الاسم</label><input class="field" id="customerName" placeholder="الاسم الكامل" value="${esc(state.name)}"><label>رقم الهاتف</label><input class="field" id="customerPhone" type="tel" inputmode="tel" placeholder="07XXXXXXXXX" value="${esc(state.phone)}"><label>ملاحظات (اختياري)</label><textarea class="field" id="customerNotes" rows="3" placeholder="ملاحظات للحجز">${esc(state.notes)}</textarea><button class="primary sticky" onclick="confirmBooking()">تأكيد طلب الحجز</button><p class="small" style="margin-top:12px">لن يتم تحصيل أي مبلغ الآن. الطلب بانتظار موافقة الصالون.</p>`;
+  <h2>معلومات الزبونة</h2><label>الاسم</label><input class="field" id="customerName" placeholder="الاسم الكامل" value="${esc(state.name)}"><label>رقم الهاتف</label><input class="field" id="customerPhone" type="tel" inputmode="tel" placeholder="07XXXXXXXXX" value="${esc(state.phone)}"><label>ملاحظات (اختياري)</label><textarea class="field" id="customerNotes" rows="3" placeholder="ملاحظات للحجز">${esc(state.notes)}</textarea><button class="primary sticky" onclick="salonatiSubmitBooking(event)">تأكيد طلب الحجز</button><p class="small" style="margin-top:12px">لن يتم تحصيل أي مبلغ الآن. الطلب بانتظار موافقة الصالون.</p>`;
 }
-function confirmBooking(){if(!state.selectedServices.length||!state.date||!state.time)return notify('أكملي اختيار الخدمة والتاريخ والوقت أولاً');let name=$('#customerName').value.trim(),phone=$('#customerPhone').value.trim(),notes=$('#customerNotes').value.trim();if(name.length<2||!/^\+?[0-9٠-٩\s-]{9,17}$/.test(phone))return notify('أدخلي اسماً ورقم هاتف صحيحين');state.name=name;state.phone=phone;state.notes=notes;save('salonati_name',name);save('salonati_phone',phone);let exists=state.bookings.some(b=>b.salon===state.salon&&b.date===state.date&&b.time===state.time&&b.status!=='ملغي');if(exists)return notify('هذا الموعد موجود في حجوزاتك');let b={id:'SL'+Date.now(),salon:state.salon,service:state.selectedServices[0],services:[...state.selectedServices],total:selectedTotal(),minutes:selectedMinutes(),staff:state.selectedStaff||'اختيار عشوائي',date:state.date,time:state.time,payment:state.payment,taxi:state.taxi,name,phone,notes,status:'بانتظار الموافقة',created:Date.now()};state.bookings.unshift(b);save('salonati_bookings',state.bookings);go('success')}
+let salonatiBookingBusy=false;
+async function salonatiSubmitBooking(event){
+ if(event){event.preventDefault();event.stopPropagation();event.stopImmediatePropagation();}
+ if(salonatiBookingBusy)return;
+ if(!state.selectedServices.length||!state.date||!state.time)return notify('أكملي اختيار الخدمة والتاريخ والوقت أولاً');
+ const name=document.getElementById('customerName')?.value?.trim()||'';
+ const phone=document.getElementById('customerPhone')?.value?.trim()||'';
+ const notes=document.getElementById('customerNotes')?.value?.trim()||'';
+ if(name.length<2||!/^\\+?[0-9٠-٩\\s-]{9,17}$/.test(phone))return notify('أدخلي اسماً ورقم هاتف صحيحين');
+ const salon=salons.find(x=>x.id===state.salon);
+ const chosen=services.filter(v=>state.selectedServices.includes(v.id));
+ if(!salon||chosen.length!==state.selectedServices.length)return notify('راجعي الصالون والخدمات المختارة');
+ salonatiBookingBusy=true;
+ const key=crypto.randomUUID();
+ const payload={requestKey:key,ownerId:salon.ownerId,serviceIds:chosen.map(v=>v.serverId),date:state.date,time:state.time,name,phone,notes,paymentMethod:state.payment,staffId:state.staffChoices?.[chosen[0].id]?.id||null};
+ try{
+  if(!navigator.onLine)throw Error('offline');
+  const response=await fetch('/api/catalog/workflow/customer/bookings',{method:'POST',credentials:'same-origin',cache:'no-store',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+  const result=await response.json().catch(()=>({}));
+  if(!response.ok)throw Error(result.error||'server_'+response.status);
+  const booking={id:result.booking?.id||result.id||key,salon:salon.id,ownerId:salon.ownerId,service:chosen[0].id,services:chosen.map(v=>v.id),total:selectedTotal(),minutes:selectedMinutes(),staff:state.selectedStaff||'اختيار عشوائي',date:state.date,time:state.time,payment:state.payment,name,phone,notes,status:'بانتظار الموافقة',created:Date.now()};
+  state.bookings.unshift(booking);save('salonati_bookings',state.bookings);go('success');
+ }catch(error){
+  try{
+   await window.salonatiLocalDB?.put('pending-booking',key,{id:key,payload,created:Date.now()});
+   notify('تعذر الاتصال بالخادم. حُفظ الطلب على الجهاز ولم يصل للصالون بعد');
+  }catch{notify('تعذر إرسال الطلب. يرجى المحاولة بعد عودة الاتصال');}
+  console.warn('Booking send pending:',error.message);
+ }finally{salonatiBookingBusy=false;}
+}
+function confirmBooking(){return salonatiSubmitBooking();}
+
 function success(){let b=state.bookings[0];return `${head('تم إرسال الطلب')}<div class="empty"><div style="font-size:65px;color:var(--pink)">✓</div><h2>تم إرسال طلب الحجز</h2><p>تم إرسال طلب الحجز للموافقة</p><p class="small">يظهر تأكيد الحجز بعد موافقة الصالون والإدارة.</p><p>رقم الطلب: ${esc(b?.id||'')}</p></div><button class="primary" style="width:100%" onclick="go('bookings')">عرض حجوزاتي</button><button class="outline" style="width:100%;margin-top:10px" onclick="go('home')">العودة للرئيسية</button>`}
 function bookings(){return `${head('حجوزاتي')}<div class="segments"><button class="${state.bookingsTab==='current'?'on':''}" onclick="state.bookingsTab='current';render()">الحالية</button><button class="${state.bookingsTab==='completed'?'on':''}" onclick="state.bookingsTab='completed';render()">المكتملة</button></div>${state.bookingsTab==='current'?(state.bookings.filter(b=>b.status!=='ملغي'&&b.status!=='مكتملة').map(b=>`<div class="panel"><h3>${salons.find(s=>s.id===b.salon)?.name||'صالون'}</h3><p>${(b.services||[b.service]).map(id=>services.find(s=>s.id===id)?.name||'خدمة').join('، ')}</p><p>📅 ${b.date} · ${b.time}</p><p>الإجمالي: ${fmt(b.total??services.find(s=>s.id===b.service)?.price??0)} د.ع</p><p>الدفع: ${b.payment==='card'?'💳 الدفع الالكتروني (شعار كي)':'💵 دفع في الصالون'}${b.taxi?` · التوصيل: ${b.taxi==='sharebly'?'تكسي شاربلي':'تكسي كريم'}`:''}</p><span class="pill">${b.status}</span><p>رقم الطلب: ${esc(String(b.id))}</p>${(['مقبول','مؤكد','confirmed','accepted','approved'].includes(String(b.status).toLowerCase())&&typeof (b.qrPayload||b.qrToken||b.checkinToken)==='string'&&(b.qrPayload||b.qrToken||b.checkinToken).length>=12)?`<div class="panel" style="text-align:center;background:white"><strong>باركود الدخول إلى الصالون</strong><p class="small">أبرزي الرمز عند الوصول ليتم مسحه في الاستقبال</p><div class="salonati-booking-qr" data-qr="${encodeURIComponent(b.qrPayload||b.qrToken||b.checkinToken)}" style="display:flex;justify-content:center;padding:10px"></div></div>`:''}<div style="display:flex;gap:8px;margin-top:10px">${b.status==='بانتظار الموافقة'?`<button class="outline" onclick="cancelBooking('${b.id}')">إلغاء الطلب</button>`:''}<button class="primary" style="padding:6px 12px;font-size:12px" onclick="completeBooking('${b.id}')">تمت بنجاح (نقل للمكتملة)</button></div></div>`).join('')||'<div class="empty">لا توجد حجوزات حالية</div>'):(state.bookings.filter(b=>b.status==='مكتملة'||b.date<today()).map(b=>`<div class="panel"><h3>${salons.find(s=>s.id===b.salon)?.name||'صالون'}</h3><p>${(b.services||[b.service]).map(id=>services.find(s=>s.id===id)?.name||'خدمة').join('، ')}</p><p>📅 ${b.date} · ${b.time}</p><p>الإجمالي: ${fmt(b.total??services.find(s=>s.id===b.service)?.price??0)} د.ع</p><p>الدفع: ${b.payment==='card'?'💳 الدفع الالكتروني (شعار كي)':'💵 دفع في الصالون'}${b.taxi?` · التوصيل: ${b.taxi==='sharebly'?'تكسي شاربلي':'تكسي كريم'}`:''}</p><span class="pill" style="background:#e0f8e8;color:#0a7a30">مكتملة ✓</span><p>رقم الطلب: ${b.id}</p></div>`).join('')||'<div class="empty">لا توجد حجوزات مكتملة</div>')}`;
 }

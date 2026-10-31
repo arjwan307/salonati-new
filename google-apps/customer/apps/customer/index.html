@@ -653,6 +653,14 @@ function summary(){
   <h2>معلومات الزبونة</h2><label>الاسم</label><input class="field" id="customerName" placeholder="الاسم الكامل" value="${esc(state.name)}"><label>رقم الهاتف</label><input class="field" id="customerPhone" type="tel" inputmode="tel" placeholder="07XXXXXXXXX" value="${esc(state.phone)}"><label>ملاحظات (اختياري)</label><textarea class="field" id="customerNotes" rows="3" placeholder="ملاحظات للحجز">${esc(state.notes)}</textarea><button class="primary sticky" onclick="salonatiSubmitBooking(event)">تأكيد طلب الحجز</button><p class="small" style="margin-top:12px">لن يتم تحصيل أي مبلغ الآن. الطلب بانتظار موافقة الصالون.</p>`;
 }
 let salonatiBookingBusy=false;
+function salonatiBookingStartsAt(date,time){
+ const match=String(time).match(/^(\\d{1,2}):(\\d{2})\\s*([صم])$/);
+ if(!match||!/^\\d{4}-\\d{2}-\\d{2}$/.test(date))throw Error('invalid_time');
+ let hours=Number(match[1])%12;if(match[3]==='م')hours+=12;
+ const local=new Date(date+'T'+String(hours).padStart(2,'0')+':'+match[2]+':00+03:00');
+ if(!Number.isFinite(local.getTime()))throw Error('invalid_time');
+ return local.toISOString();
+}
 async function salonatiSubmitBooking(event){
  if(event){event.preventDefault();event.stopPropagation();event.stopImmediatePropagation();}
  if(salonatiBookingBusy)return;
@@ -668,12 +676,12 @@ async function salonatiSubmitBooking(event){
  if(!salon||chosen.length!==state.selectedServices.length)return notify('راجعي الصالون والخدمات المختارة');
  salonatiBookingBusy=true;
  const key=crypto.randomUUID();
- const payload={requestKey:key,ownerId:salon.ownerId,serviceIds:chosen.map(v=>v.serverId),date:state.date,time:state.time,name,phone,notes,paymentMethod:state.payment,staffId:state.staffChoices?.[chosen[0].id]?.id||null};
+ const payload={requestKey:key,ownerId:salon.ownerId,serviceIds:chosen.map(v=>v.serverId),startsAt:salonatiBookingStartsAt(state.date,state.time),expectedTotal:selectedTotal(),name,phone,notes,paymentMethod:state.payment,staffId:state.staffChoices?.[chosen[0].id]?.id||null};
  try{
   if(!navigator.onLine)throw Error('offline');
   const response=await fetch('/api/catalog/workflow/customer/bookings',{method:'POST',credentials:'same-origin',cache:'no-store',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
   const result=await response.json().catch(()=>({}));
-  if(!response.ok)throw Error(result.error||'server_'+response.status);
+  if(!response.ok){if(response.status===401||result.error==='login_required')return notify('سجّلي دخول الزبونة بحساب فعلي قبل إرسال الحجز');if(result.error==='payment_unavailable')return notify('الدفع الإلكتروني غير متاح حالياً؛ اختاري الدفع في الصالون');if(result.error==='invalid_time')return notify('الموعد غير متاح، اختاري تاريخاً ووقتاً جديدين');if(result.error==='quote_changed')return notify('تغير سعر الخدمة؛ راجعي السعر وأعيدي الحجز');throw Error(result.error||'server_'+response.status)}
   const booking={id:result.booking?.id||result.id||key,salon:salon.id,ownerId:salon.ownerId,service:chosen[0].id,services:chosen.map(v=>v.id),total:selectedTotal(),minutes:selectedMinutes(),staff:state.selectedStaff||'اختيار عشوائي',date:state.date,time:state.time,payment:state.payment,name,phone,notes,status:'بانتظار الموافقة',created:Date.now()};
   state.bookings.unshift(booking);save('salonati_bookings',state.bookings);go('success');
  }catch(error){

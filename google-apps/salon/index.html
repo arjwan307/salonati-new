@@ -71,6 +71,9 @@ header.salon-header{display:flex;align-items:flex-start;justify-content:space-be
 .luxury-login-card{border:1px solid var(--line);border-radius:20px;background:rgba(255,255,255,.9);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);padding:18px;box-shadow:0 8px 24px rgba(75,12,155,.06);margin-bottom:14px}
 #ownerSupportDialog{width:min(420px,92vw);border:1px solid var(--line);border-radius:18px;background:var(--card);color:var(--text);font:14px Tahoma,Arial,sans-serif;padding:18px}
 #ownerSupportDialog::backdrop{background:#0007}
+
+/* Keep app navigation visible while scrolling. */
+body>nav#nav{position:fixed!important;bottom:0!important;left:50%!important;transform:translateX(-50%)!important;z-index:100!important}body{padding-bottom:calc(92px + env(safe-area-inset-bottom))}
 </style></head><body><div class="app"><header class="salon-header" style="display:none"><div class="header-info"><small>صالوناتي • الصفحة الرئيسية للصالون</small><h1 id="salonTitle">صالون لؤلؤة بغداد</h1><div id="salonGreeting" class="header-greeting"></div></div><div class="header-photo-col"><div class="header-top-badges"><button type="button" class="support-badge" onclick="openSupportModal()" aria-label="التواصل مع الدعم">🎧 الدعم</button><button type="button" class="support-badge alt" onclick="catalogOwnerLogout()" aria-label="قفل التطبيق وتسجيل الخروج">🔒 قفل</button></div><div class="logo salon-photo-frame" onclick="go('more')" title="صورة الصالون"><img id="headerSalonImg" src="https://images.unsplash.com/photo-1560066984-138dadb4c035?w=300" alt="صورة الصالون"></div></div></header><main id="main"><section class="card" role="status"><h1>صالوناتي</h1><p>جارٍ التحقق من تسجيل الدخول…</p></section></main></div><nav id="nav" style="display:none"></nav><div id="toast"></div><script src="/loyalty-ui.js"></script><script>
 
 function applyTheme(){

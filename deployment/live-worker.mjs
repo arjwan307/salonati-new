@@ -120,7 +120,7 @@ export default {
       const team=(await db.prepare("SELECT t.id,t.owner_id AS ownerId,t.name,t.specialty FROM catalog_team t JOIN catalog_registrations reg ON reg.owner_id=t.owner_id WHERE reg.status='approved' AND t.active=1").all()).results;
       return Response.json({salons,services,team},{headers:{'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}});
     }
-    if (role === 'salon' && request.method === 'DELETE' && /^\\/api\\/catalog\\/services\\/[a-zA-Z0-9-]{16,80}$/.test(url.pathname)) {
+    if (role === 'salon' && request.method === 'DELETE' && url.pathname.startsWith('/api/catalog/services/') && /^[a-zA-Z0-9-]{16,80}$/.test(url.pathname.slice('/api/catalog/services/'.length))) {
       if (!env.IDENTITY_DB) return Response.json({error:'catalog_unavailable'},{status:503});
       if (request.headers.get('origin') && request.headers.get('origin') !== url.origin) return Response.json({error:'invalid_origin'},{status:403});
       const session=await catalogAppSession(request,env);

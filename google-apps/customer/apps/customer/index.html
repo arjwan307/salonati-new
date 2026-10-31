@@ -226,7 +226,7 @@ const services=[];
 const products=[];
 const get=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))??d}catch{return d}};
 const save=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
-let state={page:'home',salon:1,service:1,selectedServices:[],date:'',time:'',tab:'services',cat:'الكل',query:'',favs:get('salonati_favs',[]),bookings:get('salonati_bookings',[]),isLoggedIn:get('salonati_logged_in',false),name:get('salonati_name',''),phone:get('salonati_phone',''),address:get('salonati_address',''),notes:'',payment:'cash',taxi:'',theme:get('salonati_theme','lavender'),toast:'',bookingsTab:'current'};
+let state={page:'home',salon:1,service:1,selectedServices:[],date:'',time:'',tab:'services',cat:'الكل',query:'',favs:get('salonati_favs',[]),bookings:get('salonati_bookings',[]),isLoggedIn:get('salonati_logged_in',false),name:get('salonati_name',''),username:get('salonati_username',''),registrationOpen:false,phone:get('salonati_phone',''),address:get('salonati_address',''),notes:'',payment:'cash',taxi:'',theme:get('salonati_theme','lavender'),toast:'',bookingsTab:'current'};
 function loginPage(){
   setTimeout(() => {
     let imgEl = document.getElementById('loginSlideshowImg');
@@ -262,40 +262,19 @@ function loginPage(){
       <div style="position:absolute;bottom:0;inset-x:0;background:rgba(37,7,67,0.75);backdrop-filter:blur(4px);color:#fff;padding:6px;font-size:12px;font-weight:bold" id="loginSlideshowTitle">قص وتصفيف الشعر الاحترافي ✂</div>
     </div>
     <h2 style="color:var(--pink);margin-bottom:8px">أهلاً بكِ في صالوناتي</h2>
-    <p class="small" style="margin-bottom:18px">يرجى تسجيل الدخول باسمك أو رقم هاتفكِ وكلمة المرور للمتابعة.</p>
-    <label style="text-align:right">الاسم أو رقم الهاتف</label>
-    <input class="field" id="loginUser" placeholder="07XXXXXXXXX أو الاسم الكريم" value="${esc(state.phone || state.name)}">
+    <p class="small" style="margin-bottom:18px">يرجى تسجيل الدخول باسم المستخدم وكلمة المرور للمتابعة.</p>
+    <label style="text-align:right">اسم المستخدم</label>
+    <input class="field" id="loginUser" placeholder="اسم المستخدم" autocomplete="username" value="${esc(state.username||'')}">
     <label style="text-align:right">كلمة المرور</label>
-    <input class="field" id="loginPass" type="password" placeholder="••••••••">
+    <input class="field" id="loginPass" type="password" autocomplete="current-password" placeholder="••••••••">
     <button class="primary" style="width:100%;margin-top:15px;padding:13px" onclick="doLogin()">تسجيل الدخول ←</button>
-    <button class="outline" style="width:100%;margin-top:10px;padding:12px" onclick="doQuickRegister()">إنشاء حساب جديد ✦</button>
+    <button class="outline" style="width:100%;margin-top:10px;padding:12px" onclick="state.registrationOpen=true;render()">إنشاء حساب جديد ✦</button>
   </div>`;
 }
-function doLogin(){
-  let u = document.getElementById('loginUser')?.value?.trim();
-  let p = document.getElementById('loginPass')?.value?.trim();
-  if(!u) return notify('يرجى إدخال الاسم أو رقم الهاتف');
-  state.name = u.includes('07') ? 'زبونة صالوناتي' : u;
-  state.phone = u.includes('07') ? u : '07700000000';
-  state.isLoggedIn = true;
-  save('salonati_logged_in', true);
-  save('salonati_name', state.name);
-  save('salonati_phone', state.phone);
-  notify('✓ تم تسجيل الدخول بنجاح');
-  render();
-}
-function doQuickRegister(){
-  let u = document.getElementById('loginUser')?.value?.trim();
-  if(!u) return notify('يرجى إدخال الاسم أو رقم الهاتف لإنشاء الحساب');
-  state.name = u;
-  state.phone = u.includes('07') ? u : '07700000000';
-  state.isLoggedIn = true;
-  save('salonati_logged_in', true);
-  save('salonati_name', state.name);
-  save('salonati_phone', state.phone);
-  notify('✓ تم إنشاء الحساب وتسجيل الدخول بنجاح');
-  render();
-}
+function registrationPage(){return `${head('إنشاء حساب جديد')}<div class="panel"><label>اسم المستخدم *</label><input class="field" id="registerUser" maxlength="60" autocomplete="username" placeholder="اسم المستخدم"><label>كلمة المرور *</label><input class="field" id="registerPass" type="password" autocomplete="new-password"><label>رقم الهاتف *</label><input class="field" id="registerPhone" type="tel" inputmode="tel" placeholder="07XXXXXXXXX"><label>الموقع / العنوان *</label><input class="field" id="registerAddress" placeholder="المنطقة والعنوان"><button class="outline" style="width:100%;margin-top:10px" onclick="registerGPS()">⌖ جلب موقعي</button><button class="primary" style="width:100%;margin-top:10px" onclick="doQuickRegister()">إنشاء حساب</button><button class="outline" style="width:100%;margin-top:10px" onclick="state.registrationOpen=false;render()">العودة للدخول</button></div>`;}
+function registerGPS(){if(!navigator.geolocation)return notify('يرجى إدخال عنوانك يدوياً');navigator.geolocation.getCurrentPosition(p=>{const e=document.getElementById('registerAddress');if(e)e.value=`GPS (${p.coords.latitude.toFixed(5)}, ${p.coords.longitude.toFixed(5)})`;},()=>notify('تعذر جلب الموقع، يرجى إدخال عنوانك'),{enableHighAccuracy:true,timeout:12000});}
+function doLogin(){const u=document.getElementById('loginUser')?.value?.trim();const p=document.getElementById('loginPass')?.value;if(!u||!p)return notify('أدخلي اسم المستخدم وكلمة المرور');state.username=u;state.name=u;save('salonati_username',u);save('salonati_name',u);state.isLoggedIn=true;save('salonati_logged_in',true);notify('تم فتح الواجهة التجريبية؛ المصادقة بالخادم غير مفعلة بعد');render();}
+function doQuickRegister(){const u=document.getElementById('registerUser')?.value?.trim(),p=document.getElementById('registerPass')?.value,phone=document.getElementById('registerPhone')?.value?.trim(),address=document.getElementById('registerAddress')?.value?.trim();if(!u||!p||!phone||!address)return notify('جميع حقول التسجيل مطلوبة');if(!/^07\d{9}$/.test(phone))return notify('رقم الهاتف يجب أن يكون عراقياً صحيحاً');if(p.length<8)return notify('كلمة المرور 8 أحرف على الأقل');state.username=u;state.name=u;state.phone=phone;state.address=address;save('salonati_username',u);save('salonati_name',u);save('salonati_phone',phone);save('salonati_address',address);state.registrationOpen=false;notify('تم حفظ بيانات الاستمارة محلياً؛ إنشاء الحساب بالخادم غير مفعل بعد');render();}
 function doLogout(){
   state.isLoggedIn = false;
   save('salonati_logged_in', false);
@@ -689,7 +668,7 @@ function supportPage(){
   </div>`;
 }
 function profile(){
-  if(!state.isLoggedIn) return loginPage();
+  if(!state.isLoggedIn) return state.registrationOpen?registrationPage():loginPage();
   return `${head('الحساب')}<div class="panel"><h3>👤 إنشاء وتعديل بيانات الحساب</h3><p class="small">سجلي اسمكِ ورقم هاتفكِ وعنوانكِ مع تفعيل GPS لتسهيل طلب التكسي والتوصيل الفوري.</p><label>الاسم</label><input class="field" id="accName" placeholder="الاسم الكامل" value="${esc(state.name)}"><label>رقم الهاتف</label><input class="field" id="accPhone" type="tel" inputmode="tel" placeholder="07XXXXXXXXX" value="${esc(state.phone)}"><label>العنوان</label><div style="display:flex;gap:8px"><input class="field" id="accAddress" placeholder="مثال: الكرادة داخل، قرب مسرح حكواتي" value="${esc(state.address)}" style="margin:0;flex:1"><button class="primary" style="padding:0 12px;font-size:12px;white-space:nowrap;border-radius:11px" onclick="fetchUserGPS()">📍 جلب الموقع</button></div><p class="small" style="margin-top:6px">علامة جي بي إس (GPS): تضمن إرسال موقعك بدقة مباشرة لشركة التكسي أو التوصيل عند الطلب.</p><button class="primary" style="width:100%;margin-top:14px;padding:12px" onclick="saveAccountData()">حفظ بيانات الحساب 💾</button><button class="outline" style="width:100%;margin-top:10px;padding:11px;color:var(--pink);border-color:var(--pink)" onclick="doLogout()">تسجيل الخروج ⎋</button></div><p class="small" style="text-align:center;margin-top:20px">صالوناتي · لون بنفسجي ثابت · بيانات الحساب والموقع محفوظة بأمان</p>`;
 }
 function render(){if(['salon','booking','summary'].includes(state.page)&&(!salons.some(s=>s.id===state.salon)||!services.length)){state.page='home';state.selectedServices=[];}

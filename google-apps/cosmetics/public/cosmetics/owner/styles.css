@@ -374,3 +374,6 @@ nav span {
   font-weight: bold;
   box-shadow: 0 6px 24px rgba(75, 12, 155, 0.28);
 }
+
+/* Keep main navigation visible during scrolling. */
+body>nav#nav{position:fixed!important;bottom:0!important;left:50%!important;transform:translateX(-50%)!important;z-index:100!important}body{padding-bottom:calc(95px + env(safe-area-inset-bottom))}

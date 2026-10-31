@@ -354,13 +354,40 @@ applyTheme(get('salonati_theme','lavender'));
 function fav(id){state.favs=state.favs.includes(id)?state.favs.filter(x=>x!==id):[...state.favs,id];save('salonati_favs',state.favs);render()}
 function chooseSalon(id){state.salon=id;state.selectedServices=[];state.date='';state.time='';state.tab='services';go('salon')}
 function chooseService(id){toggleService(id)}
-function toggleService(id){state.selectedServices=state.selectedServices.includes(id)?state.selectedServices.filter(x=>x!==id):[...state.selectedServices,id];state.date='';state.time='';render()}
+const approvedSalonTeam=[];
+function matchesStaffSpecialty(staff,service){
+ const specialty=String(staff.specialty||'').trim(),type=salonatiServiceCategory(service);
+ return specialty===type||specialty.includes(type)||type.includes(specialty)&&specialty.length>2;
+}
+function showSpecialists(service){
+ document.getElementById('specialistPicker')?.remove();
+ const ownerId=salons.find(s=>s.id===state.salon)?.ownerId;
+ const matching=approvedSalonTeam.filter(t=>t.ownerId===ownerId&&matchesStaffSpecialty(t,service));
+ const dialog=document.createElement('dialog');dialog.id='specialistPicker';
+ dialog.style.cssText='width:min(92vw,420px);max-height:80vh;overflow:auto;border:1px solid var(--line);border-radius:20px;background:var(--card);color:var(--text);padding:20px';
+ const h=document.createElement('h3');h.textContent='اختاري الموظفة المختصة: '+service.name;dialog.append(h);
+ if(!matching.length){const p=document.createElement('p');p.textContent='لا توجد موظفة مسجلة لهذا الاختصاص حالياً';dialog.append(p);}
+ for(const staff of [{id:'',name:'بلا تحديد',specialty:''},...matching]){
+  const button=document.createElement('button');button.className='outline';button.type='button';button.style.cssText='display:block;width:100%;text-align:right;margin:8px 0;padding:12px';
+  button.textContent=staff.name+(staff.specialty?' — '+staff.specialty:'');
+  button.onclick=()=>{state.staffChoices=state.staffChoices||{};state.staffChoices[service.id]={id:staff.id,name:staff.name};state.selectedStaff=staff.id?staff.name:'بلا تحديد';dialog.close();render();};
+  dialog.append(button);
+ }
+ document.body.append(dialog);dialog.addEventListener('close',()=>dialog.remove(),{once:true});dialog.showModal();
+}
+function toggleService(id){
+ const service=services.find(v=>v.id===id);
+ if(!service)return;
+ if(state.selectedServices.includes(id)){state.selectedServices=state.selectedServices.filter(x=>x!==id);if(state.staffChoices)delete state.staffChoices[id];state.date='';state.time='';render();return}
+ state.selectedServices=[...state.selectedServices,id];state.date='';state.time='';render();
+ showSpecialists(service);
+}
 function selectedTotal(){return services.filter(x=>state.selectedServices.includes(x.id)).reduce((a,v)=>a+v.price,0)}
 function selectedMinutes(){return services.filter(x=>state.selectedServices.includes(x.id)).reduce((a,v)=>a+v.min,0)}
 function proceedBooking(){
   if(!state.selectedServices.length)return notify('اختاري خدمة واحدة على الأقل');
   if(!salons.some(x=>x.id===state.salon))return notify('اختاري صالوناً أولاً');
-  state.selectedStaff = 'كادر عشوائي';
+  state.selectedStaff = state.staffChoices?.[state.selectedServices[0]]?.name||'بلا تحديد';
   go('booking');
 }
 function openDateModal(){
@@ -690,6 +717,7 @@ async function loadApprovedCatalog(){
     if(!response.ok)throw Error('catalog_http_'+response.status);
     const data=await response.json();
     if(!Array.isArray(data.salons)||!Array.isArray(data.services))throw Error('invalid_catalog');
+    approvedSalonTeam.splice(0,approvedSalonTeam.length,...(Array.isArray(data.team)?data.team:[]));
     const cleanSalons=data.salons.filter(x=>x&&typeof x.ownerId==='string'&&typeof x.name==='string');
     const activeOwners=new Set(cleanSalons.map(x=>x.ownerId));
     const mappedSalons=cleanSalons.map((x,i)=>({

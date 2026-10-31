@@ -117,7 +117,8 @@ export default {
       const db=env.IDENTITY_DB;
       const salons=(await db.prepare("SELECT a.id AS ownerId,a.salon_name AS name,a.area,a.latitude AS lat,a.longitude AS lng,r.facade_media_id AS facadeId FROM catalog_accounts a JOIN catalog_registrations r ON r.owner_id=a.id WHERE a.role='owner' AND r.status='approved' ORDER BY a.salon_name").all()).results;
       const services=(await db.prepare("SELECT s.id,s.owner_id AS ownerId,r.name,r.category,r.price,r.minutes,r.media_id AS mediaId FROM catalog_services s JOIN catalog_revisions r ON r.id=s.published_revision JOIN catalog_registrations reg ON reg.owner_id=s.owner_id WHERE reg.status='approved' AND r.status='approved' AND r.active=1").all()).results;
-      return Response.json({salons,services},{headers:{'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}});
+      const team=(await db.prepare("SELECT t.id,t.owner_id AS ownerId,t.name,t.specialty FROM catalog_team t JOIN catalog_registrations reg ON reg.owner_id=t.owner_id WHERE reg.status='approved' AND t.active=1").all()).results;
+      return Response.json({salons,services,team},{headers:{'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}});
     }
     if (url.pathname.startsWith('/api/') || backendAssets.has(url.pathname)) {
       if (!allowed(url.pathname)) return Response.json({error:'app_route_denied'}, {status:403});

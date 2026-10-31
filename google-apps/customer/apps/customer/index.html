@@ -203,6 +203,8 @@ button:focus-visible,summary:focus-visible,input:focus-visible{outline:2px solid
 .categories .cat{border:1px solid rgba(160,103,210,.52)!important;border-radius:13px!important;background:rgba(255,255,255,.52)!important;box-shadow:0 2px 6px rgba(75,12,155,.05)!important}.categories .cat.active{background:var(--pink)!important}.cosmetics-management-ad{position:absolute;inset:0;width:100%;height:100%;overflow:hidden;border-radius:16px;margin:0;background:transparent;border:0;pointer-events:none}.cosmetics-management-ad:has(img),.cosmetics-management-ad:has(video){pointer-events:auto}.cosmetics-management-ad:not(:has(img)):not(:has(video)){display:none}.cosmetics-management-ad .cosmetics-ad-slides{pointer-events:auto}.cosmetics-ad-slides{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:5px;color:var(--pink);transition:opacity .4s}.cosmetics-ad-slides img,.cosmetics-ad-slides video{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;border-radius:12px}.cosmetics-ad-slides .cosmetics-ad-caption{position:absolute;bottom:0;right:0;left:0;background:linear-gradient(transparent,#260d4599);color:white;padding:16px 8px 5px;font-weight:bold;font-size:12px}
 /* Keep app navigation visible while scrolling. */
 .nav{position:fixed!important;bottom:0!important;left:50%!important;transform:translateX(-50%)!important;z-index:100!important}body{padding-bottom:calc(90px + env(safe-area-inset-bottom))}
+
+.salonati-booking-pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:12px 0}.salonati-booking-tile{min-width:0;min-height:154px;display:flex;flex-direction:column;align-items:center;justify-content:space-around;gap:6px;text-align:center;background:var(--card);border:1px solid var(--line);border-radius:17px;color:var(--text);padding:12px 6px;overflow-wrap:anywhere}.salonati-booking-tile small{font-size:11px}.salonati-booking-tile:disabled{opacity:.65;cursor:default}.salonati-booking-dialog{border:1px solid var(--line);border-radius:22px;background:#fff;color:var(--text);width:min(94vw,460px);max-height:88dvh;overflow:auto;padding:22px;direction:rtl;box-shadow:0 15px 80px #23043855}.salonati-booking-dialog::backdrop{background:#180b32bb}.salonati-booking-dialog button[data-close]{width:100%}
 </style></head><body><div id="gmpQuotaBanner" style="display:none;background:#fef3c7;border-bottom:1px solid #fde68a;color:#78350f;padding:10px 16px;font-size:12px;text-align:center;position:sticky;top:0;z-index:99;box-shadow:0 1px 3px rgba(0,0,0,0.05);">
   <span>Google Maps Platform quota reached. If you are the app owner, visit <a href="https://developers.google.com/maps/ai/ai-studio?utm_campaign=gmp_mcp_codeassist_v1_aistudio#quota_exceeded_errors" target="_blank" rel="noopener noreferrer" style="text-decoration:underline;font-weight:600;color:#451a03;">maps developer site</a> for instructions to update your account.</span>
 </div>
@@ -741,16 +743,34 @@ async function refreshCustomerBookings(){
  }catch(e){console.warn('Booking status refresh unavailable',e)}
  finally{salonatiBookingRefreshBusy=false}
 }
-function bookings(){return `${head('حجوزاتي')}<div class="segments"><button class="${state.bookingsTab==='current'?'on':''}" onclick="state.bookingsTab='current';render()">الحالية</button><button class="${state.bookingsTab==='completed'?'on':''}" onclick="state.bookingsTab='completed';render()">المكتملة</button></div>${state.bookingsTab==='current'?(state.bookings.filter(b=>b.status!=='ملغي'&&b.status!=='مكتملة').map(b=>`<div class="panel"><h3>${salons.find(s=>s.id===b.salon)?.name||b.salonName||'صالون'}</h3><p>${(b.serviceNames?.length?b.serviceNames:(b.services||[b.service]).map(id=>services.find(s=>s.id===id)?.name||'خدمة')).join('، ')}</p><p>📅 ${b.date} · ${b.time}</p><p>خدمات الصالون: ${fmt(b.serviceTotal??b.total??0)} د.ع · خدمات التطبيق: ${fmt(b.appFee??0)} د.ع · الإجمالي: ${fmt(b.total??0)} د.ع</p><p>الدفع: ${b.payment==='card'?'💳 الدفع الالكتروني (شعار كي)':'💵 دفع في الصالون'}${b.taxi?` · التوصيل: ${b.taxi==='sharebly'?'تكسي شاربلي':'تكسي كريم'}`:''}</p><span class="pill">${b.status}</span><p>رقم الطلب: ${esc(String(b.id))}</p>${(['مقبول','مؤكد','confirmed','accepted','approved'].includes(String(b.status).toLowerCase())&&typeof (b.qrPayload||b.qrToken||b.checkinToken)==='string'&&(b.qrPayload||b.qrToken||b.checkinToken).length>=12)?`<div class="panel" style="text-align:center;background:white"><strong>باركود الدخول إلى الصالون</strong><p class="small">أبرزي الرمز عند الوصول ليتم مسحه في الاستقبال</p><div class="salonati-booking-qr" data-qr="${encodeURIComponent(b.qrPayload||b.qrToken||b.checkinToken)}" style="display:flex;justify-content:center;padding:10px"></div></div>`:''}<div style="display:flex;gap:8px;margin-top:10px">${b.status==='بانتظار الموافقة'?`<button class="outline" onclick="cancelBooking('${b.id}')">إلغاء الطلب</button>`:''}<button class="primary" style="padding:6px 12px;font-size:12px" onclick="completeBooking('${b.id}')">تمت بنجاح (نقل للمكتملة)</button></div></div>`).join('')||'<div class="empty">لا توجد حجوزات حالية</div>'):(state.bookings.filter(b=>b.status==='مكتملة'||b.date<today()).map(b=>`<div class="panel"><h3>${salons.find(s=>s.id===b.salon)?.name||'صالون'}</h3><p>${(b.services||[b.service]).map(id=>services.find(s=>s.id===id)?.name||'خدمة').join('، ')}</p><p>📅 ${b.date} · ${b.time}</p><p>الإجمالي: ${fmt(b.total??services.find(s=>s.id===b.service)?.price??0)} د.ع</p><p>الدفع: ${b.payment==='card'?'💳 الدفع الالكتروني (شعار كي)':'💵 دفع في الصالون'}${b.taxi?` · التوصيل: ${b.taxi==='sharebly'?'تكسي شاربلي':'تكسي كريم'}`:''}</p><span class="pill" style="background:#e0f8e8;color:#0a7a30">مكتملة ✓</span><p>رقم الطلب: ${b.id}</p></div>`).join('')||'<div class="empty">لا توجد حجوزات مكتملة</div>')}`;
+
+function salonatiBookingDetail(id){
+ const b=state.bookings.find(x=>String(x.id)===String(id));if(!b)return;
+ const d=document.createElement('dialog');d.className='salonati-booking-dialog';
+ const names=b.serviceNames?.length?b.serviceNames:(b.services||[b.service]).map(id=>services.find(x=>x.id===id)?.name||'خدمة');
+ d.innerHTML='<h2>تفاصيل الحجز</h2><h3>'+esc(b.salonName||salons.find(x=>x.id===b.salon)?.name||'صالون')+'</h3><p>الخدمات: '+esc(names.join('، '))+'</p><p>التاريخ: '+esc(b.date)+' · الوقت: '+esc(b.time)+'</p><p>الحالة: '+esc(b.status)+'</p><p>خدمات الصالون: '+fmt(b.serviceTotal??b.total??0)+'</p><p>رسم التطبيق: '+fmt(b.appFee??0)+'</p><p><b>الإجمالي: '+fmt(b.total??0)+'</b></p>'+(b.status==='مكتملة'?'<p>المبلغ المسجل: '+fmt(b.paidAmount??b.total??0)+'</p>':'')+'<p class="small">رقم الطلب: '+esc(b.id)+'</p><button class="primary" data-close>إغلاق</button>';
+ d.querySelector('[data-close]').onclick=()=>d.close();d.onclose=()=>d.remove();document.body.append(d);d.showModal();
 }
-function completeBooking(id){
-  let b=state.bookings.find(x=>x.id===id);
-  if(b){
-    b.status='مكتملة';
-    save('salonati_bookings',state.bookings);
-    notify('✓ تم نقل الطلب إلى الحجوزات المكتملة');
-    render();
-  }
+function salonatiBookingQr(id){
+ const b=state.bookings.find(x=>String(x.id)===String(id));if(!b)return;
+ const token=b.qrPayload||b.qrToken||b.checkinToken;
+ if(!token)return notify('الباركود لم يصل بعد؛ حدّثي حجوزاتك بعد تأكيد الصالون');
+ const d=document.createElement('dialog');d.className='salonati-booking-dialog salonati-qr-dialog';
+ d.innerHTML='<h2>باركود الدخول إلى الصالون</h2><p class="small">اعرضي هذا الرمز عند الاستقبال فقط</p><div id="salonatiFullscreenQr" style="display:flex;justify-content:center;padding:18px;background:white"></div><p class="small">'+esc(b.salonName||'')+'</p><button class="primary" data-close>إغلاق</button>';
+ d.querySelector('[data-close]').onclick=()=>d.close();d.onclose=()=>d.remove();document.body.append(d);d.showModal();
+ const target=d.querySelector('#salonatiFullscreenQr');if(typeof QRCode==='function')new QRCode(target,{text:token,width:Math.min(280,window.innerWidth-100),height:Math.min(280,window.innerWidth-100),correctLevel:QRCode.CorrectLevel?.M});else target.textContent='تعذر تحميل عارض الرمز';
+}
+function salonatiBookingTile(b){
+ const active=b.status!=='مكتملة'&&b.status!=='ملغي';
+ const qr=b.qrPayload||b.qrToken||b.checkinToken;
+ const ready=!!qr&&['مؤكد','confirmed','accepted','approved','مقبول'].includes(String(b.status).toLowerCase());
+ return '<div class="salonati-booking-pair"><button class="salonati-booking-tile" onclick="salonatiBookingDetail('+JSON.stringify(String(b.id)).replace(/"/g,'&quot;')+')"><strong>'+esc(b.salonName||salons.find(s=>s.id===b.salon)?.name||'صالون')+'</strong><small>'+esc(b.date)+' · '+esc(b.time)+'</small><span class="pill">'+esc(b.status)+'</span><span>عرض تفاصيل الحجز</span></button><button class="salonati-booking-tile salonati-qr-tile" '+(!ready?'disabled':'')+' onclick="salonatiBookingQr('+JSON.stringify(String(b.id)).replace(/"/g,'&quot;')+')"><strong>'+(active?'باركود الدخول':'تفاصيل الدفع')+'</strong><span style="font-size:32px">'+(ready?'▦':active?'⌛':'✓')+'</span><small>'+(ready?'اضغطي لعرض الرمز بحجم كامل':active?'يظهر بعد تأكيد الصالون':'الزيارة مكتملة')+'</small></button></div>';
+}
+function bookings(){
+ const current=state.bookings.filter(b=>b.status!=='ملغي'&&b.status!=='مكتملة');
+ const completed=state.bookings.filter(b=>b.status==='مكتملة');
+ const listing=state.bookingsTab==='current'?current:completed;
+ return head('حجوزاتي')+'<div class="segments"><button class="'+(state.bookingsTab==='current'?'on':'')+'" onclick="state.bookingsTab=&#39;current&#39;;render()">الحالية</button><button class="'+(state.bookingsTab==='completed'?'on':'')+'" onclick="state.bookingsTab=&#39;completed&#39;;render()">المكتملة</button></div><button class="outline" style="width:100%;margin-bottom:12px" onclick="refreshCustomerBookings()">تحديث الحجوزات</button>'+ (listing.map(salonatiBookingTile).join('')||'<div class="empty">لا توجد حجوزات في هذا القسم</div>');
 }
 function favorites(){return `${head('المفضلة')}${salons.filter(s=>state.favs.includes(s.id)).map(card).join('')||'<div class="empty">لم تضيفي صالونات إلى المفضلة بعد</div>'}`}
 function search(){return `${head('استكشاف الصالونات')}<button class="outline" style="width:100%;margin-bottom:12px" onclick="locateNearbySalons()">⌖ تحديد موقعي وعرض أقرب صالون</button><input class="search" placeholder="ابحثي بالاسم أو المنطقة" value="${esc(state.query)}" oninput="state.query=this.value;drawCards()"><div id="cards"></div>`;}

@@ -139,6 +139,40 @@ export default {
       }catch{return Response.json({error:'service_delete_blocked'},{status:409});}
       return Response.json({ok:true},{headers:{'Cache-Control':'no-store'}});
     }
+
+    // Owner-managed booking closures, isolated by salon and service.
+    if(url.pathname==='/api/booking/blocks' && ['GET','PUT'].includes(request.method)){
+      if(!env.IDENTITY_DB)return Response.json({error:'database_unavailable'},{status:503});
+      const db=env.IDENTITY_DB;
+      const ownerId=url.searchParams.get('ownerId');
+      if(request.method==='GET'){
+        if(role!=='customer' && role!=='salon')return Response.json({error:'forbidden'},{status:403});
+        if(!ownerId||!/^[a-zA-Z0-9-]{16,80}$/.test(ownerId))return Response.json({error:'invalid_owner'},{status:400});
+        const entries=(await db.prepare("SELECT slot_date AS date,slot_time AS time,service_id AS serviceId FROM catalog_booking_blocks WHERE owner_id=? AND slot_date>=date('now','-1 day')").bind(ownerId).all()).results;
+        return Response.json({blocks:entries},{headers:{'Cache-Control':'no-store'}});
+      }
+      if(role!=='salon')return Response.json({error:'forbidden'},{status:403});
+      const session=await catalogAppSession(request,env);if(session.status!==200)return Response.json({error:'app_session_required'},{status:session.status});
+      if(request.headers.get('origin')&&request.headers.get('origin')!==url.origin)return Response.json({error:'invalid_origin'},{status:403});
+      const body=await request.json().catch(()=>null),date=body?.date,serviceId=body?.serviceId;
+      if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(date||'')||!(serviceId==='*'||/^[a-zA-Z0-9-]{16,80}$/.test(serviceId||''))||!Array.isArray(body?.times)||body.times.length>29||body.times.some(t=>!/^\\d{2}:\\d{2}$/.test(t)))return Response.json({error:'invalid_blocks'},{status:400});
+      if(serviceId!=='*' && !(await db.prepare("SELECT id FROM catalog_services WHERE id=? AND owner_id=?").bind(serviceId,session.accountId).first()))return Response.json({error:'service_not_owned'},{status:403});
+      const unique=[...new Set(body.times)],writes=[db.prepare("DELETE FROM catalog_booking_blocks WHERE owner_id=? AND slot_date=? AND service_id=?").bind(session.accountId,date,serviceId),...unique.map(t=>db.prepare("INSERT INTO catalog_booking_blocks(owner_id,slot_date,slot_time,service_id) VALUES(?,?,?,?)").bind(session.accountId,date,t,serviceId))];
+      await db.batch(writes);
+      return Response.json({ok:true,count:unique.length});
+    }
+    if(role==='customer' && url.pathname==='/api/catalog/workflow/customer/bookings' && request.method==='POST' && env.IDENTITY_DB){
+      const body=await request.clone().json().catch(()=>null);
+      if(body && /^[a-zA-Z0-9-]{16,80}$/.test(body.ownerId||'') && Array.isArray(body.serviceIds) && typeof body.startsAt==='string'){
+        const instant=new Date(body.startsAt);
+        if(Number.isFinite(instant.getTime())){
+          const date=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Baghdad',year:'numeric',month:'2-digit',day:'2-digit'}).format(instant);
+          const time=new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Baghdad',hour:'2-digit',minute:'2-digit',hour12:false}).format(instant);
+          const check=await env.IDENTITY_DB.prepare("SELECT service_id FROM catalog_booking_blocks WHERE owner_id=? AND slot_date=? AND slot_time=?").bind(body.ownerId,date,time).all();
+          if(check.results.some(row=>row.service_id==='*'||body.serviceIds.includes(row.service_id)))return Response.json({error:'booking_slot_closed'},{status:409});
+        }
+      }
+    }
     if (url.pathname.startsWith('/api/') || backendAssets.has(url.pathname)) {
       if (!allowed(url.pathname)) return Response.json({error:'app_route_denied'}, {status:403});
       if (!env.SALONATI_API) return Response.json({error:'api_not_configured'}, {status:503});

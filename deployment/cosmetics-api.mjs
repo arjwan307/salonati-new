@@ -58,6 +58,11 @@ async function cosmeticsRoutes(request,env,url){
   }
   if(path.startsWith('/api/catalog/admin/cosmetics-')){
    const actor=await cosmeticsSession(request,env,'admin');if(!actor)return cosmeticsJson({error:'admin_required'},403);
+   if(path==='/api/catalog/admin/cosmetics-stores'&&request.method==='GET'){
+    if(!cosmeticsPermit(actor,'reviews'))return cosmeticsJson({error:'permission_denied'},403);
+    const rows=(await db.prepare("SELECT owner_id,state_json,published_json,review_status,review_reason,updated_at FROM cosmetics_owner_state ORDER BY updated_at DESC LIMIT 250").all()).results;
+    return cosmeticsJson({stores:rows.map(r=>{const state=JSON.parse(r.state_json);const published=r.published_json?JSON.parse(r.published_json):null;return {ownerId:r.owner_id,store:state.store,publishedStore:published?.store||null,status:r.review_status,reason:r.review_reason,updatedAt:r.updated_at};})});
+   }
    if(path==='/api/catalog/admin/cosmetics-counts'&&request.method==='GET'){
     const counts=await Promise.all([cosmeticsPermit(actor,'reviews')?db.prepare("SELECT COUNT(*) AS n FROM cosmetics_owner_state WHERE review_status='pending'").first():Promise.resolve({n:0}),cosmeticsPermit(actor,'bookings')?db.prepare("SELECT COUNT(*) AS n FROM cosmetics_orders WHERE status='pending'").first():Promise.resolve({n:0})]);return cosmeticsJson({reviews:counts[0].n,orders:counts[1].n});
    }

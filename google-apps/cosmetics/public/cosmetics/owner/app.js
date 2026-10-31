@@ -408,14 +408,16 @@ function deleteProduct(id) {
   toast('تم حذف المنتج');
 }
 
-function saveOffer() {
-  let title = val('otitle'),
-    discount = val('odiscount'),
-    details = val('odesc');
-  if (!title) return toast('يرجى إدخال عنوان العرض الخاص');
-  db.offers.unshift({ id: Date.now(), title, discount: discount || 'خصم خاص', details, mediaUrl: window.cosmeticsOfferMedia?.url || '', mediaType: window.cosmeticsOfferMedia?.type || '' }); window.cosmeticsOfferMedia=null;
-  save();
-  toast('✓ تم نشر العرض الخاص بنجاح 🌟');
+async function saveOffer() {
+  const title=val('otitle'),discount=val('odiscount'),details=val('odesc');
+  if(!title)return toast('يرجى إدخال عنوان العرض');
+  try{
+    const response=await fetch('/api/cosmetics/advertisements',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({title,discount:discount||'خصم خاص',details,mediaUrl:window.cosmeticsOfferMedia?.url||'',mediaType:window.cosmeticsOfferMedia?.type||''})});
+    const result=await response.json().catch(()=>({}));
+    if(!response.ok||!result.id)throw Error(result.error||'approval_api_unavailable');
+    db.offers.unshift({id:result.id,title,discount,details,mediaUrl:window.cosmeticsOfferMedia?.url||'',publicationStatus:'pending'});
+    window.cosmeticsOfferMedia=null;save();toast('أُرسل الإعلان للإدارة وبانتظار الموافقة');
+  }catch(e){toast('لم يُرسل الإعلان للإدارة. الربط غير متاح حالياً');console.error('Cosmetics advertisement:',e)}
 }
 
 function deleteOffer(id) {
@@ -424,13 +426,13 @@ function deleteOffer(id) {
   toast('تم حذف العرض');
 }
 
-function updateOrder(id, status) {
-  let o = db.orders.find(x => x.id === id);
-  if (o) {
-    o.status = status;
-    save();
-    toast('✓ تم تحديث حالة الطلب بنجاح');
-  }
+async function updateOrder(id,status){
+ try{
+  const response=await fetch('/api/cosmetics/orders/status',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({orderId:id,status})});
+  if(!response.ok)throw Error('order_update_failed');
+  const o=db.orders.find(x=>String(x.id)===String(id));if(o){o.status=status;save()}
+  toast('تم تحديث الطلب في السيرفر');
+ }catch(e){toast('تعذر تحديث الطلب في السيرفر؛ لم تتغير حالته');console.error('Cosmetics order:',e)}
 }
 
 function fetchStoreGPS() {

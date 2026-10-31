@@ -155,7 +155,7 @@ export default {
       const session=await catalogAppSession(request,env);if(session.status!==200)return Response.json({error:'app_session_required'},{status:session.status});
       if(request.headers.get('origin')&&request.headers.get('origin')!==url.origin)return Response.json({error:'invalid_origin'},{status:403});
       const body=await request.json().catch(()=>null),date=body?.date,serviceId=body?.serviceId;
-      if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(date||'')||!(serviceId==='*'||/^[a-zA-Z0-9-]{16,80}$/.test(serviceId||''))||!Array.isArray(body?.times)||body.times.length>29||body.times.some(t=>!/^\\d{2}:\\d{2}$/.test(t)))return Response.json({error:'invalid_blocks'},{status:400});
+      if(!/^\d{4}-\d{2}-\d{2}$/.test(date||'')||!(serviceId==='*'||/^[a-zA-Z0-9-]{16,80}$/.test(serviceId||''))||!Array.isArray(body?.times)||body.times.length>29||body.times.some(t=>!/^\d{2}:\d{2}$/.test(t)))return Response.json({error:'invalid_blocks'},{status:400});
       if(serviceId!=='*' && !(await db.prepare("SELECT id FROM catalog_services WHERE id=? AND owner_id=?").bind(serviceId,session.accountId).first()))return Response.json({error:'service_not_owned'},{status:403});
       const unique=[...new Set(body.times)],writes=[db.prepare("DELETE FROM catalog_booking_blocks WHERE owner_id=? AND slot_date=? AND service_id=?").bind(session.accountId,date,serviceId),...unique.map(t=>db.prepare("INSERT INTO catalog_booking_blocks(owner_id,slot_date,slot_time,service_id) VALUES(?,?,?,?)").bind(session.accountId,date,t,serviceId))];
       await db.batch(writes);

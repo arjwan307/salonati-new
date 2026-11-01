@@ -852,7 +852,7 @@ function normalizeHomeCategories(){const grid=document.querySelector('.salonati-
 function render(){if(['salon','booking','summary'].includes(state.page)&&(!salons.some(s=>s.id===state.salon)||!services.length)){state.page='home';state.selectedServices=[];}
   let views={home,search,salon:salonPage,booking,summary,success,bookings,favorites,products:productsPage,profile,support:supportPage,cosmetics:cosmeticsPage,'cosmetics-basket':cosmeticsBasketPage};
   $('#app').innerHTML=(views[state.page]||home)()+nav()+(state.toast?`<div class="toast">${esc(state.toast)}</div>`:'');
-  if(state.page==='home')normalizeHomeCategories();
+  if(state.page==='home'){normalizeHomeCategories();const grid=document.querySelector('.salonati-premium-icons');if(grid){window.salonatiCategoryObserver?.disconnect();window.salonatiCategoryObserver=new MutationObserver(()=>normalizeHomeCategories());window.salonatiCategoryObserver.observe(grid,{childList:true})}}else window.salonatiCategoryObserver?.disconnect();
   if(['home','search'].includes(state.page))drawCards();
 }
 

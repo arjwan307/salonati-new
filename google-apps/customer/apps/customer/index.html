@@ -332,7 +332,10 @@ function saveAccountData(){
 }
 const $=s=>document.querySelector(s),fmt=n=>Number(n).toLocaleString('en-US'),today=()=>{let d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const salonatiPageStack=[];
+const salonatiPageStack=[];const salonatiBrowserBack=()=>{try{history.pushState({salonati:true},'',location.href)}catch{}};
+window.addEventListener('popstate',()=>{historyBack();salonatiBrowserBack()});
+salonatiBrowserBack();
+
 function go(page){if(page==='summary'&&state.date&&state.time&&isBookingSlotClosed(state.date,state.time)){const blockedTime=state.time;state.page='booking';state.time='';render();announceClosedBooking(state.date,blockedTime);return}if(page==='summary'&&(!state.date||!state.time))page='booking';if(page==='success'&&!state.bookings.length)page='booking';if(page!==state.page){if(page==='home')salonatiPageStack.length=0;else salonatiPageStack.push(state.page)}state.page=page;window.scrollTo(0,0);render();if(page==='bookings')void refreshCustomerBookings()}
 function notify(t){state.toast=t;render();setTimeout(()=>{state.toast='';render()},2200)}
 

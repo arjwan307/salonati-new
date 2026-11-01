@@ -219,6 +219,9 @@ button:focus-visible,summary:focus-visible,input:focus-visible{outline:2px solid
 .salonati-premium-icons>.cat{height:auto!important;min-height:0!important;max-height:none!important;aspect-ratio:1/1!important;display:flex!important;flex-direction:column!important;justify-content:center!important;align-items:center!important;padding:3px 1px!important;overflow:hidden!important;border-radius:clamp(9px,2.5vw,17px)!important;font-size:clamp(8px,1.9vw,11px)!important;line-height:1.15!important}
 .salonati-premium-icons>.cat>span.salonati-choice3-icon{width:min(82%,55px)!important;height:auto!important;min-height:0!important;flex:0 0 auto!important;aspect-ratio:1/1!important;margin:0 auto 3px!important;background-size:500% 100%!important}
 .salonati-premium-icons>.cat:nth-child(n+6){display:none!important}
+
+/* Keep bottom navigation outside transformed app container to prevent scrolling with content. */
+#salonati-fixed-nav{position:relative;z-index:1000}#salonati-fixed-nav>.nav{position:fixed!important;bottom:0!important;left:50%!important;transform:translateX(-50%)!important;width:min(520px,100%)!important;z-index:1000!important}#app{padding-bottom:calc(105px + env(safe-area-inset-bottom))!important}
 </style></head><body><div id="gmpQuotaBanner" style="display:none;background:#fef3c7;border-bottom:1px solid #fde68a;color:#78350f;padding:10px 16px;font-size:12px;text-align:center;position:sticky;top:0;z-index:99;box-shadow:0 1px 3px rgba(0,0,0,0.05);">
   <span>Google Maps Platform quota reached. If you are the app owner, visit <a href="https://developers.google.com/maps/ai/ai-studio?utm_campaign=gmp_mcp_codeassist_v1_aistudio#quota_exceeded_errors" target="_blank" rel="noopener noreferrer" style="text-decoration:underline;font-weight:600;color:#451a03;">maps developer site</a> for instructions to update your account.</span>
 </div>
@@ -860,7 +863,8 @@ function profile(){
 function normalizeHomeCategories(){const grid=document.querySelector('.salonati-premium-icons');if(!grid)return;const expected=['عناية بالشعر','مكياج','أظافر','الخصومات','عناية بالبشرة'];const official=[...grid.querySelectorAll(':scope > button.cat')].filter(b=>b.querySelector('.salonati-choice3-icon'));for(const b of [...grid.children])if(!official.includes(b))b.remove();const seen=new Set();for(const b of official){const label=expected.find(x=>b.textContent.trim()===x);if(!label||seen.has(label)){b.remove();continue}seen.add(label)}const ordered=expected.map(label=>official.find(btn=>btn.isConnected&&btn.textContent.trim()===label)).filter(Boolean);if(ordered.some((btn,i)=>grid.children[i]!==btn))for(const btn of ordered)grid.appendChild(btn);grid.style.gridTemplateColumns='repeat(5,minmax(0,1fr))';}
 function render(){if(['salon','booking','summary'].includes(state.page)&&(!salons.some(s=>s.id===state.salon)||!services.length)){state.page='home';state.selectedServices=[];}
   let views={home,search,salon:salonPage,booking,summary,success,bookings,favorites,products:productsPage,profile,support:supportPage,cosmetics:cosmeticsPage,'cosmetics-basket':cosmeticsBasketPage};
-  $('#app').innerHTML=(views[state.page]||home)()+nav()+(state.toast?`<div class="toast">${esc(state.toast)}</div>`:'');
+  $('#app').innerHTML=(views[state.page]||home)()+(state.toast?`<div class="toast">${esc(state.toast)}</div>`:'');
+  let bar=document.getElementById('salonati-fixed-nav');if(!bar){bar=document.createElement('div');bar.id='salonati-fixed-nav';document.body.appendChild(bar)}bar.innerHTML=nav();
   if(state.page==='home'){normalizeHomeCategories();const grid=document.querySelector('.salonati-premium-icons');if(grid){window.salonatiCategoryObserver?.disconnect();window.salonatiCategoryObserver=new MutationObserver(()=>normalizeHomeCategories());window.salonatiCategoryObserver.observe(grid,{childList:true})}}else window.salonatiCategoryObserver?.disconnect();
   if(['home','search'].includes(state.page))drawCards();
 }

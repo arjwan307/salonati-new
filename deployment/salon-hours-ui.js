@@ -26,6 +26,19 @@ saveHours=async()=>{
   db.hours=arr;save();toast('تم حفظ الأوقات المغلقة لدى السيرفر والزبونة');
  }catch(e){toast('لم تُحفظ الإغلاقات: '+e.message)}
 };
+const priorRender=render;
+render=function(){
+ priorRender();
+ if(page!=='hours')return;
+ const main=document.getElementById('main');
+ if(!main)return;
+ if(!main.querySelector('#bookingSlots')){
+  const panel=document.createElement('div');
+  panel.id='bookingSlots';
+  panel.innerHTML=slotMarkup();
+  main.append(panel);
+ }
+};
 const oldGo=go;
 go=function(page){const result=oldGo.apply(this,arguments);if(page==='hours')void refreshBlocks();return result};
 setTimeout(()=>{if(document.getElementById('bookingSlots'))void refreshBlocks()},1000);

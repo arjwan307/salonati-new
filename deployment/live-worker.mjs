@@ -40,7 +40,17 @@ async function registerPhone(request, env, url) {
     : db.prepare("INSERT INTO catalog_sessions(token_hash,account_id,expires_at) VALUES(?,?,datetime('now','+7 days'))").bind(tokenHash,id);
   try{await db.batch([create,db.prepare('INSERT INTO salonati_phone_identities(app,phone,account_id) VALUES(?,?,?)').bind(role,phone,id),session]);}
   catch(e){if(/unique|constraint/i.test(String(e.message)))return Response.json({error:'phone_already_registered'},{status:409});return Response.json({error:'registration_unavailable'},{status:503});}
-  return Response.json({account},{status:201,headers:{'Cache-Control':'no-store','Set-Cookie':(customer?'__Host-salonati-customer':'__Host-catalog')+'='+token+'; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age='+(customer?2592000:604800)}});
+  return Response.json({account},{status:201,headers:{'Cache-Control':'no-store','Set-Cookie':(customer?'__Host-salonati-customer':'__Host-catalog')+'='+token+'; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age='+7200}});
+}
+function twoHourLoginCookie(response) {
+  if (!response.ok) return response;
+  const original=response.headers.get('set-cookie');
+  if (!original || !/^__Host-(?:catalog|salonati-customer)=/.test(original)) return response;
+  const cookie=original.replace(/;\s*Max-Age=\d+/i,'').replace(/;\s*Expires=[^;]*/i,'')+'; Max-Age=7200';
+  const headers=new Headers(response.headers);
+  headers.set('Set-Cookie',cookie);
+  headers.set('Cache-Control','no-store');
+  return new Response(response.body,{status:response.status,statusText:response.statusText,headers});
 }
 async function phoneLogin(request, env, url) {
   if (!env.IDENTITY_DB) return Response.json({error:'identity_not_configured'},{status:503});
@@ -59,7 +69,7 @@ async function phoneLogin(request, env, url) {
   const body = customer ? {name:row?.identity || 'unavailable-phone-account',password:d.password} : {email:row?.identity || 'unavailable-phone@salonati.invalid',password:d.password};
   const headers = new Headers(request.headers);headers.delete('x-salonati-app');headers.delete('content-length');headers.set('content-type','application/json');
   const target=role==='cosmetics'?new URL('/api/catalog/login',request.url):request.url;
-  return env.SALONATI_API.fetch(new Request(target,{method:'POST',headers,body:JSON.stringify(body)}));
+  return twoHourLoginCookie(await env.SALONATI_API.fetch(new Request(target,{method:'POST',headers,body:JSON.stringify(body)})));
 }
 function allowed(path) {
   if (backendAssets.has(path)) return true;

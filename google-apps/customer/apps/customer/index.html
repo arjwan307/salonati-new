@@ -732,10 +732,10 @@ async function refreshCustomerBookings(){
    }
    const status=remote.status==='confirmed'?'مؤكد':remote.status==='cancelled'?'ملغي':remote.status==='completed'?'مكتملة':'بانتظار الموافقة';
    if(local.status!==status){local.status=status;changed=true}
-   if(remote.status==='confirmed'&&!local.qrToken){
+   if(remote.status==='confirmed'){
     try{
      const qrResponse=await fetch('/api/catalog/workflow/customer/bookings/'+encodeURIComponent(remote.id)+'/qr',{credentials:'same-origin',cache:'no-store'});
-     if(qrResponse.ok){const qr=await qrResponse.json();if(qr.token){local.qrToken=qr.token;changed=true}}
+     if(qrResponse.ok){const qr=await qrResponse.json();if(qr.token&&local.qrToken!==qr.token){local.qrToken=qr.token;changed=true}}
     }catch(e){console.warn('QR fetch unavailable',e)}
    }
   }

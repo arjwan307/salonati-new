@@ -142,6 +142,20 @@ export default {
       return Response.json({ok:true},{headers:{'Cache-Control':'no-store'}});
     }
 
+    if(role==='salon' && request.method==='DELETE' && /^\/api\/catalog\/products\/[a-f0-9-]{36}$/.test(url.pathname)){
+      if(!env.IDENTITY_DB)return Response.json({error:'database_unavailable'},{status:503});
+      if(request.headers.get('origin')&&request.headers.get('origin')!==url.origin)return Response.json({error:'invalid_origin'},{status:403});
+      const session=await catalogAppSession(request,env);if(session.status!==200)return Response.json({error:'app_session_required'},{status:session.status});
+      const id=url.pathname.split('/').pop(),db=env.IDENTITY_DB;
+      const owned=await db.prepare('SELECT id FROM catalog_products WHERE id=? AND owner_id=?').bind(id,session.accountId).first();
+      if(!owned)return Response.json({error:'product_not_found'},{status:404});
+      try{await db.batch([
+        db.prepare('UPDATE catalog_products SET latest_revision=NULL,published_revision=NULL WHERE id=? AND owner_id=?').bind(id,session.accountId),
+        db.prepare('DELETE FROM catalog_product_revisions WHERE product_id=? AND owner_id=?').bind(id,session.accountId),
+        db.prepare('DELETE FROM catalog_products WHERE id=? AND owner_id=?').bind(id,session.accountId)
+      ]);}catch{return Response.json({error:'product_delete_blocked'},{status:409})}
+      return Response.json({ok:true},{headers:{'Cache-Control':'no-store'}});
+    }
     // Owner-managed booking closures, isolated by salon and service.
     if(url.pathname==='/api/booking/blocks' && ['GET','PUT'].includes(request.method)){
       if(!env.IDENTITY_DB)return Response.json({error:'database_unavailable'},{status:503});

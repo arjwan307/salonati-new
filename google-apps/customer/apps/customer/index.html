@@ -430,7 +430,7 @@ function showSpecialists(service){
  for(const staff of [...matching,{id:'',name:'اختيار عشوائي',specialty:''}]){
   const button=document.createElement('button');button.className='outline';button.type='button';button.style.cssText='display:block;width:100%;text-align:right;margin:8px 0;padding:12px';
   button.textContent=staff.name+(staff.specialty?' — '+staff.specialty:'');
-  button.onclick=()=>{state.staffChoices=state.staffChoices||{};state.staffChoices[service.id]={id:staff.id,name:staff.name};state.selectedStaff=staff.id?staff.name:'اختيار عشوائي';dialog.close();render();};
+  button.onclick=()=>{state.staffChoices=state.staffChoices||{};state.staffChoices[service.id]={id:staff.id,name:staff.name};state.selectedStaff=staff.id?staff.name:'اختيار عشوائي';dialog.close();if(state.tab==='services')state.salonCategory='';render();};
   dialog.append(button);
  }
  document.body.append(dialog);dialog.addEventListener('close',()=>dialog.remove(),{once:true});dialog.showModal();

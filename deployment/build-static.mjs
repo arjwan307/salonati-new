@@ -1,6 +1,7 @@
 import { cp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { resolve, dirname, extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { termsPage, privacyPage, deleteAccountPage, consentScript } from './legal-content.mjs';
 
 // These exports render plain HTML/JS. Keep their approved bytes intact.
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -63,6 +64,10 @@ ready.catch(()=>{});
 })();
 `.replace('__ROLE__',JSON.stringify(role));
 await writeFile(resolve(output,'salonati-offline-db.js'),offlineDatabaseSource);
+// Shared legal documents and first-use consent, included in every customer/owner/admin/cosmetics build.
+for (const [name, contents] of [['terms.html',termsPage],['privacy.html',privacyPage],['delete-account.html',deleteAccountPage],['legal-consent.js',consentScript]]) {
+  await writeFile(resolve(output,name),contents);
+}
 await writeFile(resolve(output, '404.html'), '<!doctype html><html lang="ar" dir="rtl"><meta charset="utf-8"><title>404</title><p>الصفحة غير موجودة</p></html>');
 console.log(`Built ${role}: ${entries[role]} -> release/${role}/index.html`);
 if (process.argv.includes('--live') || process.argv.includes('--review')) {
@@ -165,6 +170,7 @@ if (process.argv.includes('--live') || process.argv.includes('--review')) {
     await writeFile(file, js);
   }
   html=html.replace('</head>','<script src="/salonati-offline-db.js" defer></script></head>');
+  html=html.replace('</body>','<script src="/legal-consent.js" defer></script></body>');
   await writeFile(resolve(output, 'index.html'), html);
   const liveWorker=await readFile(resolve(root, 'deployment/live-worker.mjs'),'utf8');
   let worker = review?await readFile(resolve(root,'deployment/review-worker.mjs'),'utf8'):liveWorker;

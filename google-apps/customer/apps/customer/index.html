@@ -526,6 +526,7 @@ function addToCosmeticsBasket(productId) {
   render();
 }
 
+function openCosmeticsCategory(category){cosmeticsState.subPage='home';cosmeticsState.selectedStore=null;cosmeticsState.selectedCategory=category;cosmeticsState.search='';if(state.page!=='cosmetics')go('cosmetics');else render();requestAnimationFrame(()=>document.getElementById('salonati-cosmetics-offers')?.scrollIntoView({behavior:'smooth',block:'start'}));}
 function cosmeticsPage(){
   const cats = {makeup:'المكياج', skincare:'العناية بالبشرة', perfumes:'العطور', hair:'العناية بالشعر'};
   const catIcons = {makeup:'💄', skincare:'🌿', perfumes:'🌸', hair:'💇‍♀️'};
@@ -551,8 +552,8 @@ function cosmeticsPage(){
   
   <h2>التصنيفات</h2>
   <div class="salonati-cosmetics-categories" aria-label="تصنيفات الكوزمتك">
-    <button type="button" class="salonati-cosmetics-category ${!cosmeticsState.selectedCategory?'active':''}" onclick="cosmeticsState.selectedCategory='';render()"><span class="salonati-cosmetics-category-image all-art">✦</span><span>الكل</span></button>
-    ${Object.entries(cats).map(([k,n])=>`<button type="button" class="salonati-cosmetics-category ${cosmeticsState.selectedCategory===k?'active':''}" onclick="cosmeticsState.selectedCategory='${k}';render()"><span class="salonati-cosmetics-category-image"><img src="${({makeup:'https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=240',skincare:'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=240',perfumes:'https://images.unsplash.com/photo-1541643600914-78b084683601?w=240',hair:'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=240'})[k]}" alt="" loading="lazy"></span><span>${n}</span></button>`).join('')}
+    <button type="button" class="salonati-cosmetics-category ${!cosmeticsState.selectedCategory?'active':''}" onclick="openCosmeticsCategory('')"><span class="salonati-cosmetics-category-image all-art">✦</span><span>الكل</span></button>
+    ${Object.entries(cats).map(([k,n])=>`<button type="button" class="salonati-cosmetics-category ${cosmeticsState.selectedCategory===k?'active':''}" onclick="openCosmeticsCategory('${k}')"><span class="salonati-cosmetics-category-image"><img src="${({makeup:'https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=240',skincare:'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=240',perfumes:'https://images.unsplash.com/photo-1541643600914-78b084683601?w=240',hair:'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=240'})[k]}" alt="" loading="lazy"></span><span>${n}</span></button>`).join('')}
   </div>
 
   <h2>متاجر الكوزمتك المعتمدة</h2>
@@ -574,7 +575,7 @@ function cosmeticsPage(){
     </div>
   `).join('')}</div>
 
-  <h2>أبرز المنتجات والعروض (${products.length})</h2>
+  <h2 id="salonati-cosmetics-offers">أبرز المنتجات والعروض (${products.length})</h2>
   <div class="prod">
     ${products.map(p=>`
       <div class="panel" style="margin:0">

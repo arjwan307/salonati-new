@@ -1,0 +1,103 @@
+name: Mobile builds - salon and customer
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - fix/live-api-phone-isolation-20261030
+    paths:
+      - .github/workflows/mobile-two-apps.yml
+
+permissions:
+  contents: read
+
+jobs:
+  android:
+    name: Android ${{ matrix.role }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - role: salon
+            app_id: com.alarjwan.salonati.salon
+            app_name: "صالوناتي - الصالون"
+            url: https://salonati-salon-clean.pages.dev
+          - role: customer
+            app_id: com.alarjwan.salonati.customer
+            app_name: "صالوناتي - الزبونة"
+            url: https://salonati-customer-clean.pages.dev
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: android-actions/setup-android@v3
+      - name: Prepare isolated mobile project
+        run: |
+          mkdir -p mobile-build/www
+          printf '%s\n' '<!doctype html><html lang="ar"><meta charset="utf-8"><title>صالوناتي</title></html>' > mobile-build/www/index.html
+          cd mobile-build
+          npm init -y
+          npm install --no-audit --no-fund @capacitor/core@^7 @capacitor/cli@^7 @capacitor/android@^7
+          node -e 'require("fs").writeFileSync("capacitor.config.json",JSON.stringify({appId:process.env.APP_ID,appName:process.env.APP_NAME,webDir:"www",server:{url:process.env.APP_URL,cleartext:false}},null,2))'
+          npx cap add android
+        env:
+          APP_ID: ${{ matrix.app_id }}
+          APP_NAME: ${{ matrix.app_name }}
+          APP_URL: ${{ matrix.url }}
+      - name: Compile debug APK
+        working-directory: mobile-build/android
+        run: ./gradlew assembleDebug --no-daemon
+      - uses: actions/upload-artifact@v4
+        with:
+          name: salonati-${{ matrix.role }}-android-debug
+          path: mobile-build/android/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+
+  ios:
+    name: iOS source ${{ matrix.role }}
+    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - role: salon
+            app_id: com.alarjwan.salonati.salon
+            app_name: "صالوناتي - الصالون"
+            url: https://salonati-salon-clean.pages.dev
+          - role: customer
+            app_id: com.alarjwan.salonati.customer
+            app_name: "صالوناتي - الزبونة"
+            url: https://salonati-customer-clean.pages.dev
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Prepare Xcode project
+        run: |
+          mkdir -p mobile-build/www
+          printf '%s\n' '<!doctype html><html lang="ar"><meta charset="utf-8"><title>صالوناتي</title></html>' > mobile-build/www/index.html
+          cd mobile-build
+          npm init -y
+          npm install --no-audit --no-fund @capacitor/core@^7 @capacitor/cli@^7 @capacitor/ios@^7
+          node -e 'require("fs").writeFileSync("capacitor.config.json",JSON.stringify({appId:process.env.APP_ID,appName:process.env.APP_NAME,webDir:"www",server:{url:process.env.APP_URL,cleartext:false}},null,2))'
+          npx cap add ios
+        env:
+          APP_ID: ${{ matrix.app_id }}
+          APP_NAME: ${{ matrix.app_name }}
+          APP_URL: ${{ matrix.url }}
+      - name: Compile unsigned iOS simulator
+        run: |
+          cd mobile-build/ios/App
+          xcodebuild -workspace App.xcworkspace -scheme App -configuration Debug -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: salonati-${{ matrix.role }}-ios-source
+          path: mobile-build/ios/
+          if-no-files-found: error

@@ -238,6 +238,15 @@ button:focus-visible,summary:focus-visible,input:focus-visible{outline:2px solid
 
 .salonati-section-tile .salonati-reference-photo{display:block;flex-shrink:0;width:clamp(82px,25vw,126px);height:clamp(82px,25vw,126px);max-width:36%;border-radius:18px;background-color:#f5e6fa;background-repeat:no-repeat;background-size:calc(100% * 1.477) 600%;background-position:right calc(var(--section-index) * 20%);overflow:hidden}
 .salonati-section-tile .salonati-reference-icon{background-color:#f9efff;background-repeat:no-repeat;background-size:147% 600%;background-position:left calc(var(--section-index) * 20%);font-size:0}
+
+/* Customer cosmetics catalog: keep existing five categories and logic; improve image cards only. */
+.salonati-cosmetics-categories{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));direction:rtl;gap:clamp(4px,1.2vw,9px);width:100%;margin:12px 0 24px}
+.salonati-cosmetics-category{min-width:0;width:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:4px;padding:5px 3px 7px;background:linear-gradient(145deg,#fffaff,#f2e4fc);border:1px solid #dfbeed;border-radius:19px;color:#351052;box-shadow:0 3px 11px #6c309324;font-weight:700;font-size:clamp(9px,2vw,12px);line-height:1.2;min-height:0;aspect-ratio:0.82;overflow:hidden}
+.salonati-cosmetics-category-image{display:flex;justify-content:center;align-items:center;width:100%;height:65%;max-height:85px;overflow:hidden;border-radius:14px}
+.salonati-cosmetics-category-image img{display:block;width:100%;height:100%;object-fit:cover;object-position:center}
+.salonati-cosmetics-category-image.all-art{font-size:clamp(32px,7vw,48px);color:#fff;background:transparent}
+.salonati-cosmetics-category.active{background:linear-gradient(145deg,#913eaa,#4b0c9b);border-color:#7134a0;color:#fff}
+.salonati-cosmetics-category:focus-visible{outline:3px solid #ab70db;outline-offset:2px}
 </style></head><body><div id="gmpQuotaBanner" style="display:none;background:#fef3c7;border-bottom:1px solid #fde68a;color:#78350f;padding:10px 16px;font-size:12px;text-align:center;position:sticky;top:0;z-index:99;box-shadow:0 1px 3px rgba(0,0,0,0.05);">
   <span>Google Maps Platform quota reached. If you are the app owner, visit <a href="https://developers.google.com/maps/ai/ai-studio?utm_campaign=gmp_mcp_codeassist_v1_aistudio#quota_exceeded_errors" target="_blank" rel="noopener noreferrer" style="text-decoration:underline;font-weight:600;color:#451a03;">maps developer site</a> for instructions to update your account.</span>
 </div>
@@ -541,9 +550,9 @@ function cosmeticsPage(){
   <input class="search" placeholder="⌕ ابحثي عن منتج تجميل، عطر أو ماركة..." value="${esc(cosmeticsState.search)}" oninput="cosmeticsState.search=this.value;render()">
   
   <h2>التصنيفات</h2>
-  <div class="categories">
-    <button class="cat ${!cosmeticsState.selectedCategory?'active':''}" onclick="cosmeticsState.selectedCategory='';render()"><span>✨</span>الكل</button>
-    ${Object.entries(cats).map(([k,n])=>`<button class="cat ${cosmeticsState.selectedCategory===k?'active':''}" onclick="cosmeticsState.selectedCategory='${k}';render()"><span>${catIcons[k]}</span>${n}</button>`).join('')}
+  <div class="salonati-cosmetics-categories" aria-label="تصنيفات الكوزمتك">
+    <button type="button" class="salonati-cosmetics-category ${!cosmeticsState.selectedCategory?'active':''}" onclick="cosmeticsState.selectedCategory='';render()"><span class="salonati-cosmetics-category-image all-art">✦</span><span>الكل</span></button>
+    ${Object.entries(cats).map(([k,n])=>`<button type="button" class="salonati-cosmetics-category ${cosmeticsState.selectedCategory===k?'active':''}" onclick="cosmeticsState.selectedCategory='${k}';render()"><span class="salonati-cosmetics-category-image"><img src="${({makeup:'https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=240',skincare:'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=240',perfumes:'https://images.unsplash.com/photo-1541643600914-78b084683601?w=240',hair:'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=240'})[k]}" alt="" loading="lazy"></span><span>${n}</span></button>`).join('')}
   </div>
 
   <h2>متاجر الكوزمتك المعتمدة</h2>

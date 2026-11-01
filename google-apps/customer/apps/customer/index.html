@@ -724,7 +724,7 @@ function summary(){
   let s=salons.find(x=>x.id===state.salon);
   return `${head('ملخص الحجز')}<div class="panel"><h3>${s.name}</h3><p>الخدمات: ${services.filter(v=>state.selectedServices.includes(v.id)).map(v=>v.name).join('، ')}</p><p>الكادر: <b>${esc(state.selectedStaff||'كادر عشوائي')}</b></p><button class="outline" onclick="go('salon')">تعديل الخدمات</button>
   <p>التاريخ: <b class="pink">${esc(state.date)}</b> · الوقت: <b class="pink">${esc(state.time)}</b></p><button class="outline" onclick="go('booking')">تعديل الموعد</button>
-  <p>قيمة خدمات الصالون: <b>${fmt(selectedTotal())} د.ع</b></p><p>خدمات التطبيق (إلزامية): <b>1,000 د.ع</b></p><p>المجموع المستحق: <b class="pink">${fmt(selectedTotal()+SALONATI_APP_FEE_IQD)} د.ع</b> · ${selectedMinutes()} دقيقة</p></div>
+  <p>قيمة خدمات الصالون: <b>${fmt(selectedTotal())} د.ع</b></p><p>خدمات التطبيق: <b>1,000 د.ع</b></p><p>المجموع المستحق: <b class="pink">${fmt(selectedTotal()+SALONATI_APP_FEE_IQD)} د.ع</b> · ${selectedMinutes()} دقيقة</p></div>
   
   <h2>طريقة الدفع</h2>
   <div style="display:grid;gap:8px;margin:10px 0">

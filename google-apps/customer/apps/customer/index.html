@@ -695,15 +695,15 @@ async function salonatiSubmitBooking(event){
  let startsAt;
  try{startsAt=salonatiBookingStartsAt(state.date,state.time)}catch{return notify('تعذر قراءة موعد الحجز، اختاري التاريخ والوقت مرة أخرى')}
  salonatiBookingBusy=true;
- const key=crypto.randomUUID();
- const payload={requestKey:key,ownerId:salon.ownerId,serviceIds:chosen.map(v=>v.serverId),startsAt,expectedTotal:selectedTotal(),name,phone,notes,paymentMethod:state.payment,staffId:state.staffChoices?.[chosen[0].id]?.id||null};
+ const key=state.pendingBookingKey||(state.pendingBookingKey=crypto.randomUUID());
+ const payload={requestKey:key,ownerId:salon.ownerId,serviceIds:chosen.map(v=>v.serverId),startsAt,expectedTotal:selectedTotal(),name,phone,notes,paymentMethod:state.payment,staffId:state.staffChoices?.[chosen[0].id]?.id||null,isHijabBooking:state.hijabBooking===true};
  try{
   if(!navigator.onLine)throw Error('offline');
   const response=await fetch('/api/catalog/workflow/customer/bookings',{method:'POST',credentials:'same-origin',cache:'no-store',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
   const result=await response.json().catch(()=>({}));
-  if(!response.ok){if(response.status===401||result.error==='login_required')return notify('سجّلي دخول الزبونة بحساب فعلي قبل إرسال الحجز');if(result.error==='payment_unavailable')return notify('الدفع الإلكتروني غير متاح حالياً؛ اختاري الدفع في الصالون');if(result.error==='invalid_time')return notify('الموعد غير متاح، اختاري تاريخاً ووقتاً جديدين');if(result.error==='quote_changed')return notify('تغير سعر الخدمة؛ راجعي السعر وأعيدي الحجز');throw Error(result.error||'server_'+response.status)}
+  if(!response.ok){if(response.status===401||result.error==='login_required')return notify('سجّلي دخول الزبونة بحساب فعلي قبل إرسال الحجز');if(result.error==='payment_unavailable')return notify('الدفع الإلكتروني غير متاح حالياً؛ اختاري الدفع في الصالون');if(result.error==='invalid_time'||result.error==='booking_slot_closed')return notify('الموعد غير متاح، اختاري تاريخاً ووقتاً جديدين');if(result.error==='quote_changed')return notify('تغير سعر الخدمة؛ راجعي السعر وأعيدي الحجز');return notify('لم يقبل الخادم الحجز ('+(result.error||'HTTP '+response.status)+'). راجعي البيانات وحاولي مرة أخرى')}
   const booking={id:result.booking?.id||result.id||key,salon:salon.id,ownerId:salon.ownerId,service:chosen[0].id,services:chosen.map(v=>v.id),total:selectedTotal()+SALONATI_APP_FEE_IQD,serviceTotal:selectedTotal(),appFee:SALONATI_APP_FEE_IQD,minutes:selectedMinutes(),staff:state.selectedStaff||'اختيار عشوائي',date:state.date,time:state.time,payment:state.payment,name,phone,notes,status:'بانتظار الموافقة',created:Date.now()};
-  state.bookings.unshift(booking);save('salonati_bookings',state.bookings);go('success');
+  state.pendingBookingKey=null;state.bookings.unshift(booking);save('salonati_bookings',state.bookings);go('success');
  }catch(error){
   try{
    await window.salonatiLocalDB?.put('pending-booking',key,{id:key,payload,created:Date.now()});

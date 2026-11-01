@@ -848,10 +848,15 @@ async function loadApprovedCatalog(){
       if(!Number.isFinite(salon.price))salon.price=0;
     }
     const previous=salons.find(x=>x.id===state.salon)?.ownerId;
+    const selectedServerIds=state.selectedServices.map(id=>services.find(v=>v.id===id)?.serverId).filter(Boolean);
+    const activeBooking=['salon','booking','summary'].includes(state.page);
+    if(activeBooking&&previous&&!mappedSalons.some(x=>x.ownerId===previous))return;
+    if(activeBooking&&selectedServerIds.some(id=>!mappedServices.some(v=>v.serverId===id)))return;
     salons.splice(0,salons.length,...mappedSalons);
     services.splice(0,services.length,...mappedServices);
     const current=salons.find(x=>x.ownerId===previous);
     if(current)state.salon=current.id;
+    if(activeBooking&&selectedServerIds.length)state.selectedServices=selectedServerIds.map(id=>services.find(v=>v.serverId===id).id);
     if(['home','search'].includes(state.page))render();
     else if(state.page==='salon'&&!current){state.page='home';render();}
   } catch(error){console.warn('Could not load approved salons:',error.message);}

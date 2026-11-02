@@ -193,13 +193,14 @@ export default {
       const session=await catalogAppSession(request,env);
       if(session.status!==200)return Response.json({error:'admin_session_required'},{status:session.status});
       const d=await request.json().catch(()=>null);
-      if(!d||!['edit','archive'].includes(d.action)||typeof d.ownerId!=='string'||d.ownerId.length>80)return Response.json({error:'invalid_input'},{status:400});
+      if(!d||!['edit','suspend','activate','delete'].includes(d.action)||typeof d.ownerId!=='string'||d.ownerId.length>80)return Response.json({error:'invalid_input'},{status:400});
       const db=env.IDENTITY_DB;
-      const row=await db.prepare('SELECT owner_id,status,revision FROM catalog_registrations WHERE owner_id=?').bind(d.ownerId).first();
-      if(!row||row.status==='rejected'&&d.action==='archive')return Response.json({error:'not_found'},{status:404});
-      if(d.action==='archive'){
-        await db.prepare("UPDATE catalog_registrations SET status='rejected',reason='أرشفته الإدارة',revision=revision+1,reviewed_at=CURRENT_TIMESTAMP,reviewer=? WHERE owner_id=?").bind(session.accountId,d.ownerId).run();
-        return Response.json({ok:true,archived:true});
+      const row=await db.prepare('SELECT owner_id,status FROM catalog_registrations WHERE owner_id=?').bind(d.ownerId).first();
+      if(!row)return Response.json({error:'not_found'},{status:404});
+      if(d.action!=='edit'){
+        const status={suspend:'suspended',activate:'active',delete:'deleted'}[d.action];
+        await db.prepare("INSERT INTO salonati_admin_account_controls(app,owner_id,status) VALUES('salon',?,?) ON CONFLICT(app,owner_id) DO UPDATE SET status=excluded.status,updated_at=CURRENT_TIMESTAMP").bind(d.ownerId,status).run();
+        return Response.json({ok:true,status});
       }
       const keys=['salonName','area','contactName','phone','address'];
       if(keys.some(k=>typeof d[k]!=='string'||!d[k].trim()||d[k].trim().length>150))return Response.json({error:'invalid_fields'},{status:400});
@@ -208,6 +209,18 @@ export default {
         db.prepare('UPDATE catalog_registrations SET contact_name=?,phone=?,address=?,revision=revision+1 WHERE owner_id=?').bind(d.contactName.trim(),d.phone.trim(),d.address.trim(),d.ownerId)
       ]);
       return Response.json({ok:true});
+    }
+    if(url.pathname==='/api/catalog/admin/account-controls'&&role==='admin'&&request.method==='GET'){
+      const session=await catalogAppSession(request,env);if(session.status!==200)return Response.json({error:'admin_session_required'},{status:session.status});
+      const rows=(await env.IDENTITY_DB.prepare("SELECT app,owner_id AS ownerId,status FROM salonati_admin_account_controls").all()).results;
+      return Response.json({controls:rows},{headers:{'Cache-Control':'no-store'}});
+    }
+    if(env.IDENTITY_DB&&role==='salon'&&url.pathname.startsWith('/api/catalog/')&&!['/api/catalog/login','/api/catalog/logout','/api/catalog/me'].includes(url.pathname)){
+      const session=await catalogAppSession(request,env);
+      if(session.status===200){
+        const state=await env.IDENTITY_DB.prepare("SELECT status FROM salonati_admin_account_controls WHERE app='salon' AND owner_id=?").bind(session.accountId).first();
+        if(state&&state.status!=='active')return Response.json({error:'account_'+state.status},{status:403});
+      }
     }
     // Owner-managed booking closures, isolated by salon and service.
     if(url.pathname==='/api/booking/blocks' && ['GET','PUT'].includes(request.method)){

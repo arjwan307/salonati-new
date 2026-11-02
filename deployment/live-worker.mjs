@@ -76,7 +76,7 @@ async function phoneLogin(request, env, url) {
 function allowed(path) {
   if (backendAssets.has(path)) return true;
   if (path === '/api/catalog/public' || path === '/api/catalog/public/cosmetics-ads' || path.startsWith('/api/catalog/media/') || path==='/api/cosmetics/public' || path.startsWith('/api/cosmetics/media/')) return true;
-  if (role === 'customer') return path === '/api/link/public' || path === '/api/link/session' || path.startsWith('/api/link/customer/') || path.startsWith('/api/catalog/workflow/customer/') || path.startsWith('/api/cosmetics/customer/');
+  if (role === 'customer') return path === '/api/customer/public-campaigns' || path === '/api/link/public' || path === '/api/link/session' || path.startsWith('/api/link/customer/') || path.startsWith('/api/catalog/workflow/customer/') || path.startsWith('/api/cosmetics/customer/');
   if (role === 'cosmetics') return ['/api/cosmetics/me','/api/cosmetics/login','/api/cosmetics/register','/api/cosmetics/logout','/api/cosmetics/state','/api/cosmetics/media','/api/cosmetics/orders','/api/cosmetics/orders/status','/api/cosmetics/agreement'].includes(path);
   if (['/api/catalog/login','/api/catalog/logout','/api/catalog/me'].includes(path)) return true;
   if (role === 'admin') return path.startsWith('/api/catalog/admin/') || path.startsWith('/api/catalog/finance/') || /^\/api\/catalog\/(reviews|product-reviews|ad-reviews)(\/|$)/.test(path) || path === '/api/catalog/workflow/notifications' || path === '/api/catalog/media' || path === '/api/catalog/setup';

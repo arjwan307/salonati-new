@@ -414,14 +414,14 @@ function deleteProduct(id) {
 
 async function saveOffer() {
   const title=val('otitle'),discount=val('odiscount'),details=val('odesc');
-  if(!title)return toast('يرجى إدخال عنوان العرض');
-  try{
-    const response=await fetch('/api/cosmetics/advertisements',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({title,discount:discount||'خصم خاص',details,mediaUrl:window.cosmeticsOfferMedia?.url||'',mediaType:window.cosmeticsOfferMedia?.type||''})});
-    const result=await response.json().catch(()=>({}));
-    if(!response.ok||!result.id)throw Error(result.error||'approval_api_unavailable');
-    db.offers.unshift({id:result.id,title,discount,details,mediaUrl:window.cosmeticsOfferMedia?.url||'',publicationStatus:'pending'});
-    window.cosmeticsOfferMedia=null;save();toast('أُرسل الإعلان للإدارة وبانتظار الموافقة');
-  }catch(e){toast('لم يُرسل الإعلان للإدارة. الربط غير متاح حالياً');console.error('Cosmetics advertisement:',e)}
+  const media=window.cosmeticsOfferMedia;
+  if(!title)return toast('يرجى إدخال عنوان الإعلان');
+  if(!media?.url)return toast('ارفعي صورة أو فيديو أولاً');
+  const offer={id:Date.now(),title,discount:discount||'عرض خاص',details,mediaUrl:media.url,mediaType:media.type};
+  db.offers.unshift(offer);
+  if(typeof persistCosmetics!=='function'){db.offers.shift();return toast('خدمة المراجعة غير متاحة');}
+  if(await persistCosmetics()){window.cosmeticsOfferMedia=null;toast('أُرسل الإعلان للإدارة للموافقة');}
+  else db.offers=db.offers.filter(x=>x!==offer);
 }
 
 function deleteOffer(id) {

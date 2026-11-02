@@ -7,8 +7,13 @@ const today=()=>new Date().toLocaleDateString('en-CA',{timeZone:'Asia/Baghdad'})
 const owner=()=>String(window.SALONATI_ACCOUNT_ID||'');
 let selectionDate=today(),selectionService='*',blocks=[],loaded=false,blockSaveQueue=Promise.resolve(),pendingBlockSaves=0,blockSaveMessage='جارٍ تحميل المواعيد من الخادم…';
 const services=()=>Array.isArray(db?.services)?db.services.filter(s=>s.id&&s.active!==false&&s.publicationStatus!=='rejected'):[];
-const filtered=()=>new Set(blocks.filter(b=>b.date===selectionDate&&b.serviceId===selectionService).map(b=>b.time));
-const slotMarkup=()=>{const disabled=filtered();return '<div class="card booking-closure-card"><h3>إتاحة مواعيد الحجز</h3><label>تاريخ الحجز</label><input type="date" id="bookingSlotDate" value="'+esc(selectionDate)+'" onchange="window.redrawBookingSlots()"><label>تطبيق الإغلاق على</label><select id="bookingServiceScope" onchange="window.redrawBookingSlots()"><option value="*">جميع الخدمات</option>'+services().map(s=>'<option value="'+esc(s.id)+'" '+(selectionService===String(s.id)?'selected':'')+'>'+esc(s.name)+'</option>').join('')+'</select><p class="small">اختاري الأوقات المتاحة للحجز. أزيلي التحديد لإغلاق الموعد للخدمة المختارة. تُحفظ تغييرات الأوقات تلقائيًا.</p><p id="bookingSlotSaveStatus" role="status" aria-live="polite">'+esc(blockSaveMessage)+'</p><div class="booking-slot-grid">'+slots().map(t=>'<label class="booking-slot-option"><input type="checkbox" data-booking-slot="'+t+'" '+(!disabled.has(t)?'checked':'')+' '+(!loaded?'disabled':'')+'> '+formatHour12(t)+'</label>').join('')+'</div></div>'};
+const scopeIds=value=>value.startsWith('group:')?services().filter(s=>s.name===decodeURIComponent(value.slice(6))).map(s=>String(s.id)):[value];
+const duplicateNames=()=>[...new Set(services().map(s=>s.name))].filter(name=>services().filter(s=>s.name===name).length>1);
+const scopeOptions=()=>duplicateNames().map(name=>{const value='group:'+encodeURIComponent(name);return '<option value="'+value+'" '+(selectionService===value?'selected':'')+'>جميع الخدمات باسم: '+esc(name)+'</option>';}).join('')+services().map(s=>{const same=services().filter(v=>v.name===s.name),label=esc(s.name)+(same.length>1?' — خدمة '+(same.findIndex(v=>v.id===s.id)+1):'');return '<option value="'+esc(s.id)+'" '+(selectionService===String(s.id)?'selected':'')+'>'+label+'</option>';}).join('');
+const filtered=()=>{const ids=scopeIds(selectionService);return new Set(slots().filter(time=>ids.every(id=>blocks.some(b=>b.date===selectionDate&&b.time===time&&b.serviceId===id))));};
+async function saveScope(date,value,times){const ids=scopeIds(value);if(!ids.length)throw Error('service_unavailable');const payload=ids.length>1?{date,serviceIds:ids,times}:{date,serviceId:ids[0],times};const r=await fetch('/api/booking/blocks',{method:'PUT',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});if(!r.ok)throw Error('save_failed');blocks=blocks.filter(b=>!(b.date===date&&ids.includes(b.serviceId))).concat(ids.flatMap(serviceId=>times.map(time=>({date,time,serviceId}))));}
+
+const slotMarkup=()=>{const disabled=filtered();return '<div class="card booking-closure-card"><h3>إتاحة مواعيد الحجز</h3><label>تاريخ الحجز</label><input type="date" id="bookingSlotDate" value="'+esc(selectionDate)+'" onchange="window.redrawBookingSlots()"><label>تطبيق الإغلاق على</label><select id="bookingServiceScope" onchange="window.redrawBookingSlots()"><option value="*">جميع الخدمات</option>'+scopeOptions()+'</select><p class="small">اختاري الأوقات المتاحة للحجز. أزيلي التحديد لإغلاق الموعد للخدمة المختارة. تُحفظ تغييرات الأوقات تلقائيًا.</p><p id="bookingSlotSaveStatus" role="status" aria-live="polite">'+esc(blockSaveMessage)+'</p><div class="booking-slot-grid">'+slots().map(t=>'<label class="booking-slot-option"><input type="checkbox" data-booking-slot="'+t+'" '+(!disabled.has(t)?'checked':'')+' '+(!loaded?'disabled':'')+'> '+formatHour12(t)+'</label>').join('')+'</div></div>'};
 window.redrawBookingSlots=()=>{selectionDate=document.getElementById('bookingSlotDate')?.value||selectionDate;selectionService=document.getElementById('bookingServiceScope')?.value||'*';const el=document.getElementById('bookingSlots');if(el)el.innerHTML=slotMarkup()};
 function blockSaveStatus(message){blockSaveMessage=message;const status=document.getElementById('bookingSlotSaveStatus');if(status)status.textContent=message;for(const id of ['bookingSlotDate','bookingServiceScope']){const el=document.getElementById(id);if(el)el.disabled=pendingBlockSaves>0;}}
 document.addEventListener('change',event=>{
@@ -16,9 +21,7 @@ document.addEventListener('change',event=>{
  const date=document.getElementById('bookingSlotDate')?.value||selectionDate,serviceId=document.getElementById('bookingServiceScope')?.value||'*',times=[...document.querySelectorAll('[data-booking-slot]')].filter(el=>!el.checked).map(el=>el.dataset.bookingSlot);
  pendingBlockSaves++;blockSaveStatus('جارٍ حفظ تغيير الموعد…');
  blockSaveQueue=blockSaveQueue.catch(()=>{}).then(async()=>{
-  const response=await fetch('/api/booking/blocks',{method:'PUT',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({date,serviceId,times})});
-  if(!response.ok)throw Error('save_failed');
-  blocks=blocks.filter(b=>!(b.date===date&&b.serviceId===serviceId)).concat(times.map(time=>({date,time,serviceId})));
+  await saveScope(date,serviceId,times);
  }).then(()=>{pendingBlockSaves--;blockSaveStatus(pendingBlockSaves?'جارٍ حفظ بقية التغييرات…':'تم الحفظ لدى الخادم. يُطبّق الإغلاق على حجوزات الزبونة.');},()=>{pendingBlockSaves--;blockSaveStatus('لم يُحفظ التغيير. تحققي من الاتصال وأعيدي المحاولة.');if(!pendingBlockSaves){window.redrawBookingSlots();toast('تعذر حفظ تغيير الموعد؛ أُعيدت الحالة المحفوظة.');}});
 });
 async function refreshBlocks(){
@@ -34,9 +37,7 @@ saveHours=async()=>{
  if(arr.some(h=>h.enabled&&h.open>=h.close)){toast('وقت الإغلاق يجب أن يكون بعد الافتتاح');return}
  const times=[...document.querySelectorAll('[data-booking-slot]')].filter(e=>!e.checked).map(e=>e.dataset.bookingSlot);
  try{
-  const r=await fetch('/api/booking/blocks',{method:'PUT',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({date:day,serviceId,times})});
-  if(!r.ok)throw Error((await r.json().catch(()=>({}))).error||'save_failed');
-  blocks=blocks.filter(b=>!(b.date===day&&b.serviceId===serviceId)).concat(times.map(time=>({date:day,time,serviceId})));
+  await saveScope(day,serviceId,times);
   db.hours=arr;save();toast('تم حفظ الأوقات المغلقة لدى السيرفر والزبونة');
  }catch(e){toast('لم تُحفظ الإغلاقات: '+e.message)}
 };

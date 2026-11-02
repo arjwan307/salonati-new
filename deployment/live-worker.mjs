@@ -263,12 +263,12 @@ export default {
       if(role!=='salon')return Response.json({error:'forbidden'},{status:403});
       const session=await catalogAppSession(request,env);if(session.status!==200)return Response.json({error:'app_session_required'},{status:session.status});
       if(request.headers.get('origin')&&request.headers.get('origin')!==url.origin)return Response.json({error:'invalid_origin'},{status:403});
-      const body=await request.json().catch(()=>null),date=body?.date,serviceId=body?.serviceId;
-      if(!/^\d{4}-\d{2}-\d{2}$/.test(date||'')||!(serviceId==='*'||/^[a-zA-Z0-9-]{16,80}$/.test(serviceId||''))||!Array.isArray(body?.times)||body.times.length>29||body.times.some(t=>!/^\d{2}:\d{2}$/.test(t)))return Response.json({error:'invalid_blocks'},{status:400});
-      if(serviceId!=='*' && !(await db.prepare("SELECT id FROM catalog_services WHERE id=? AND owner_id=?").bind(serviceId,session.accountId).first()))return Response.json({error:'service_not_owned'},{status:403});
-      const unique=[...new Set(body.times)],writes=[db.prepare("DELETE FROM catalog_booking_blocks WHERE owner_id=? AND slot_date=? AND service_id=?").bind(session.accountId,date,serviceId),...unique.map(t=>db.prepare("INSERT INTO catalog_booking_blocks(owner_id,slot_date,slot_time,service_id) VALUES(?,?,?,?)").bind(session.accountId,date,t,serviceId))];
+      const body=await request.json().catch(()=>null),date=body?.date,ids=Array.isArray(body?.serviceIds)?[...new Set(body.serviceIds)]:[body?.serviceId];
+      if(!/^\d{4}-\d{2}-\d{2}$/.test(date||'')||!ids.length||ids.length>100||ids.some(id=>typeof id!=='string'||!(id==='*'||/^[a-zA-Z0-9-]{16,80}$/.test(id)))||(ids.includes('*')&&ids.length>1)||!Array.isArray(body?.times)||body.times.length>29||body.times.some(t=>!/^\d{2}:\d{2}$/.test(t)))return Response.json({error:'invalid_blocks'},{status:400});
+      for(const id of ids)if(id!=='*'&&!(await db.prepare('SELECT id FROM catalog_services WHERE id=? AND owner_id=?').bind(id,session.accountId).first()))return Response.json({error:'service_not_owned'},{status:403});
+      const unique=[...new Set(body.times)],writes=ids.flatMap(id=>[db.prepare('DELETE FROM catalog_booking_blocks WHERE owner_id=? AND slot_date=? AND service_id=?').bind(session.accountId,date,id),...unique.map(time=>db.prepare('INSERT INTO catalog_booking_blocks(owner_id,slot_date,slot_time,service_id) VALUES(?,?,?,?)').bind(session.accountId,date,time,id))]);
       await db.batch(writes);
-      return Response.json({ok:true,count:unique.length});
+      return Response.json({ok:true,count:unique.length,services:ids.length});
     }
     if(role==='customer' && url.pathname==='/api/catalog/workflow/customer/bookings' && request.method==='POST'){
       if(!env.IDENTITY_DB)return Response.json({error:'booking_validation_unavailable'},{status:503});
@@ -310,7 +310,7 @@ export default {
         if(role==='customer'&&url.pathname==='/salonati-link.js'&&result.ok){
           // Keep canonical IDs when the live catalogue replaces the initial UI data.
           // Booking closures are keyed by owner/service UUID, never the numeric UI ID.
-          const source=(await result.text()).replaceAll('catalogId:s.id','catalogId:s.id,ownerId:s.id').replaceAll('const item={id:v.uiId,name:v.name','const item={id:v.uiId,serverId:v.id,ownerId:s.id,category:v.category,name:v.name');
+          const source=(await result.text()).replace('baseServices=services.filter(s=>s.id<=5).map(s=>({...s}))','baseServices=[]').replace('function sync(data){linked=data.salons',"function sync(data){const previousOwner=salons.find(s=>s.id===state.salon)?.ownerId,previousServices=state.selectedServices.map(id=>services.find(s=>s.id===id)?.serverId).filter(Boolean);linked=data.salons").replace('services.splice(0,services.length,...nextServices);',"services.splice(0,services.length,...nextServices);if(previousOwner){const current=nextSalons.find(s=>s.ownerId===previousOwner);if(current)state.salon=current.id;if(previousServices.length)state.selectedServices=previousServices.map(id=>nextServices.find(s=>s.serverId===id)?.id).filter(id=>id!==undefined);}").replaceAll('catalogId:s.id','catalogId:s.id,ownerId:s.id').replaceAll('const item={id:v.uiId,name:v.name','const item={id:v.uiId,serverId:v.id,ownerId:s.id,category:v.category,name:v.name');
           const responseHeaders=new Headers(result.headers);for(const key of ['content-length','etag','content-encoding'])responseHeaders.delete(key);responseHeaders.set('Cache-Control','no-store');
           return new Response(source,{status:result.status,headers:responseHeaders});
         }

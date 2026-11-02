@@ -3,7 +3,10 @@
   "baseline_commit": "a91fcf3ff4d0cffe8450f35400b812670949d803",
   "production_changed": false,
   "production_deletions": 0,
-  "production_deleted_markers": {"salon": 2, "cosmetics": 2},
+  "production_deleted_markers": {
+    "salon": 2,
+    "cosmetics": 2
+  },
   "marked_deleted_primary_accounts_remaining": 4,
   "marked_deleted_unexpired_sessions": 21,
   "marked_deleted_catalog_media_metadata_rows": 19,
@@ -13,11 +16,26 @@
   "push_account_orphans": 0,
   "non_worker_live_files_byte_identical": 277,
   "generated_scripts_parsed": 60,
-  "local_suites_passed": ["test-live.mjs", "test-security-audit.mjs", "test-account-deletion.mjs", "test-notifications-audit.mjs"],
+  "local_suites_passed": [
+    "test-live.mjs",
+    "test-security-audit.mjs",
+    "test-account-deletion.mjs",
+    "test-notifications-audit.mjs",
+    "test-shared-api.mjs",
+    "test-shared-api-runtime.mjs"
+  ],
   "actual_device_push_tested": false,
   "physical_phone_tested": false,
   "load_tested": false,
   "full_authenticated_navigation_tested": false,
   "shared_api_fully_reviewed": false,
-  "commercial_readiness": "not_approved"
+  "commercial_readiness": "not_approved",
+  "shared_api_source_fixes_completed": true,
+  "shared_api_production_deployed": false,
+  "shared_api_embedded_asset_bytes_identical": 602053,
+  "local_worker_runtime": {
+    "miniflare": "4.20260730.0",
+    "compatibility_date": "2026-07-30",
+    "remote_bindings": false
+  }
 }

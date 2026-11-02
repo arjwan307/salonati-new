@@ -1,0 +1,14 @@
+{
+  "source": "Cloudflare Workers read-only script download",
+  "worker": "salonati-api",
+  "retrieved_date_baghdad": "2026-11-03",
+  "production_compatibility_date": "2026-10-26",
+  "production_source_sha256": "93ae7682954f929faac87e0ce9f4771b5f2efa2f389fe36f2b4df94a635fdfea",
+  "production_source_utf8_bytes": 703542,
+  "embedded_asset_block_sha256": "a4c5b6a4aabf571cde3d3f2afd59799eb5da02e6660e472be66f34f2fb85cf81",
+  "embedded_asset_block_utf8_bytes": 602053,
+  "production_settings_changed": false,
+  "secrets_exported": false,
+  "import_commit": "28d1d3baa9f8639a3dc8fdf454d03671ecbe0a5d",
+  "hardened_source_sha256": "1b363c519e42a3b1841cf38e06a2076dcdddc7da5fb6bdf415c6a13bbf7b451c"
+}

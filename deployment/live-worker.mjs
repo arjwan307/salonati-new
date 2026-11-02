@@ -61,7 +61,7 @@ async function phoneLogin(request, env, url) {
   const customer = role === 'customer';
   const sql = customer
     ? "SELECT a.username AS identity FROM salonati_phone_identities p JOIN catalog_customer_accounts a ON a.id=p.account_id WHERE p.app=? AND p.phone=?"
-    : "SELECT a.email AS identity FROM salonati_phone_identities p JOIN catalog_accounts a ON a.id=p.account_id WHERE p.app=? AND p.phone=? AND a.role=?";
+    : "SELECT a.email AS identity FROM salonati_phone_identities p JOIN catalog_accounts a ON a.id=p.account_id LEFT JOIN salonati_admin_account_controls c ON c.app=p.app AND c.owner_id=a.id WHERE p.app=? AND p.phone=? AND a.role=? AND COALESCE(c.status,'active')='active'";
   const q = env.IDENTITY_DB.prepare(sql);
   const row = await (customer ? q.bind(role,phone) : q.bind(role,phone,role==='admin'?'admin':'owner')).first();
   // The original API still verifies the password and issues/revokes sessions.
@@ -87,12 +87,12 @@ async function catalogAppSession(request,env){
   const token=/(?:^|;\s*)__Host-catalog=([a-f0-9]{64})(?:;|$)/.exec(request.headers.get('cookie')||'')?.[1];
   if(!token)return {status:401};
   const hash=asHex(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(token)));
-  const row=await env.IDENTITY_DB.prepare("SELECT p.account_id FROM catalog_sessions s JOIN salonati_phone_identities p ON p.account_id=s.account_id WHERE s.token_hash=? AND p.app=? AND julianday(s.expires_at)>julianday('now')").bind(hash,role).first();
+  const row=await env.IDENTITY_DB.prepare("SELECT p.account_id FROM catalog_sessions s JOIN catalog_accounts a ON a.id=s.account_id JOIN salonati_phone_identities p ON p.account_id=a.id LEFT JOIN salonati_admin_account_controls c ON c.app=p.app AND c.owner_id=a.id LEFT JOIN catalog_admin_staff st ON st.account_id=a.id WHERE s.token_hash=? AND p.app=? AND julianday(s.expires_at)>julianday('now') AND COALESCE(c.status,'active')='active' AND ((p.app='admin' AND (a.role='admin' OR st.active=1)) OR (p.app IN('salon','cosmetics') AND a.role='owner' AND st.account_id IS NULL))").bind(hash,role).first();
   return row?{status:200,accountId:row.account_id}:{status:401};
 }
 async function persistentCustomerSession(request,env){
  if(!env.IDENTITY_DB)return null;const token=/(?:^|;\s*)__Host-salonati-customer=([a-f0-9]{64})(?:;|$)/.exec(request.headers.get('cookie')||'')?.[1];if(!token)return null;
- const hash=asHex(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(token))),row=await env.IDENTITY_DB.prepare("SELECT customer_id FROM catalog_customer_sessions WHERE token_hash=? AND julianday(expires_at)>julianday('now')").bind(hash).first();if(!row)return null;
+ const hash=asHex(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(token))),row=await env.IDENTITY_DB.prepare("SELECT s.customer_id FROM catalog_customer_sessions s JOIN catalog_customer_accounts a ON a.id=s.customer_id WHERE s.token_hash=? AND julianday(s.expires_at)>julianday('now')").bind(hash).first();if(!row)return null;
  await env.IDENTITY_DB.prepare("UPDATE catalog_customer_sessions SET expires_at=datetime('now','+365 days') WHERE token_hash=? AND julianday(expires_at)<julianday('now','+360 days')").bind(hash).run();return {id:row.customer_id,hash,cookie:'__Host-salonati-customer='+token+'; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=31536000'};
 }
 export default {
@@ -158,9 +158,9 @@ export default {
     if (role === 'customer' && url.pathname === '/api/customer/approved-catalog' && request.method === 'GET') {
       if (!env.IDENTITY_DB) return Response.json({error:'catalog_unavailable'},{status:503});
       const db=env.IDENTITY_DB;
-      const salons=(await db.prepare("SELECT a.id AS ownerId,a.salon_name AS name,a.area,a.latitude AS lat,a.longitude AS lng,r.facade_media_id AS facadeId FROM catalog_accounts a JOIN catalog_registrations r ON r.owner_id=a.id WHERE a.role='owner' AND r.status='approved' ORDER BY a.salon_name").all()).results;
-      const services=(await db.prepare("SELECT s.id,s.owner_id AS ownerId,r.name,r.category,r.price,r.discount_price AS discountPrice,r.discount_start AS discountStart,r.discount_end AS discountEnd,r.minutes,r.media_id AS mediaId FROM catalog_services s JOIN catalog_revisions r ON r.id=s.published_revision JOIN catalog_registrations reg ON reg.owner_id=s.owner_id WHERE reg.status='approved' AND r.status='approved' AND r.active=1").all()).results;
-      const team=(await db.prepare("SELECT t.id,t.owner_id AS ownerId,t.name,t.specialty FROM catalog_team t JOIN catalog_registrations reg ON reg.owner_id=t.owner_id WHERE reg.status='approved' AND t.active=1").all()).results;
+      const salons=(await db.prepare("SELECT a.id AS ownerId,a.salon_name AS name,a.area,a.latitude AS lat,a.longitude AS lng,r.facade_media_id AS facadeId FROM catalog_accounts a JOIN catalog_registrations r ON r.owner_id=a.id WHERE a.role='owner' AND r.status='approved' AND NOT EXISTS(SELECT 1 FROM salonati_admin_account_controls c WHERE c.app='salon' AND c.owner_id=a.id AND c.status!='active') ORDER BY a.salon_name").all()).results;
+      const services=(await db.prepare("SELECT s.id,s.owner_id AS ownerId,r.name,r.category,r.price,r.discount_price AS discountPrice,r.discount_start AS discountStart,r.discount_end AS discountEnd,r.minutes,r.media_id AS mediaId FROM catalog_services s JOIN catalog_revisions r ON r.id=s.published_revision JOIN catalog_registrations reg ON reg.owner_id=s.owner_id WHERE reg.status='approved' AND r.status='approved' AND r.active=1 AND NOT EXISTS(SELECT 1 FROM salonati_admin_account_controls c WHERE c.app='salon' AND c.owner_id=s.owner_id AND c.status!='active')").all()).results;
+      const team=(await db.prepare("SELECT t.id,t.owner_id AS ownerId,t.name,t.specialty FROM catalog_team t JOIN catalog_registrations reg ON reg.owner_id=t.owner_id WHERE reg.status='approved' AND t.active=1 AND NOT EXISTS(SELECT 1 FROM salonati_admin_account_controls c WHERE c.app='salon' AND c.owner_id=t.owner_id AND c.status!='active')").all()).results;
       return Response.json({salons,services,team},{headers:{'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}});
     }
     if (role === 'salon' && request.method === 'DELETE' && url.pathname.startsWith('/api/catalog/services/') && /^[a-zA-Z0-9-]{16,80}$/.test(url.pathname.slice('/api/catalog/services/'.length))) {
@@ -212,6 +212,7 @@ export default {
       if(request.headers.get('origin')!==url.origin)return Response.json({error:'invalid_origin'},{status:403});
       const session=await catalogAppSession(request,env);
       if(session.status!==200)return Response.json({error:'admin_session_required'},{status:session.status});
+      const actor=await cosmeticsSession(request,env,'admin');if(!actor||actor.staff)return Response.json({error:'permission_denied'},{status:403});
       const body=await request.json().catch(()=>null);
       if(!body||['phone','whatsapp','email'].some(k=>typeof body[k]!=='string'))return Response.json({error:'invalid_fields'},{status:400});
       const phone=body.phone.trim(),whatsapp=body.whatsapp.trim(),email=body.email.trim();
@@ -225,6 +226,7 @@ export default {
       if(request.headers.get('origin')!==url.origin)return Response.json({error:'invalid_origin'},{status:403});
       const session=await catalogAppSession(request,env);
       if(session.status!==200)return Response.json({error:'admin_session_required'},{status:session.status});
+      const actor=await cosmeticsSession(request,env,'admin');if(!cosmeticsPermit(actor,'registrations'))return Response.json({error:'permission_denied'},{status:403});
       const d=await request.json().catch(()=>null);
       if(!d||!['edit','suspend','activate','delete'].includes(d.action)||typeof d.ownerId!=='string'||d.ownerId.length>80)return Response.json({error:'invalid_input'},{status:400});
       const db=env.IDENTITY_DB;
@@ -232,7 +234,10 @@ export default {
       if(!row)return Response.json({error:'not_found'},{status:404});
       if(d.action!=='edit'){
         const status={suspend:'suspended',activate:'active',delete:'deleted'}[d.action];
-        await db.prepare("INSERT INTO salonati_admin_account_controls(app,owner_id,status) VALUES('salon',?,?) ON CONFLICT(app,owner_id) DO UPDATE SET status=excluded.status,updated_at=CURRENT_TIMESTAMP").bind(d.ownerId,status).run();
+        await db.batch([
+          db.prepare("INSERT INTO salonati_admin_account_controls(app,owner_id,status) VALUES('salon',?,?) ON CONFLICT(app,owner_id) DO UPDATE SET status=excluded.status,updated_at=CURRENT_TIMESTAMP").bind(d.ownerId,status),
+          ...(status==='active'?[]:[db.prepare('DELETE FROM catalog_sessions WHERE account_id=?').bind(d.ownerId)])
+        ]);
         return Response.json({ok:true,status});
       }
       const keys=['salonName','area','contactName','phone','address'];
@@ -279,6 +284,10 @@ export default {
     if(role==='customer' && url.pathname==='/api/catalog/workflow/customer/bookings' && request.method==='POST'){
       if(!env.IDENTITY_DB)return Response.json({error:'booking_validation_unavailable'},{status:503});
       const body=await request.clone().json().catch(()=>null);
+      if(body&&typeof body.ownerId==='string'){
+        const control=await env.IDENTITY_DB.prepare("SELECT status FROM salonati_admin_account_controls WHERE app='salon' AND owner_id=?").bind(body.ownerId).first();
+        if(control&&control.status!=='active')return Response.json({error:'salon_unavailable'},{status:409});
+      }
       if(body && /^[a-zA-Z0-9-]{16,80}$/.test(body.ownerId||'') && Array.isArray(body.serviceIds) && typeof body.startsAt==='string'){
         const instant=new Date(body.startsAt);
         if(Number.isFinite(instant.getTime())){
@@ -301,6 +310,7 @@ export default {
         const rows=(await env.IDENTITY_DB.prepare("SELECT c.id,c.title,c.copy,c.media_id,m.mime FROM catalog_campaigns c JOIN catalog_media m ON m.id=c.media_id WHERE c.active=1 AND m.mime LIKE 'image/%' ORDER BY c.created_at DESC,c.id LIMIT 30").all()).results;
         return Response.json({campaigns:rows.map(c=>({id:c.id,title:c.title,copy:c.copy,mediaType:c.mime,mediaUrl:'/api/catalog/media/'+c.media_id}))},{headers:{'Cache-Control':'no-store'}});
       }
+      const mediaDenied=await catalogMediaGuard(request,env,url);if(mediaDenied)return mediaDenied;
       const cosmetics=await cosmeticsRoutes(request,env,url);if(cosmetics)return cosmetics;
       const headers = new Headers(request.headers);
       // Never forward the demo privilege header to the live service.
@@ -329,6 +339,7 @@ export default {
         }
         if(result.ok&&request.method==='GET'&&['/api/link/public','/api/catalog/public'].includes(url.pathname)&&env.IDENTITY_DB){
           const data=JSON.parse(new TextDecoder().decode(await cosmeticsBody(result,4194304)));
+          await filterPublishedGallery(data,env.IDENTITY_DB,url.origin);
           const samples=new Set((await env.IDENTITY_DB.prepare('SELECT owner_id FROM catalog_sample_owners').all()).results.map(r=>r.owner_id));
           for(const [key,value] of Object.entries(data))if(Array.isArray(value))data[key]=value.filter(item=>!samples.has(item?.ownerId||item?.owner_id||item?.salonId||item?.id));
           const blocked=new Set((await env.IDENTITY_DB.prepare("SELECT owner_id FROM salonati_admin_account_controls WHERE app='salon' AND status!='active'").all()).results.map(r=>r.owner_id));

@@ -21,6 +21,7 @@ async function cosmeticsSession(request,env,kind){
  if(kind==='customer')return account;
  if(kind==='admin')return account.role==='admin'?account:null;
  if(account.role!=='owner')return null;
+ const control=await env.IDENTITY_DB.prepare("SELECT status FROM salonati_admin_account_controls WHERE app='cosmetics' AND owner_id=?").bind(account.id).first();if(control&&control.status!=='active')return null;
  const identity=await env.IDENTITY_DB.prepare("SELECT phone FROM salonati_phone_identities WHERE app='cosmetics' AND account_id=?").bind(account.id).first();
  return identity?{...account,phone:env.REVIEW_MODE==='enabled'?identity.phone.split('#')[0]:identity.phone}:null;
 }
@@ -52,7 +53,7 @@ async function cosmeticsRoutes(request,env,url){
   if(mediaMatch&&['GET','HEAD'].includes(request.method)){
    if(!env.MEDIA)return cosmeticsJson({error:'media_unavailable'},503);
    const row=await db.prepare('SELECT * FROM cosmetics_media WHERE id=?').bind(mediaMatch[1]).first();if(!row)return cosmeticsJson({error:'not_found'},404);
-   const published=await db.prepare("SELECT owner_id FROM cosmetics_owner_state WHERE owner_id=? AND published_json IS NOT NULL AND json_extract(published_json,'$.store.active')=1 AND (EXISTS(SELECT 1 FROM json_each(published_json,'$.products') p WHERE json_extract(p.value,'$.image')=?) OR EXISTS(SELECT 1 FROM json_each(published_json,'$.offers') o WHERE json_extract(o.value,'$.mediaUrl')=?))").bind(row.owner_id,path,path).first();
+   const published=await db.prepare("SELECT owner_id FROM cosmetics_owner_state WHERE owner_id=? AND published_json IS NOT NULL AND json_extract(published_json,'$.store.active')=1 AND NOT EXISTS(SELECT 1 FROM salonati_admin_account_controls c WHERE c.app='cosmetics' AND c.owner_id=cosmetics_owner_state.owner_id AND c.status!='active') AND (json_extract(published_json,'$.store.facadeUrl')=? OR EXISTS(SELECT 1 FROM json_each(published_json,'$.products') p WHERE json_extract(p.value,'$.image')=?) OR EXISTS(SELECT 1 FROM json_each(published_json,'$.offers') o WHERE json_extract(o.value,'$.mediaUrl')=?))").bind(row.owner_id,path,path,path).first();
    if(!published){const actor=await cosmeticsSession(request,env,'owner'),admin=actor?null:await cosmeticsSession(request,env,'admin');if(actor?.id!==row.owner_id&&!cosmeticsPermit(admin,'reviews'))return cosmeticsJson({error:'not_found'},404);}
    const object=await env.MEDIA.get(row.object_key);if(!object)return cosmeticsJson({error:'not_found'},404);return new Response(request.method==='HEAD'?null:object.body,{headers:{'Content-Type':row.mime,'Content-Length':String(row.size),'X-Content-Type-Options':'nosniff','Cache-Control':'private, no-store'}});
   }
@@ -75,7 +76,10 @@ async function cosmeticsRoutes(request,env,url){
     if(!row)return cosmeticsJson({error:'not_found'},404);
     if(d.action!=='edit'){
       const status={suspend:'suspended',activate:'active',delete:'deleted'}[d.action];
-      await db.prepare("INSERT INTO salonati_admin_account_controls(app,owner_id,status) VALUES('cosmetics',?,?) ON CONFLICT(app,owner_id) DO UPDATE SET status=excluded.status,updated_at=CURRENT_TIMESTAMP").bind(d.ownerId,status).run();
+      await db.batch([
+        db.prepare("INSERT INTO salonati_admin_account_controls(app,owner_id,status) VALUES('cosmetics',?,?) ON CONFLICT(app,owner_id) DO UPDATE SET status=excluded.status,updated_at=CURRENT_TIMESTAMP").bind(d.ownerId,status),
+        ...(status==='active'?[]:[db.prepare('DELETE FROM catalog_sessions WHERE account_id=?').bind(d.ownerId)])
+      ]);
       return cosmeticsJson({ok:true,status});
     }
     const keys=['name','phone','area','address'];
@@ -107,11 +111,11 @@ async function cosmeticsRoutes(request,env,url){
     const hash=asHex(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(JSON.stringify({ownerId:d.ownerId,items:[...quantities].sort((a,b)=>a[0]-b[0]),address,phone,name,paymentMethod:'cash',expectedTotal:d.expectedTotal}))));
     const prior=await db.prepare('SELECT id,request_hash,total FROM cosmetics_orders WHERE customer_id=? AND request_key=?').bind(customer.id,d.requestKey).first();if(prior)return prior.request_hash===hash?cosmeticsJson({id:prior.id,total:prior.total}):cosmeticsJson({error:'request_conflict'},409);
     if(!await cosmeticsLimit(db,customer.id,'order',40))return cosmeticsJson({error:'too_many_attempts'},429);
-    const row=await db.prepare('SELECT state_json,published_json,version FROM cosmetics_owner_state WHERE owner_id=? AND published_json IS NOT NULL').bind(d.ownerId).first();if(!row)return cosmeticsJson({error:'store_unavailable'},409);const current=JSON.parse(row.state_json),published=JSON.parse(row.published_json);if(!published.store.active)return cosmeticsJson({error:'store_unavailable'},409);
+    const row=await db.prepare("SELECT state_json,published_json,version FROM cosmetics_owner_state WHERE owner_id=? AND published_json IS NOT NULL AND NOT EXISTS(SELECT 1 FROM salonati_admin_account_controls c WHERE c.app='cosmetics' AND c.owner_id=cosmetics_owner_state.owner_id AND c.status!='active')").bind(d.ownerId).first();if(!row)return cosmeticsJson({error:'store_unavailable'},409);const current=JSON.parse(row.state_json),published=JSON.parse(row.published_json);if(!published.store.active)return cosmeticsJson({error:'store_unavailable'},409);
     const items=[];let total=0;for(const [id,quantity] of quantities){const p=published.products.find(x=>x.id===id),live=current.products.find(x=>x.id===id);if(!p||!live||live.stock<quantity)return cosmeticsJson({error:'stock_unavailable'},409);items.push({id,name:p.name,price:p.price,quantity});total+=p.price*quantity;live.stock-=quantity;p.stock=live.stock;}
     if(!Number.isSafeInteger(total)||total!==d.expectedTotal)return cosmeticsJson({error:'quote_changed'},409);const now=new Date().toISOString();
     const results=await db.batch([
-     db.prepare("INSERT INTO cosmetics_orders(owner_id,customer_id,request_key,request_hash,customer_name,phone,address,items_json,total,status,created_at,updated_at) SELECT ?,?,?,?,?,?,?,?,?,'pending',?,? FROM cosmetics_owner_state WHERE owner_id=? AND version=?").bind(d.ownerId,customer.id,d.requestKey,hash,name,phone,address,JSON.stringify(items),total,now,now,d.ownerId,row.version),
+     db.prepare("INSERT INTO cosmetics_orders(owner_id,customer_id,request_key,request_hash,customer_name,phone,address,items_json,total,status,created_at,updated_at) SELECT ?,?,?,?,?,?,?,?,?,'pending',?,? FROM cosmetics_owner_state WHERE owner_id=? AND version=? AND NOT EXISTS(SELECT 1 FROM salonati_admin_account_controls c WHERE c.app='cosmetics' AND c.owner_id=cosmetics_owner_state.owner_id AND c.status!='active')").bind(d.ownerId,customer.id,d.requestKey,hash,name,phone,address,JSON.stringify(items),total,now,now,d.ownerId,row.version),
      db.prepare('UPDATE cosmetics_owner_state SET state_json=?,published_json=?,version=version+1 WHERE owner_id=? AND version=? AND EXISTS(SELECT 1 FROM cosmetics_orders WHERE customer_id=? AND request_key=?)').bind(JSON.stringify(current),JSON.stringify(published),d.ownerId,row.version,customer.id,d.requestKey)
     ]);
     if(!results[0].meta.changes)return cosmeticsJson({error:'order_conflict'},409);const order=await db.prepare('SELECT id FROM cosmetics_orders WHERE customer_id=? AND request_key=?').bind(customer.id,d.requestKey).first();return cosmeticsJson({id:order.id,total},201);
@@ -148,3 +152,30 @@ async function cosmeticsRoutes(request,env,url){
  }catch(e){return cosmeticsJson({error:e.status?e.message:'service_unavailable'},e.status||503);}
 }
 
+
+// Enforce publication at the edge too: the legacy API exposes latest ad media.
+async function catalogMediaGuard(request,env,url){
+ if(!/^\/api\/catalog\/media\/[a-f0-9-]{36}$/.test(url.pathname)||!['GET','HEAD'].includes(request.method))return null;
+ if(!env.IDENTITY_DB)return cosmeticsJson({error:'media_unavailable'},503);
+ const db=env.IDENTITY_DB,id=url.pathname.split('/').pop();
+ const media=await db.prepare('SELECT id,owner_id FROM catalog_media WHERE id=?').bind(id).first();
+ if(!media)return cosmeticsJson({error:'not_found'},404);
+ const publicMedia=await db.prepare(`SELECT id FROM catalog_campaigns WHERE media_id=? AND active=1
+ UNION ALL SELECT facade_media_id FROM catalog_registrations g WHERE facade_media_id=? AND status='approved' AND NOT EXISTS(SELECT 1 FROM salonati_admin_account_controls c WHERE c.owner_id=g.owner_id AND c.status!='active')
+ UNION ALL SELECT r.id FROM catalog_revisions r JOIN catalog_services s ON s.published_revision=r.id JOIN catalog_registrations g ON g.owner_id=s.owner_id WHERE r.media_id=? AND r.status='approved' AND r.active=1 AND g.status='approved' AND NOT EXISTS(SELECT 1 FROM salonati_admin_account_controls c WHERE c.owner_id=s.owner_id AND c.status!='active')
+ UNION ALL SELECT r.id FROM catalog_product_revisions r JOIN catalog_products s ON s.published_revision=r.id JOIN catalog_registrations g ON g.owner_id=s.owner_id WHERE r.media_id=? AND r.status='approved' AND r.active=1 AND g.status='approved' AND NOT EXISTS(SELECT 1 FROM salonati_admin_account_controls c WHERE c.owner_id=s.owner_id AND c.status!='active')
+ UNION ALL SELECT r.id FROM catalog_ad_revisions r JOIN catalog_advertisements s ON s.published_revision=r.id JOIN catalog_registrations g ON g.owner_id=s.owner_id WHERE r.media_id=? AND r.status='approved' AND r.active=1 AND g.status='approved' AND NOT EXISTS(SELECT 1 FROM salonati_admin_account_controls c WHERE c.owner_id=s.owner_id AND c.status!='active') LIMIT 1`).bind(id,id,id,id,id).first();
+ if(publicMedia)return null;
+ if(role==='admin') {const actor=await cosmeticsSession(request,env,'admin');if(actor&&(!actor.staff||['reviews','registrations','ads'].some(p=>(actor.permissions||[]).includes(p))))return null;}
+ if(role==='salon'){const actor=await catalogAppSession(request,env);if(actor.status===200&&actor.accountId===media.owner_id)return null;}
+ return cosmeticsJson({error:'not_found'},404);
+}
+async function filterPublishedGallery(data,db,origin=''){
+ if(!Array.isArray(data.salons))return;
+ const rows=(await db.prepare("SELECT r.*,m.mime,o.salon_name,o.area FROM catalog_advertisements a JOIN catalog_ad_revisions r ON r.id=a.published_revision JOIN catalog_media m ON m.id=r.media_id JOIN catalog_accounts o ON o.id=r.owner_id WHERE r.status='approved' AND r.active=1 ORDER BY r.created_at DESC").all()).results;
+ for(const salon of data.salons){
+  const gallery=salon.gallery||[],approved=rows.filter(r=>r.owner_id===salon.id),ids=new Set(approved.map(r=>r.id)),hidden=new Set(gallery.filter(ad=>!ids.has(ad.revisionId)).map(ad=>ad.mediaUrl));
+  salon.gallery=approved.map(r=>({id:r.ad_id,revisionId:r.id,title:r.title,placement:r.placement,budget:r.budget,mediaId:r.media_id,mediaType:r.mime,mediaUrl:origin+'/api/catalog/media/'+r.media_id,active:!!r.active,publicationStatus:r.status,reviewReason:r.reason,salonId:r.owner_id,salonName:r.salon_name||'',area:r.area||''}));
+  if(hidden.has(salon.thumbnail))salon.thumbnail=salon.gallery.find(ad=>ad.mediaType?.startsWith('image/'))?.mediaUrl||(salon.products||[]).find(p=>p.mediaType?.startsWith('image/'))?.mediaUrl||(salon.services||[]).find(p=>p.mediaType?.startsWith('image/'))?.mediaUrl||null;
+ }
+}

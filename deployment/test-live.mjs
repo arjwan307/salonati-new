@@ -16,7 +16,7 @@ for(const role of Object.keys(modules)){
 }
 console.log('Four app boundaries and live/review host separation passed');
 {
- const response=await modules.salon.default.fetch(new Request('https://salonati-salon-clean.pages.dev/api/catalog/workflow/owner/bookings',{headers:{cookie:'__Host-catalog='+'1'.repeat(64)}}),{IDENTITY_DB:{prepare:()=>({bind:()=>({first:async()=>({account_id:owner})})})},SALONATI_API:{fetch:()=>Response.json({bookings:[{id:'pending',status:'pending',name:'Private customer',phone:'07720000000',notes:'Private notes'},{id:'confirmed',status:'confirmed',name:'Accepted customer',phone:'07720000000'}]})}});
+ const response=await modules.salon.default.fetch(new Request('https://salonati-salon-clean.pages.dev/api/catalog/workflow/owner/bookings',{headers:{cookie:'__Host-catalog='+'1'.repeat(64)}}),{IDENTITY_DB:{prepare:sql=>({bind:()=>({first:async()=>sql.includes('FROM catalog_sessions')?{account_id:owner}:null})})},SALONATI_API:{fetch:()=>Response.json({bookings:[{id:'pending',status:'pending',name:'Private customer',phone:'07720000000',notes:'Private notes'},{id:'confirmed',status:'confirmed',name:'Accepted customer',phone:'07720000000'}]})}});
  const d=await response.json();assert.equal(d.bookings[0].phone,'');assert.notEqual(d.bookings[0].name,'Private customer');assert.equal(d.bookings[1].name,'Accepted customer');
  console.log('Salon contact information is withheld until booking acceptance');
 }
@@ -62,7 +62,7 @@ const python=String.raw`
 import sys,json,sqlite3
 d=json.load(sys.stdin);c=sqlite3.connect(':memory:')
 c.execute('PRAGMA foreign_keys=ON')
-c.executescript('CREATE TABLE catalog_accounts(id TEXT PRIMARY KEY); CREATE TABLE catalog_customer_accounts(id TEXT PRIMARY KEY);'+d['schema'])
+c.executescript('CREATE TABLE catalog_accounts(id TEXT PRIMARY KEY); CREATE TABLE catalog_customer_accounts(id TEXT PRIMARY KEY); CREATE TABLE salonati_admin_account_controls(app TEXT,owner_id TEXT,status TEXT);'+d['schema'])
 for actor in [d['owner'],d['otherOwner']]:c.execute('INSERT INTO catalog_accounts VALUES(?)',(actor,))
 c.execute('INSERT INTO catalog_customer_accounts VALUES(?)',(d['customer'],))
 c.execute("INSERT INTO cosmetics_owner_state(owner_id,state_json,published_json,version,updated_at) VALUES(?,?,?,1,'test')",(d['owner'],json.dumps(d['state']),json.dumps(d['state'])))

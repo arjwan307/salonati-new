@@ -11,8 +11,23 @@ export async function collectOffers(db){
  const results=await Promise.all(queries.map(q=>q.all()));const rows=results.flatMap(r=>r.results);for(const row of rows)row.id=encode(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(row.id)));if(rows.length)await db.batch(rows.map(r=>db.prepare('INSERT OR IGNORE INTO salonati_offer_notifications(id,title,body) VALUES(?,?,?)').bind(r.id,String(r.title||'عرض جديد').slice(0,160),r.body)));
 }
 export async function deliverOffers(env){const db=env.DB;await collectOffers(db);const latest=(await db.prepare('SELECT COALESCE(MAX(seq),0) AS seq FROM salonati_offer_notifications').first()).seq;if(!latest)return {sent:0};
- const subscribers=(await db.prepare("SELECT p.id,p.endpoint FROM salonati_push_subscriptions p JOIN catalog_customer_sessions s ON s.token_hash=p.token_hash AND s.customer_id=p.customer_id WHERE p.last_seq<? AND julianday(s.expires_at)>julianday('now') ORDER BY p.updated_at LIMIT 50").bind(latest).all()).results;let sent=0;
- for(const subscription of subscribers){try{const response=await fetch(subscription.endpoint,{method:'POST',redirect:'error',headers:{Authorization:await vapidAuthorization(subscription.endpoint,env),TTL:'3600',Urgency:'low','Content-Length':'0'},signal:AbortSignal.timeout(10000)});if(response.ok){await db.prepare('UPDATE salonati_push_subscriptions SET last_seq=? WHERE id=?').bind(latest,subscription.id).run();sent++;}else if([404,410].includes(response.status))await db.prepare('DELETE FROM salonati_push_subscriptions WHERE id=?').bind(subscription.id).run();}catch{console.warn('push_delivery_retry');}}
+ const subscribers=(await db.prepare("SELECT p.id,p.endpoint,p.token_hash,p.customer_id FROM salonati_push_subscriptions p JOIN catalog_customer_accounts a ON a.id=p.customer_id JOIN catalog_customer_sessions s ON s.token_hash=p.token_hash AND s.customer_id=p.customer_id WHERE p.last_seq<? AND julianday(s.expires_at)>julianday('now') ORDER BY p.updated_at LIMIT 50").bind(latest).all()).results;let sent=0;
+ for(const subscription of subscribers){
+  // Atomic per-device lease prevents overlapping cron invocations from sending together.
+  // A crash after remote acceptance and before checkpoint can still cause a retry.
+  const key='push-delivery:'+subscription.id,now=Math.floor(Date.now()/1000);
+  const claim=await db.prepare('INSERT INTO catalog_rate(key,hits,expires_at) VALUES(?,1,?) ON CONFLICT(key) DO UPDATE SET expires_at=excluded.expires_at WHERE catalog_rate.expires_at<=? RETURNING key').bind(key,now+60,now).first();
+  if(!claim)continue;
+  try{
+   const current=await db.prepare("SELECT p.id FROM salonati_push_subscriptions p JOIN catalog_customer_accounts a ON a.id=p.customer_id JOIN catalog_customer_sessions s ON s.token_hash=p.token_hash AND s.customer_id=p.customer_id WHERE p.id=? AND p.token_hash=? AND p.last_seq<? AND julianday(s.expires_at)>julianday('now')").bind(subscription.id,subscription.token_hash,latest).first();
+   if(!current)continue;
+   const response=await fetch(subscription.endpoint,{method:'POST',redirect:'error',headers:{Authorization:await vapidAuthorization(subscription.endpoint,env),TTL:'3600',Urgency:'low','Content-Length':'0'},signal:AbortSignal.timeout(10000)});
+   if(response.ok){await db.prepare('UPDATE salonati_push_subscriptions SET last_seq=? WHERE id=? AND token_hash=?').bind(latest,subscription.id,subscription.token_hash).run();sent++;}
+   else if([404,410].includes(response.status))await db.prepare('DELETE FROM salonati_push_subscriptions WHERE id=? AND token_hash=?').bind(subscription.id,subscription.token_hash).run();
+  }catch{console.warn('push_delivery_retry');}
+  finally{await db.prepare('DELETE FROM catalog_rate WHERE key=?').bind(key).run();}
+ }
+
  return {sent};
 }
 export default {fetch(){return new Response('Not found',{status:404});},async scheduled(controller,env){const result=await deliverOffers(env);console.log(JSON.stringify({event:'offers_push',sent:result.sent}));}};

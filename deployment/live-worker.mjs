@@ -271,7 +271,14 @@ export default {
         if(session.status!==200){if(mediaPath)headers.delete('cookie');else return Response.json({error:'app_session_required'},{status:session.status});}
       }else if(publicPath||mediaPath)headers.delete('cookie');
       try {
-        const result=await env.SALONATI_API.fetch(new Request(request,{headers}));
+        let upstream=new Request(request,{headers});
+        // Delete a pending submission through the backend's authenticated review transition.
+        // Keep published versions and order history intact.
+        if(role==='admin'&&request.method==='POST'&&/^\/api\/catalog\/(reviews|product-reviews|ad-reviews)\/[a-f0-9-]{36}$/.test(url.pathname)){
+          const payload=await cosmeticsInput(upstream.clone());
+          if(payload.action==='delete')upstream=new Request(upstream,{headers,body:JSON.stringify({...payload,action:'reject',reason:'تم حذف الطلب من قائمة الموافقات بواسطة الإدارة.'})});
+        }
+        const result=await env.SALONATI_API.fetch(upstream);
         if(result.ok&&request.method==='GET'&&['/api/link/public','/api/catalog/public'].includes(url.pathname)&&env.IDENTITY_DB){
           const data=JSON.parse(new TextDecoder().decode(await cosmeticsBody(result,4194304)));
           const samples=new Set((await env.IDENTITY_DB.prepare('SELECT owner_id FROM catalog_sample_owners').all()).results.map(r=>r.owner_id));

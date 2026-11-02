@@ -280,6 +280,13 @@ export default {
           if(payload.action==='delete')upstream=new Request(upstream,{headers,body:JSON.stringify({...payload,action:'reject',reason:'تم حذف الطلب من قائمة الموافقات بواسطة الإدارة.'})});
         }
         const result=await env.SALONATI_API.fetch(upstream);
+        if(role==='customer'&&url.pathname==='/salonati-link.js'&&result.ok){
+          // Keep canonical IDs when the live catalogue replaces the initial UI data.
+          // Booking closures are keyed by owner/service UUID, never the numeric UI ID.
+          const source=(await result.text()).replaceAll('catalogId:s.id','catalogId:s.id,ownerId:s.id').replaceAll('const item={id:v.uiId,name:v.name','const item={id:v.uiId,serverId:v.id,ownerId:s.id,category:v.category,name:v.name');
+          const responseHeaders=new Headers(result.headers);for(const key of ['content-length','etag','content-encoding'])responseHeaders.delete(key);responseHeaders.set('Cache-Control','no-store');
+          return new Response(source,{status:result.status,headers:responseHeaders});
+        }
         if(result.ok&&request.method==='GET'&&['/api/link/public','/api/catalog/public'].includes(url.pathname)&&env.IDENTITY_DB){
           const data=JSON.parse(new TextDecoder().decode(await cosmeticsBody(result,4194304)));
           const samples=new Set((await env.IDENTITY_DB.prepare('SELECT owner_id FROM catalog_sample_owners').all()).results.map(r=>r.owner_id));

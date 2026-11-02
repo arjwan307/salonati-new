@@ -854,9 +854,9 @@ function isBookingDateClosed(date){
 }
 function unavailableDialog(message){
  let dialog=document.getElementById('salonatiUnavailableDialog');if(dialog)dialog.remove();
- dialog=document.createElement('dialog');dialog.id='salonatiUnavailableDialog';dialog.style.cssText='width:min(92vw,420px);border:2px solid var(--pink);border-radius:20px;padding:24px;background:var(--card);color:var(--text);text-align:center;direction:rtl';
- const title=document.createElement('h3');title.textContent='الموعد غير متاح';
- const p=document.createElement('p');p.textContent=message;p.style.margin='15px 0';
+ dialog=document.createElement('dialog');dialog.id='salonatiUnavailableDialog';dialog.style.cssText='width:min(88vw,340px);border:1px solid #dec9ec;border-radius:24px;padding:26px 22px;background:linear-gradient(145deg,#fff,#f7effc);color:#49265e;text-align:center;direction:rtl;box-shadow:0 18px 60px #35174533';
+ const title=document.createElement('h3');title.textContent='الوقت غير متاح';title.style.cssText='font-size:19px;margin:0 0 12px;color:#663482';
+ const p=document.createElement('p');p.textContent=message;p.style.cssText='margin:12px 0 22px;font-size:15px;line-height:1.9';
  const btn=document.createElement('button');btn.className='primary';btn.textContent='اختيار موعد آخر';btn.style.width='100%';btn.onclick=()=>dialog.close();
  dialog.append(title,p,btn);document.body.append(dialog);dialog.addEventListener('close',()=>dialog.remove(),{once:true});dialog.showModal();
 }

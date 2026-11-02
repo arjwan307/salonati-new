@@ -186,6 +186,29 @@ export default {
       await env.IDENTITY_DB.prepare("INSERT INTO salonati_support_contacts(id,phone,whatsapp,email,updated_at) VALUES(1,?,?,?,CURRENT_TIMESTAMP) ON CONFLICT(id) DO UPDATE SET phone=excluded.phone,whatsapp=excluded.whatsapp,email=excluded.email,updated_at=CURRENT_TIMESTAMP").bind(phone,whatsapp,email).run();
       return Response.json({ok:true,phone,whatsapp,email},{headers:{'Cache-Control':'no-store'}});
     }
+
+    if(url.pathname==='/api/catalog/admin/salon-manage'&&request.method==='POST'){
+      if(role!=='admin'||!env.IDENTITY_DB)return Response.json({error:'forbidden'},{status:403});
+      if(request.headers.get('origin')!==url.origin)return Response.json({error:'invalid_origin'},{status:403});
+      const session=await catalogAppSession(request,env);
+      if(session.status!==200)return Response.json({error:'admin_session_required'},{status:session.status});
+      const d=await request.json().catch(()=>null);
+      if(!d||!['edit','archive'].includes(d.action)||typeof d.ownerId!=='string'||d.ownerId.length>80)return Response.json({error:'invalid_input'},{status:400});
+      const db=env.IDENTITY_DB;
+      const row=await db.prepare('SELECT owner_id,status,revision FROM catalog_registrations WHERE owner_id=?').bind(d.ownerId).first();
+      if(!row||row.status==='rejected'&&d.action==='archive')return Response.json({error:'not_found'},{status:404});
+      if(d.action==='archive'){
+        await db.prepare("UPDATE catalog_registrations SET status='rejected',reason='أرشفته الإدارة',revision=revision+1,reviewed_at=CURRENT_TIMESTAMP,reviewer=? WHERE owner_id=?").bind(session.accountId,d.ownerId).run();
+        return Response.json({ok:true,archived:true});
+      }
+      const keys=['salonName','area','contactName','phone','address'];
+      if(keys.some(k=>typeof d[k]!=='string'||!d[k].trim()||d[k].trim().length>150))return Response.json({error:'invalid_fields'},{status:400});
+      await db.batch([
+        db.prepare('UPDATE catalog_accounts SET salon_name=?,area=? WHERE id=?').bind(d.salonName.trim(),d.area.trim(),d.ownerId),
+        db.prepare('UPDATE catalog_registrations SET contact_name=?,phone=?,address=?,revision=revision+1 WHERE owner_id=?').bind(d.contactName.trim(),d.phone.trim(),d.address.trim(),d.ownerId)
+      ]);
+      return Response.json({ok:true});
+    }
     // Owner-managed booking closures, isolated by salon and service.
     if(url.pathname==='/api/booking/blocks' && ['GET','PUT'].includes(request.method)){
       if(!env.IDENTITY_DB)return Response.json({error:'database_unavailable'},{status:503});

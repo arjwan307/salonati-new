@@ -276,6 +276,9 @@ export default {
           const data=JSON.parse(new TextDecoder().decode(await cosmeticsBody(result,4194304)));
           const samples=new Set((await env.IDENTITY_DB.prepare('SELECT owner_id FROM catalog_sample_owners').all()).results.map(r=>r.owner_id));
           for(const [key,value] of Object.entries(data))if(Array.isArray(value))data[key]=value.filter(item=>!samples.has(item?.ownerId||item?.owner_id||item?.salonId||item?.id));
+          const blocked=new Set((await env.IDENTITY_DB.prepare("SELECT owner_id FROM salonati_admin_account_controls WHERE app='salon' AND status!='active'").all()).results.map(r=>r.owner_id));
+          for(const [key,value] of Object.entries(data))if(Array.isArray(value))data[key]=value.filter(item=>!blocked.has(item?.ownerId||item?.owner_id||item?.salonId||item?.id));
+
           const responseHeaders=new Headers(result.headers);for(const name of ['content-length','etag'])responseHeaders.delete(name);responseHeaders.set('Cache-Control','no-store');
           return Response.json(data,{status:result.status,headers:responseHeaders});
         }

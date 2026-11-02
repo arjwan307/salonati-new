@@ -36,17 +36,17 @@ async function registerPhone(request, env, url) {
     ? db.prepare('INSERT INTO catalog_customer_accounts(id,username,name,phone,salt,digest,created_at) VALUES(?,?,?,?,?,?,?)').bind(id,'phone-'+id,name,phone,salt,digest,new Date().toISOString())
     : db.prepare("INSERT INTO catalog_accounts(id,email,role,salt,digest,salon_name,area,latitude,longitude) VALUES(?,?,'owner',?,?,?,?,?,?)").bind(id,role+'-'+id+'@phone.salonati.invalid',salt,digest,name,account.area,account.latitude,account.longitude);
   const session=customer
-    ? db.prepare("INSERT INTO catalog_customer_sessions(token_hash,customer_id,expires_at) VALUES(?,?,datetime('now','+30 days'))").bind(tokenHash,id)
+    ? db.prepare("INSERT INTO catalog_customer_sessions(token_hash,customer_id,expires_at) VALUES(?,?,datetime('now','+365 days'))").bind(tokenHash,id)
     : db.prepare("INSERT INTO catalog_sessions(token_hash,account_id,expires_at) VALUES(?,?,datetime('now','+7 days'))").bind(tokenHash,id);
   try{await db.batch([create,db.prepare('INSERT INTO salonati_phone_identities(app,phone,account_id) VALUES(?,?,?)').bind(role,phone,id),session]);}
   catch(e){if(/unique|constraint/i.test(String(e.message)))return Response.json({error:'phone_already_registered'},{status:409});return Response.json({error:'registration_unavailable'},{status:503});}
-  return Response.json({account},{status:201,headers:{'Cache-Control':'no-store','Set-Cookie':(customer?'__Host-salonati-customer':'__Host-catalog')+'='+token+'; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age='+7200}});
+  return Response.json({account},{status:201,headers:{'Cache-Control':'no-store','Set-Cookie':(customer?'__Host-salonati-customer':'__Host-catalog')+'='+token+'; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age='+(customer?31536000:7200)}});
 }
 function twoHourLoginCookie(response) {
   if (!response.ok) return response;
   const original=response.headers.get('set-cookie');
   if (!original || !/^__Host-(?:catalog|salonati-customer)=/.test(original)) return response;
-  const cookie=original.replace(/;\s*Max-Age=\d+/i,'').replace(/;\s*Expires=[^;]*/i,'')+'; Max-Age=7200';
+  const cookie=original.replace(/;\s*Max-Age=\d+/i,'').replace(/;\s*Expires=[^;]*/i,'')+'; Max-Age='+(role==='customer'?31536000:7200);
   const headers=new Headers(response.headers);
   headers.set('Set-Cookie',cookie);
   headers.set('Cache-Control','no-store');
@@ -69,7 +69,9 @@ async function phoneLogin(request, env, url) {
   const body = customer ? {name:row?.identity || 'unavailable-phone-account',password:d.password} : {email:row?.identity || 'unavailable-phone@salonati.invalid',password:d.password};
   const headers = new Headers(request.headers);headers.delete('x-salonati-app');headers.delete('content-length');headers.set('content-type','application/json');
   const target=role==='cosmetics'?new URL('/api/catalog/login',request.url):request.url;
-  return twoHourLoginCookie(await env.SALONATI_API.fetch(new Request(target,{method:'POST',headers,body:JSON.stringify(body)})));
+  const response=await env.SALONATI_API.fetch(new Request(target,{method:'POST',headers,body:JSON.stringify(body)}));
+  if(customer&&response.ok){const token=/__Host-salonati-customer=([a-f0-9]{64})/.exec(response.headers.get('set-cookie')||'')?.[1];if(token){const hash=asHex(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(token)));await env.IDENTITY_DB.prepare("UPDATE catalog_customer_sessions SET expires_at=datetime('now','+365 days') WHERE token_hash=?").bind(hash).run();}}
+  return twoHourLoginCookie(response);
 }
 function allowed(path) {
   if (backendAssets.has(path)) return true;
@@ -88,11 +90,17 @@ async function catalogAppSession(request,env){
   const row=await env.IDENTITY_DB.prepare("SELECT p.account_id FROM catalog_sessions s JOIN salonati_phone_identities p ON p.account_id=s.account_id WHERE s.token_hash=? AND p.app=? AND julianday(s.expires_at)>julianday('now')").bind(hash,role).first();
   return row?{status:200,accountId:row.account_id}:{status:401};
 }
+async function persistentCustomerSession(request,env){
+ if(!env.IDENTITY_DB)return null;const token=/(?:^|;\s*)__Host-salonati-customer=([a-f0-9]{64})(?:;|$)/.exec(request.headers.get('cookie')||'')?.[1];if(!token)return null;
+ const hash=asHex(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(token))),row=await env.IDENTITY_DB.prepare("SELECT customer_id FROM catalog_customer_sessions WHERE token_hash=? AND julianday(expires_at)>julianday('now')").bind(hash).first();if(!row)return null;
+ await env.IDENTITY_DB.prepare("UPDATE catalog_customer_sessions SET expires_at=datetime('now','+365 days') WHERE token_hash=? AND julianday(expires_at)<julianday('now','+360 days')").bind(hash).run();return {id:row.customer_id,hash,cookie:'__Host-salonati-customer='+token+'; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=31536000'};
+}
 export default {
   async fetch(request, env) {
     try {
     const url = new URL(request.url);
     let accountId = 'guest';
+    const remembered=role==='customer'?await persistentCustomerSession(request,env):null;
     // Support legacy entrypoint links without changing login or API boundaries.
     if (request.method === 'GET' && (url.pathname === '/تطبيق' || url.pathname === '/%D8%AA%D8%B7%D8%A8%D9%8A%D9%82' || url.pathname === '/تطبيق/')) return Response.redirect(url.origin + '/', 302);
     if (url.hostname !== `salonati-${role}-clean.pages.dev`) return Response.json({error:'live_host_required'}, {status:403});
@@ -120,6 +128,25 @@ export default {
       if (!owner) return new Response(request.method==='HEAD'?null:customerEntry.replaceAll('/api/link/customer/','/api/cosmetics/').replace('>الاسم<','>اسم الكوزمتك<'),{headers:{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store'}});
       accountId=owner.id;
       if(!/^[a-zA-Z0-9-]{16,80}$/.test(accountId))return Response.json({error:'invalid_session'},{status:401});
+    }
+    if(role==='customer'&&['/api/customer/push','/api/customer/notifications'].includes(url.pathname)){
+      if(!remembered)return Response.json({error:'login_required'},{status:401});
+      const db=env.IDENTITY_DB,headers={'Cache-Control':'no-store','Set-Cookie':remembered.cookie};
+      if(url.pathname==='/api/customer/notifications'&&request.method==='GET'){const rows=(await db.prepare('SELECT id,title,body,created_at FROM salonati_offer_notifications ORDER BY created_at DESC LIMIT 50').all()).results;return Response.json({notifications:rows},{headers});}
+      if(url.pathname==='/api/customer/push'&&request.method==='GET'){const key=await db.prepare("SELECT value FROM salonati_notification_settings WHERE key='public_key'").first();return Response.json({publicKey:key?.value||''},{headers});}
+      if(url.pathname==='/api/customer/push'&&request.method==='POST'){
+        if(request.headers.get('origin')!==url.origin)return Response.json({error:'invalid_origin'},{status:403});const d=await readLoginBody(request);let endpoint;try{endpoint=new URL(d?.endpoint);}catch{return Response.json({error:'invalid_subscription'},{status:400});}
+        if(endpoint.protocol!=='https:'||endpoint.username||endpoint.password||endpoint.port||endpoint.href.length>2048||!['fcm.googleapis.com','updates.push.services.mozilla.com','web.push.apple.com','wns2-par02p.notify.windows.com'].some(h=>endpoint.hostname===h||h==='web.push.apple.com'&&endpoint.hostname.endsWith('.push.apple.com')))return Response.json({error:'invalid_subscription'},{status:400});
+        const id=asHex(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(endpoint.href)));
+        if(d.remove)await db.prepare('DELETE FROM salonati_push_subscriptions WHERE id=? AND customer_id=?').bind(id,remembered.id).run();
+        else await db.prepare("INSERT INTO salonati_push_subscriptions(id,customer_id,token_hash,endpoint,last_seq) VALUES(?,?,?,?,(SELECT COALESCE(MAX(seq),0) FROM salonati_offer_notifications)) ON CONFLICT(id) DO UPDATE SET customer_id=excluded.customer_id,token_hash=excluded.token_hash,endpoint=excluded.endpoint,last_seq=(SELECT COALESCE(MAX(seq),0) FROM salonati_offer_notifications),updated_at=CURRENT_TIMESTAMP").bind(id,remembered.id,remembered.hash,endpoint.href).run();
+        return Response.json({ok:true},{headers});
+      }
+      return Response.json({error:'method_not_allowed'},{status:405});
+    }
+    if(role==='customer'&&url.pathname==='/api/link/customer/logout'&&request.method==='POST'&&remembered){
+      if(request.headers.get('origin')!==url.origin)return Response.json({error:'invalid_origin'},{status:403});
+      await env.IDENTITY_DB.prepare('DELETE FROM salonati_push_subscriptions WHERE token_hash=?').bind(remembered.hash).run();
     }
     // Public, read-only approved catalog for the customer app. Published services only.
     if (role === 'customer' && url.pathname === '/api/customer/approved-catalog' && request.method === 'GET') {
@@ -304,6 +331,7 @@ export default {
           const headers=new Headers(result.headers);for(const key of ['content-length','etag'])headers.delete(key);headers.set('Cache-Control','no-store');
           return Response.json(data,{status:result.status,headers});
         }
+        if(remembered&&url.pathname!=='/api/link/customer/logout'){const renewed=new Headers(result.headers);renewed.set('Set-Cookie',remembered.cookie);return new Response(result.body,{status:result.status,headers:renewed});}
         return await protectOwnerBookingContacts(request,url,result);
       }
       catch { return Response.json({error:'service_unavailable'}, {status:503,headers:{'Cache-Control':'no-store'}}); }
@@ -313,6 +341,7 @@ export default {
       const headers=new Headers(response.headers);
       for(const name of ['content-length','etag','content-md5','digest','content-digest','repr-digest'])headers.delete(name);
       headers.set('Cache-Control','private, no-store');
+      if(remembered)headers.set('Set-Cookie',remembered.cookie);
       return new HTMLRewriter().on('head',{element(el){el.prepend('<script>window.SALONATI_ACCOUNT_ID='+JSON.stringify(accountId)+'</script>',{html:true});}}).transform(new Response(response.body,{status:response.status,headers}));
     }
     return response;

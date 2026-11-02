@@ -99,6 +99,8 @@ if (process.argv.includes('--live') || process.argv.includes('--review')) {
     if(!html.includes('تم إرسال طلب مشتريات الكوزمتك بنجاح'))throw new Error('Cosmetics checkout hook changed');
     html=html.replace(/onclick="notify\('✓ تم إرسال طلب مشتريات الكوزمتك[^\"]*"/,'onclick="salonatiCosmeticsCheckout()"');
     await cp(resolve(root,'deployment/cosmetics-customer-live.js'),resolve(output,'cosmetics-customer-live.js'));
+    await cp(resolve(root,'deployment/customer-experience.js'),resolve(output,'customer-experience.js'));
+    html=html.replace('</body>','<script src="/customer-experience.js" defer></script></body>');
     html = html.replace('</body>', '<script src="/loyalty-ui.js"></script><script src="/salonati-link.js"></script><script src="/cosmetics-customer-live.js"></script><script>window.salonatiCustomerLogout=async()=>{try{const r=await fetch("/api/link/customer/logout",{method:"POST",credentials:"same-origin",headers:{"Content-Type":"application/json"},body:"{}"});if(!r.ok)throw Error("تعذر تسجيل الخروج");location.reload()}catch(e){notify(e.message)}};</script></body>');
     if(review)html=html.replace('fetch("/api/link/customer/logout",','fetch("/review-logout",');
   }
@@ -185,3 +187,4 @@ if (process.argv.includes('--live') || process.argv.includes('--review')) {
   const cosmeticsApi = await readFile(resolve(root, 'deployment/cosmetics-api.mjs'), 'utf8');
   await writeFile(resolve(output, '_worker.js'), worker.replaceAll('__APP_ROLE__', role)+'\n'+cosmeticsApi);
 }
+

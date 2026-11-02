@@ -45,7 +45,7 @@ async function cosmeticsRoutes(request,env,url){
  const db=env.IDENTITY_DB;
  try{
   if(path==='/api/cosmetics/public'&&request.method==='GET'){
-   const rows=(await db.prepare('SELECT owner_id,state_json,published_json FROM cosmetics_owner_state WHERE published_json IS NOT NULL').all()).results;
+   const rows=(await db.prepare('SELECT o.owner_id,o.state_json,o.published_json FROM cosmetics_owner_state o LEFT JOIN salonati_admin_account_controls c ON c.app='cosmetics' AND c.owner_id=o.owner_id WHERE o.published_json IS NOT NULL AND COALESCE(c.status,'active')='active'').all()).results;
    const stores=rows.flatMap(r=>{const p=JSON.parse(r.published_json),current=JSON.parse(r.state_json);if(!p.store.active)return [];return [{id:r.owner_id,store:p.store,products:p.products.flatMap(item=>{const live=current.products.find(x=>x.id===item.id);return live&&live.stock>0?[{...item,stock:live.stock}]:[]}),offers:p.offers}];});return cosmeticsJson({stores});
   }
   const mediaMatch=/^\/api\/cosmetics\/media\/([a-f0-9-]{36})$/.exec(path);
@@ -56,12 +56,34 @@ async function cosmeticsRoutes(request,env,url){
    if(!published){const actor=await cosmeticsSession(request,env,'owner'),admin=actor?null:await cosmeticsSession(request,env,'admin');if(actor?.id!==row.owner_id&&!cosmeticsPermit(admin,'reviews'))return cosmeticsJson({error:'not_found'},404);}
    const object=await env.MEDIA.get(row.object_key);if(!object)return cosmeticsJson({error:'not_found'},404);return new Response(request.method==='HEAD'?null:object.body,{headers:{'Content-Type':row.mime,'Content-Length':String(row.size),'X-Content-Type-Options':'nosniff','Cache-Control':'private, no-store'}});
   }
+  if(role==='cosmetics'&&path.startsWith('/api/cosmetics/')&&!['/api/cosmetics/login','/api/cosmetics/register','/api/cosmetics/logout','/api/cosmetics/public'].includes(path)){
+    const actor=await cosmeticsSession(request,env,'owner');
+    if(actor){const control=await db.prepare("SELECT status FROM salonati_admin_account_controls WHERE app='cosmetics' AND owner_id=?").bind(actor.id).first();if(control&&control.status!=='active')return cosmeticsJson({error:'account_'+control.status},403);}
+  }
   if(path.startsWith('/api/catalog/admin/cosmetics-')){
    const actor=await cosmeticsSession(request,env,'admin');if(!actor)return cosmeticsJson({error:'admin_required'},403);
    if(path==='/api/catalog/admin/cosmetics-stores'&&request.method==='GET'){
     if(!cosmeticsPermit(actor,'reviews'))return cosmeticsJson({error:'permission_denied'},403);
-    const rows=(await db.prepare("SELECT owner_id,state_json,published_json,review_status,review_reason,updated_at FROM cosmetics_owner_state ORDER BY updated_at DESC LIMIT 250").all()).results;
-    return cosmeticsJson({stores:rows.map(r=>{const state=JSON.parse(r.state_json);const published=r.published_json?JSON.parse(r.published_json):null;return {ownerId:r.owner_id,store:state.store,publishedStore:published?.store||null,status:r.review_status,reason:r.review_reason,updatedAt:r.updated_at};})});
+    const rows=(await db.prepare("SELECT o.owner_id,o.state_json,o.published_json,o.review_status,o.review_reason,o.updated_at,COALESCE(c.status,'active') AS management_status FROM cosmetics_owner_state o LEFT JOIN salonati_admin_account_controls c ON c.app='cosmetics' AND c.owner_id=o.owner_id ORDER BY o.updated_at DESC LIMIT 250").all()).results;
+    return cosmeticsJson({stores:rows.map(r=>{const state=JSON.parse(r.state_json);const published=r.published_json?JSON.parse(r.published_json):null;return {ownerId:r.owner_id,store:state.store,publishedStore:published?.store||null,status:r.review_status,managementStatus:r.management_status,reason:r.review_reason,updatedAt:r.updated_at};})});
+   }
+   if(path==='/api/catalog/admin/cosmetics-manage'&&request.method==='POST'){
+    if(!cosmeticsPermit(actor,'reviews'))return cosmeticsJson({error:'permission_denied'},403);
+    const d=await cosmeticsInput(request);
+    if(!d||!['edit','suspend','activate','delete'].includes(d.action)||typeof d.ownerId!=='string'||d.ownerId.length>80)return cosmeticsJson({error:'invalid_input'},400);
+    const row=await db.prepare('SELECT state_json,published_json FROM cosmetics_owner_state WHERE owner_id=?').bind(d.ownerId).first();
+    if(!row)return cosmeticsJson({error:'not_found'},404);
+    if(d.action!=='edit'){
+      const status={suspend:'suspended',activate:'active',delete:'deleted'}[d.action];
+      await db.prepare("INSERT INTO salonati_admin_account_controls(app,owner_id,status) VALUES('cosmetics',?,?) ON CONFLICT(app,owner_id) DO UPDATE SET status=excluded.status,updated_at=CURRENT_TIMESTAMP").bind(d.ownerId,status).run();
+      return cosmeticsJson({ok:true,status});
+    }
+    const keys=['name','phone','area','address'];
+    if(keys.some(k=>typeof d[k]!=='string'||!d[k].trim()||d[k].length>500))return cosmeticsJson({error:'invalid_fields'},400);
+    const state=JSON.parse(row.state_json),published=row.published_json?JSON.parse(row.published_json):null;
+    for(const k of keys){state.store[k]=d[k].trim();if(published)published.store[k]=d[k].trim();}
+    await db.prepare('UPDATE cosmetics_owner_state SET state_json=?,published_json=?,version=version+1,updated_at=CURRENT_TIMESTAMP WHERE owner_id=?').bind(JSON.stringify(state),published?JSON.stringify(published):null,d.ownerId).run();
+    return cosmeticsJson({ok:true});
    }
    if(path==='/api/catalog/admin/cosmetics-counts'&&request.method==='GET'){
     const counts=await Promise.all([cosmeticsPermit(actor,'reviews')?db.prepare("SELECT COUNT(*) AS n FROM cosmetics_owner_state WHERE review_status='pending'").first():Promise.resolve({n:0}),cosmeticsPermit(actor,'bookings')?db.prepare("SELECT COUNT(*) AS n FROM cosmetics_orders WHERE status='pending'").first():Promise.resolve({n:0})]);return cosmeticsJson({reviews:counts[0].n,orders:counts[1].n});

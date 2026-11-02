@@ -63,7 +63,7 @@ async function cosmeticsRoutes(request,env,url){
   if(path.startsWith('/api/catalog/admin/cosmetics-')){
    const actor=await cosmeticsSession(request,env,'admin');if(!actor)return cosmeticsJson({error:'admin_required'},403);
    if(path==='/api/catalog/admin/cosmetics-stores'&&request.method==='GET'){
-    if(!cosmeticsPermit(actor,'reviews'))return cosmeticsJson({error:'permission_denied'},403);
+    if(!cosmeticsPermit(actor,'reviews')&&!cosmeticsPermit(actor,'finance_view'))return cosmeticsJson({error:'permission_denied'},403);
     const rows=(await db.prepare("SELECT o.owner_id,o.state_json,o.published_json,o.review_status,o.review_reason,o.updated_at,COALESCE(c.status,'active') AS management_status FROM cosmetics_owner_state o LEFT JOIN salonati_admin_account_controls c ON c.app='cosmetics' AND c.owner_id=o.owner_id WHERE COALESCE(c.status,'active')!='deleted' ORDER BY o.updated_at DESC LIMIT 250").all()).results;
     return cosmeticsJson({stores:rows.map(r=>{const state=JSON.parse(r.state_json);const published=r.published_json?JSON.parse(r.published_json):null;return {ownerId:r.owner_id,store:state.store,publishedStore:published?.store||null,status:r.review_status,managementStatus:r.management_status,reason:r.review_reason,updatedAt:r.updated_at};})});
    }
@@ -119,6 +119,14 @@ async function cosmeticsRoutes(request,env,url){
    return cosmeticsJson({error:'method_not_allowed'},405);
   }
   const owner=await cosmeticsSession(request,env,'owner');if(!owner)return cosmeticsJson({error:'owner_required'},403);
+  if(path==='/api/cosmetics/agreement'){
+   const headers=new Headers(request.headers);headers.delete('x-salonati-app');headers.delete('content-length');
+   if(request.method==='GET')return env.SALONATI_API.fetch(new Request(new URL('/api/catalog/finance/statement',request.url),{headers}));
+   if(request.method!=='POST')return cosmeticsJson({error:'method_not_allowed'},405);
+   const d=await cosmeticsInput(request);
+   if(!/^[a-f0-9-]{36}$/.test(d.id||'')||!['accept','reject'].includes(d.action))return cosmeticsJson({error:'invalid_input'},400);
+   return env.SALONATI_API.fetch(new Request(new URL('/api/catalog/finance/agreements/'+d.id,request.url),{method:'POST',headers,body:JSON.stringify({action:d.action})}));
+  }
   if(path==='/api/cosmetics/me'&&request.method==='GET')return cosmeticsJson({account:{id:owner.id,phone:owner.phone,name:owner.salonName,role:'cosmetics'}});
   if(path==='/api/cosmetics/logout'&&request.method==='POST')return env.SALONATI_API.fetch(new Request(new URL('/api/catalog/logout',request.url),request));
   if(path==='/api/cosmetics/state'){

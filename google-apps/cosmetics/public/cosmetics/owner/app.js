@@ -368,7 +368,7 @@ function cancelEdit() {
   render();
 }
 
-function saveProductData() {
+async function saveProductData() {
   let name = val('pname'),
     price = Number(val('pprice')),
     oldPrice = Number(val('poldprice')) || 0,
@@ -403,7 +403,8 @@ function saveProductData() {
     toast('✓ تمت إضافة المنتج ونشره في المتجر بنجاح 💄');
   }
   uploadedImageTemp = '';
-  save();
+  if(typeof persistCosmetics==='function') {if(await persistCosmetics()) toast('أُرسل المنتج للإدارة للموافقة');}
+  else save();
 }
 
 function deleteProduct(id) {

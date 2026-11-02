@@ -136,6 +136,8 @@ if (process.argv.includes('--live') || process.argv.includes('--review')) {
   }
   if (role === 'salon') {
     await cp(resolve(root, 'deployment/salon-hours-ui.js'), resolve(output, 'salon-hours-ui.js'));
+    await cp(resolve(root,'deployment/salon-home-ui.js'),resolve(output,'salon-home-ui.js'));
+    html=html.replace('</body>','<script src="/salon-home-ui.js" defer></script></body>');
     html = html.replace('</body>', '<script src="/salon-hours-ui.js"></script></body>');
     html = html.replace("const KEY='salonati-owner-production-v1';", "const KEY='salonati-owner-production-v1:'+window.SALONATI_ACCOUNT_ID;");
     html = html.replace('<title>Remix صالوناتي - تجربة الزبونة</title>', '<title>صالوناتي | تطبيق الصالون</title>');

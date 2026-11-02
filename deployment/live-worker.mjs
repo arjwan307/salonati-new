@@ -148,6 +148,12 @@ export default {
       if(request.headers.get('origin')!==url.origin)return Response.json({error:'invalid_origin'},{status:403});
       await env.IDENTITY_DB.prepare('DELETE FROM salonati_push_subscriptions WHERE token_hash=?').bind(remembered.hash).run();
     }
+    if(role==='salon'&&url.pathname==='/api/salon/home-profile'&&request.method==='GET'){
+      const session=await catalogAppSession(request,env);if(session.status!==200)return Response.json({error:'app_session_required'},{status:session.status});
+      const row=await env.IDENTITY_DB.prepare('SELECT a.salon_name,a.area,r.contact_name,r.address,r.status,r.facade_media_id FROM catalog_accounts a LEFT JOIN catalog_registrations r ON r.owner_id=a.id WHERE a.id=?').bind(session.accountId).first();
+      const campaigns=(await env.IDENTITY_DB.prepare("SELECT c.id,c.title,c.copy,c.media_id,m.mime FROM catalog_campaigns c JOIN catalog_media m ON m.id=c.media_id WHERE c.active=1 ORDER BY c.created_at DESC,c.id").all()).results;
+      return Response.json({profile:row?{salonName:row.salon_name,area:row.area,contactName:row.contact_name||'',address:row.address||'',status:row.status||'unsubmitted',facadeUrl:row.status==='approved'&&row.facade_media_id?'/api/catalog/media/'+row.facade_media_id:''}:null,campaigns:campaigns.map(c=>({id:c.id,title:c.title,copy:c.copy,mediaType:c.mime,mediaUrl:'/api/catalog/media/'+c.media_id}))},{headers:{'Cache-Control':'no-store'}});
+    }
     // Public, read-only approved catalog for the customer app. Published services only.
     if (role === 'customer' && url.pathname === '/api/customer/approved-catalog' && request.method === 'GET') {
       if (!env.IDENTITY_DB) return Response.json({error:'catalog_unavailable'},{status:503});

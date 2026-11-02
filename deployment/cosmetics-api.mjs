@@ -45,7 +45,7 @@ async function cosmeticsRoutes(request,env,url){
  const db=env.IDENTITY_DB;
  try{
   if(path==='/api/cosmetics/public'&&request.method==='GET'){
-   const rows=(await db.prepare('SELECT o.owner_id,o.state_json,o.published_json FROM cosmetics_owner_state o LEFT JOIN salonati_admin_account_controls c ON c.app='cosmetics' AND c.owner_id=o.owner_id WHERE o.published_json IS NOT NULL AND COALESCE(c.status,'active')='active'').all()).results;
+   const rows=(await db.prepare("SELECT o.owner_id,o.state_json,o.published_json FROM cosmetics_owner_state o LEFT JOIN salonati_admin_account_controls c ON c.app='cosmetics' AND c.owner_id=o.owner_id WHERE o.published_json IS NOT NULL AND COALESCE(c.status,'active')='active'").all()).results;
    const stores=rows.flatMap(r=>{const p=JSON.parse(r.published_json),current=JSON.parse(r.state_json);if(!p.store.active)return [];return [{id:r.owner_id,store:p.store,products:p.products.flatMap(item=>{const live=current.products.find(x=>x.id===item.id);return live&&live.stock>0?[{...item,stock:live.stock}]:[]}),offers:p.offers}];});return cosmeticsJson({stores});
   }
   const mediaMatch=/^\/api\/cosmetics\/media\/([a-f0-9-]{36})$/.exec(path);

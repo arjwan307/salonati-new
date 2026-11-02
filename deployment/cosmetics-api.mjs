@@ -52,7 +52,7 @@ async function cosmeticsRoutes(request,env,url){
   if(mediaMatch&&['GET','HEAD'].includes(request.method)){
    if(!env.MEDIA)return cosmeticsJson({error:'media_unavailable'},503);
    const row=await db.prepare('SELECT * FROM cosmetics_media WHERE id=?').bind(mediaMatch[1]).first();if(!row)return cosmeticsJson({error:'not_found'},404);
-   const published=await db.prepare("SELECT owner_id FROM cosmetics_owner_state WHERE owner_id=? AND published_json IS NOT NULL AND json_extract(published_json,'$.store.active')=1 AND EXISTS(SELECT 1 FROM json_each(published_json,'$.products') p WHERE json_extract(p.value,'$.image')=?)").bind(row.owner_id,path).first();
+   const published=await db.prepare("SELECT owner_id FROM cosmetics_owner_state WHERE owner_id=? AND published_json IS NOT NULL AND json_extract(published_json,'$.store.active')=1 AND (EXISTS(SELECT 1 FROM json_each(published_json,'$.products') p WHERE json_extract(p.value,'$.image')=?) OR EXISTS(SELECT 1 FROM json_each(published_json,'$.offers') o WHERE json_extract(o.value,'$.mediaUrl')=?))").bind(row.owner_id,path,path).first();
    if(!published){const actor=await cosmeticsSession(request,env,'owner'),admin=actor?null:await cosmeticsSession(request,env,'admin');if(actor?.id!==row.owner_id&&!cosmeticsPermit(admin,'reviews'))return cosmeticsJson({error:'not_found'},404);}
    const object=await env.MEDIA.get(row.object_key);if(!object)return cosmeticsJson({error:'not_found'},404);return new Response(request.method==='HEAD'?null:object.body,{headers:{'Content-Type':row.mime,'Content-Length':String(row.size),'X-Content-Type-Options':'nosniff','Cache-Control':'private, no-store'}});
   }

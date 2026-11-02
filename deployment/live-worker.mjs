@@ -166,6 +166,26 @@ export default {
       ]);}catch{return Response.json({error:'product_delete_blocked'},{status:409})}
       return Response.json({ok:true},{headers:{'Cache-Control':'no-store'}});
     }
+
+    // Centrally managed support contacts: public read, authenticated admin write.
+    if(url.pathname==='/api/support/contacts'){
+      if(!env.IDENTITY_DB)return Response.json({error:'database_unavailable'},{status:503});
+      if(request.method==='GET'){
+        const row=await env.IDENTITY_DB.prepare('SELECT phone,whatsapp,email FROM salonati_support_contacts WHERE id=1').first();
+        return Response.json({phone:row?.phone||'',whatsapp:row?.whatsapp||'',email:row?.email||''},{headers:{'Cache-Control':'no-store'}});
+      }
+      if(request.method!=='POST')return Response.json({error:'method_not_allowed'},{status:405});
+      if(role!=='admin')return Response.json({error:'forbidden'},{status:403});
+      if(request.headers.get('origin')!==url.origin)return Response.json({error:'invalid_origin'},{status:403});
+      const session=await catalogAppSession(request,env);
+      if(session.status!==200)return Response.json({error:'admin_session_required'},{status:session.status});
+      const body=await request.json().catch(()=>null);
+      if(!body||['phone','whatsapp','email'].some(k=>typeof body[k]!=='string'))return Response.json({error:'invalid_fields'},{status:400});
+      const phone=body.phone.trim(),whatsapp=body.whatsapp.trim(),email=body.email.trim();
+      if(phone.length>32||whatsapp.length>32||email.length>254||(phone&&!/^\\+?[0-9 ()-]{7,32}$/.test(phone))||(whatsapp&&!/^\\+?[0-9 ()-]{7,32}$/.test(whatsapp))||(email&&!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)))return Response.json({error:'invalid_contacts'},{status:400});
+      await env.IDENTITY_DB.prepare("INSERT INTO salonati_support_contacts(id,phone,whatsapp,email,updated_at) VALUES(1,?,?,?,CURRENT_TIMESTAMP) ON CONFLICT(id) DO UPDATE SET phone=excluded.phone,whatsapp=excluded.whatsapp,email=excluded.email,updated_at=CURRENT_TIMESTAMP").bind(phone,whatsapp,email).run();
+      return Response.json({ok:true,phone,whatsapp,email},{headers:{'Cache-Control':'no-store'}});
+    }
     // Owner-managed booking closures, isolated by salon and service.
     if(url.pathname==='/api/booking/blocks' && ['GET','PUT'].includes(request.method)){
       if(!env.IDENTITY_DB)return Response.json({error:'database_unavailable'},{status:503});

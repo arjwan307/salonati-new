@@ -1,0 +1,23 @@
+{
+  "date_baghdad": "2026-11-03",
+  "baseline_commit": "a91fcf3ff4d0cffe8450f35400b812670949d803",
+  "production_changed": false,
+  "production_deletions": 0,
+  "production_deleted_markers": {"salon": 2, "cosmetics": 2},
+  "marked_deleted_primary_accounts_remaining": 4,
+  "marked_deleted_unexpired_sessions": 21,
+  "marked_deleted_catalog_media_metadata_rows": 19,
+  "customer_accounts": 4,
+  "foreign_key_violations": 0,
+  "phone_alias_orphans": 0,
+  "push_account_orphans": 0,
+  "non_worker_live_files_byte_identical": 277,
+  "generated_scripts_parsed": 60,
+  "local_suites_passed": ["test-live.mjs", "test-security-audit.mjs", "test-account-deletion.mjs", "test-notifications-audit.mjs"],
+  "actual_device_push_tested": false,
+  "physical_phone_tested": false,
+  "load_tested": false,
+  "full_authenticated_navigation_tested": false,
+  "shared_api_fully_reviewed": false,
+  "commercial_readiness": "not_approved"
+}

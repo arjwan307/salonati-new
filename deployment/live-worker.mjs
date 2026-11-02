@@ -182,7 +182,7 @@ export default {
       const body=await request.json().catch(()=>null);
       if(!body||['phone','whatsapp','email'].some(k=>typeof body[k]!=='string'))return Response.json({error:'invalid_fields'},{status:400});
       const phone=body.phone.trim(),whatsapp=body.whatsapp.trim(),email=body.email.trim();
-      if(phone.length>32||whatsapp.length>32||email.length>254||(phone&&!/^\\+?[0-9 ()-]{7,32}$/.test(phone))||(whatsapp&&!/^\\+?[0-9 ()-]{7,32}$/.test(whatsapp))||(email&&!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)))return Response.json({error:'invalid_contacts'},{status:400});
+      if(phone.length>32||whatsapp.length>32||email.length>254||[phone,whatsapp].some(v=>v&&!Array.from(v).every(c=>'0123456789+ ()-'.includes(c)))||(email&&(!email.includes('@')||email.includes(' ')||!email.split('@').pop().includes('.'))))return Response.json({error:'invalid_contacts'},{status:400});
       await env.IDENTITY_DB.prepare("INSERT INTO salonati_support_contacts(id,phone,whatsapp,email,updated_at) VALUES(1,?,?,?,CURRENT_TIMESTAMP) ON CONFLICT(id) DO UPDATE SET phone=excluded.phone,whatsapp=excluded.whatsapp,email=excluded.email,updated_at=CURRENT_TIMESTAMP").bind(phone,whatsapp,email).run();
       return Response.json({ok:true,phone,whatsapp,email},{headers:{'Cache-Control':'no-store'}});
     }

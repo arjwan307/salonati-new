@@ -5,17 +5,30 @@ const slots=()=>Array.from({length:29},(_,i)=>{const m=480+i*30;return String(Ma
 const opt=v=>slots().map(t=>'<option value="'+t+'" '+(t===v?'selected':'')+'>'+formatHour12(t)+'</option>').join('');
 const today=()=>new Date().toLocaleDateString('en-CA',{timeZone:'Asia/Baghdad'});
 const owner=()=>String(window.SALONATI_ACCOUNT_ID||'');
-let selectionDate=today(),selectionService='*',blocks=[],loaded=false;
+let selectionDate=today(),selectionService='*',blocks=[],loaded=false,blockSaveQueue=Promise.resolve(),pendingBlockSaves=0,blockSaveMessage='جارٍ تحميل المواعيد من الخادم…';
 const services=()=>Array.isArray(db?.services)?db.services.filter(s=>s.id&&s.active!==false&&s.publicationStatus!=='rejected'):[];
 const filtered=()=>new Set(blocks.filter(b=>b.date===selectionDate&&b.serviceId===selectionService).map(b=>b.time));
-const slotMarkup=()=>{const disabled=filtered();return '<div class="card booking-closure-card"><h3>إتاحة مواعيد الحجز</h3><label>تاريخ الحجز</label><input type="date" id="bookingSlotDate" value="'+esc(selectionDate)+'" onchange="window.redrawBookingSlots()"><label>تطبيق الإغلاق على</label><select id="bookingServiceScope" onchange="window.redrawBookingSlots()"><option value="*">جميع الخدمات</option>'+services().map(s=>'<option value="'+esc(s.id)+'" '+(selectionService===String(s.id)?'selected':'')+'>'+esc(s.name)+'</option>').join('')+'</select><p class="small">اختاري الأوقات المتاحة للحجز. أزيلي التحديد لإغلاق الموعد للخدمة المختارة.</p><div class="booking-slot-grid">'+slots().map(t=>'<label class="booking-slot-option"><input type="checkbox" data-booking-slot="'+t+'" '+(!disabled.has(t)?'checked':'')+'> '+formatHour12(t)+'</label>').join('')+'</div></div>'};
+const slotMarkup=()=>{const disabled=filtered();return '<div class="card booking-closure-card"><h3>إتاحة مواعيد الحجز</h3><label>تاريخ الحجز</label><input type="date" id="bookingSlotDate" value="'+esc(selectionDate)+'" onchange="window.redrawBookingSlots()"><label>تطبيق الإغلاق على</label><select id="bookingServiceScope" onchange="window.redrawBookingSlots()"><option value="*">جميع الخدمات</option>'+services().map(s=>'<option value="'+esc(s.id)+'" '+(selectionService===String(s.id)?'selected':'')+'>'+esc(s.name)+'</option>').join('')+'</select><p class="small">اختاري الأوقات المتاحة للحجز. أزيلي التحديد لإغلاق الموعد للخدمة المختارة. تُحفظ تغييرات الأوقات تلقائيًا.</p><p id="bookingSlotSaveStatus" role="status" aria-live="polite">'+esc(blockSaveMessage)+'</p><div class="booking-slot-grid">'+slots().map(t=>'<label class="booking-slot-option"><input type="checkbox" data-booking-slot="'+t+'" '+(!disabled.has(t)?'checked':'')+' '+(!loaded?'disabled':'')+'> '+formatHour12(t)+'</label>').join('')+'</div></div>'};
 window.redrawBookingSlots=()=>{selectionDate=document.getElementById('bookingSlotDate')?.value||selectionDate;selectionService=document.getElementById('bookingServiceScope')?.value||'*';const el=document.getElementById('bookingSlots');if(el)el.innerHTML=slotMarkup()};
+function blockSaveStatus(message){blockSaveMessage=message;const status=document.getElementById('bookingSlotSaveStatus');if(status)status.textContent=message;for(const id of ['bookingSlotDate','bookingServiceScope']){const el=document.getElementById(id);if(el)el.disabled=pendingBlockSaves>0;}}
+document.addEventListener('change',event=>{
+ if(!event.target.matches?.('[data-booking-slot]')||!loaded)return;
+ const date=document.getElementById('bookingSlotDate')?.value||selectionDate,serviceId=document.getElementById('bookingServiceScope')?.value||'*',times=[...document.querySelectorAll('[data-booking-slot]')].filter(el=>!el.checked).map(el=>el.dataset.bookingSlot);
+ pendingBlockSaves++;blockSaveStatus('جارٍ حفظ تغيير الموعد…');
+ blockSaveQueue=blockSaveQueue.catch(()=>{}).then(async()=>{
+  const response=await fetch('/api/booking/blocks',{method:'PUT',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({date,serviceId,times})});
+  if(!response.ok)throw Error('save_failed');
+  blocks=blocks.filter(b=>!(b.date===date&&b.serviceId===serviceId)).concat(times.map(time=>({date,time,serviceId})));
+ }).then(()=>{pendingBlockSaves--;blockSaveStatus(pendingBlockSaves?'جارٍ حفظ بقية التغييرات…':'تم الحفظ لدى الخادم. يُطبّق الإغلاق على حجوزات الزبونة.');},()=>{pendingBlockSaves--;blockSaveStatus('لم يُحفظ التغيير. تحققي من الاتصال وأعيدي المحاولة.');if(!pendingBlockSaves){window.redrawBookingSlots();toast('تعذر حفظ تغيير الموعد؛ أُعيدت الحالة المحفوظة.');}});
+});
 async function refreshBlocks(){
  const id=owner();if(!/^[a-zA-Z0-9-]{16,80}$/.test(id))return;
- try{const r=await fetch('/api/booking/blocks?ownerId='+encodeURIComponent(id),{cache:'no-store',credentials:'same-origin'});if(!r.ok)throw Error('load_failed');const d=await r.json();blocks=Array.isArray(d.blocks)?d.blocks:[];loaded=true;window.redrawBookingSlots()}catch{toast('تعذر تحميل الأوقات المغلقة من السيرفر')}
+ try{const r=await fetch('/api/booking/blocks?ownerId='+encodeURIComponent(id),{cache:'no-store',credentials:'same-origin'});if(!r.ok)throw Error('load_failed');const d=await r.json();blocks=Array.isArray(d.blocks)?d.blocks:[];loaded=true;blockSaveMessage='الأوقات محدّثة. كل تغيير يُحفظ تلقائيًا.';window.redrawBookingSlots()}catch{toast('تعذر تحميل الأوقات المغلقة من السيرفر')}
 }
 hours=()=>'<section class="salon-hours-page"><h2>أوقات العمل</h2><p class="hours-intro">نظّمي أيام العمل والمواعيد المتاحة لزبوناتكِ</p>'+db.hours.map((h,i)=>'<div class="card hours-day-card"><div class="between"><b>'+esc(h.day)+'</b><label class="row" style="margin:0"><input type="checkbox" style="width:18px" id="enabled'+i+'" '+(h.enabled?'checked':'')+'> مفتوح</label></div><details><summary>من '+formatHour12(h.open)+' إلى '+formatHour12(h.close)+'</summary><div class="two"><div><label>من</label><select id="from'+i+'">'+opt(h.open)+'</select></div><div><label>إلى</label><select id="to'+i+'">'+opt(h.close)+'</select></div></div></details></div>').join('')+'<div id="bookingSlots">'+slotMarkup()+'</div>'+button('حفظ أوقات العمل','saveHours()','full')+'</section>';
 saveHours=async()=>{
+ if(!loaded){toast('انتظري تحميل الأوقات من الخادم قبل الحفظ');return;}
+ await blockSaveQueue;
  const day=document.getElementById('bookingSlotDate')?.value||selectionDate,serviceId=document.getElementById('bookingServiceScope')?.value||'*';
  const arr=db.hours.map((h,i)=>({...h,enabled:document.getElementById('enabled'+i).checked,open:val('from'+i),close:val('to'+i)}));
  if(arr.some(h=>h.enabled&&h.open>=h.close)){toast('وقت الإغلاق يجب أن يكون بعد الافتتاح');return}
@@ -44,3 +57,4 @@ const oldGo=go;
 go=function(page){const result=oldGo.apply(this,arguments);if(page==='hours')void refreshBlocks();return result};
 setTimeout(()=>{if(document.getElementById('bookingSlots'))void refreshBlocks()},1000);
 })();
+

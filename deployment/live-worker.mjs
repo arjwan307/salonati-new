@@ -243,7 +243,8 @@ export default {
       await db.batch(writes);
       return Response.json({ok:true,count:unique.length});
     }
-    if(role==='customer' && url.pathname==='/api/catalog/workflow/customer/bookings' && request.method==='POST' && env.IDENTITY_DB){
+    if(role==='customer' && url.pathname==='/api/catalog/workflow/customer/bookings' && request.method==='POST'){
+      if(!env.IDENTITY_DB)return Response.json({error:'booking_validation_unavailable'},{status:503});
       const body=await request.clone().json().catch(()=>null);
       if(body && /^[a-zA-Z0-9-]{16,80}$/.test(body.ownerId||'') && Array.isArray(body.serviceIds) && typeof body.startsAt==='string'){
         const instant=new Date(body.startsAt);

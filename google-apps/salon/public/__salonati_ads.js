@@ -1,11 +1,13 @@
 (()=>{
 'use strict';
 if(window.__salonatiAdsMounted)return;window.__salonatiAdsMounted=true;
-const ads=[
+let ads=[
  {tag:'صالونات مميزة',title:'لحظة عناية… لكِ وحدكِ',copy:'اكتشفي خدمات الشعر والبشرة في الصالونات، واختاري موعداً يناسبكِ.',cta:'استكشفي الصالونات',target:'search',theme:'rose',img:'https://images.unsplash.com/photo-1560066984-138dadb4c035?w=350'},
  {tag:'إطلالات أنيقة',title:'إطلالتكِ تبدأ من هنا',copy:'مكياج، شعر وأظافر… اختاري أكثر من خدمة لتكملي إطلالتكِ.',cta:'شاهدي الصالونات',target:'search',theme:'gold',img:'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=350'},
  {tag:'منتجات وعناية',title:'دلّلي روتينكِ اليومي',copy:'تعرّفي على منتجات العناية بالشعر والبشرة في كتالوج العرض.',cta:'تصفّحي المنتجات',target:'products',theme:'plum',img:'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=350'}
 ];
+async function loadPublishedCampaigns(){try{const response=await fetch('/api/catalog/public',{credentials:'same-origin',cache:'no-store'});if(!response.ok)return;const data=await response.json();const published=(data.campaigns||[]).filter(c=>c&&c.mediaUrl&&c.mediaType?.startsWith('image/')).map(c=>({tag:'إعلانات الإدارة',title:c.title||'إعلان صالوناتي',copy:c.copy||'',cta:'استكشفي الصالونات',target:'search',theme:'plum',img:c.mediaUrl}));if(!published.length)return;const signature=JSON.stringify(published);if(signature===JSON.stringify(ads))return;ads=published;index=0;document.querySelector('#salonati-advert .sa-dots')?.replaceChildren(...ads.map((ad,i)=>{const button=document.createElement('button');button.type='button';button.className='sa-dot';button.setAttribute('aria-label','عرض الإعلان '+(i+1));button.onclick=()=>{index=i;paint();resetTimer()};return button}));paint();resetTimer()}catch(error){console.warn('salonati_campaigns_unavailable',error)}}
+const coverStyle=document.createElement('style');coverStyle.textContent='#salonati-advert.sa-banner{position:relative;overflow:hidden;min-height:250px}#salonati-advert .sa-art{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;opacity:.38}#salonati-advert .sa-art-img{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;object-fit:cover!important;border:0!important;border-radius:0!important;box-shadow:none!important}#salonati-advert .sa-content,#salonati-advert .sa-controls{position:relative;z-index:1}#salonati-advert .sa-content{text-shadow:0 1px 3px rgba(255,255,255,.85)}';document.head.append(coverStyle);
 let index=0,paused=window.matchMedia('(prefers-reduced-motion: reduce)').matches,timer=null,hover=false;
 const root=document.getElementById('app');if(!root)return;
 function resetTimer(){clearInterval(timer);timer=null;if(!paused&&!document.hidden)timer=setInterval(()=>{const banner=document.getElementById('salonati-advert');if(banner&&!hover&&!banner.contains(document.activeElement)){index=(index+1)%ads.length;paint();}},5000);}
@@ -19,6 +21,7 @@ function mount(){if(!root.querySelector('header .brand'))return;if(document.getE
  banner.onmouseenter=()=>{hover=true;};banner.onmouseleave=()=>{hover=false;};let touch=null;banner.addEventListener('pointerdown',e=>{touch={x:e.clientX,y:e.clientY};});banner.addEventListener('pointerup',e=>{if(!touch)return;const dx=e.clientX-touch.x,dy=e.clientY-touch.y;touch=null;if(Math.abs(dx)>45&&Math.abs(dx)>Math.abs(dy)*1.5)move(dx>0?1:-1);});banner.addEventListener('pointercancel',()=>touch=null);
  root.querySelector('header').insertAdjacentElement('afterend',banner);paint();resetTimer();
 }
+void loadPublishedCampaigns();setInterval(()=>{if(!document.hidden)void loadPublishedCampaigns()},60000);
 new MutationObserver(mount).observe(root,{childList:true});document.addEventListener('visibilitychange',resetTimer);mount();
 })();
 

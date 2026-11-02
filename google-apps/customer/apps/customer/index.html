@@ -1124,7 +1124,7 @@ if('serviceWorker' in navigator && location.protocol==='https:') window.addEvent
 (()=>{'use strict';
 const root=document.getElementById('app');if(!root)return;
 let ads=[],index=0,lastEl=null;
-async function load(){try{const r=await fetch('/api/catalog/public/cosmetics-ads',{credentials:'same-origin'});if(!r.ok)return;const d=await r.json();ads=(Array.isArray(d.ads)?d.ads:[]).filter(x=>x&&x.active!==false&&typeof x.mediaUrl==='string'&&/^https:\/\//.test(x.mediaUrl)).slice(0,20);paint()}catch{}}
+async function load(){try{const r=await fetch('/api/catalog/public/cosmetics-ads',{credentials:'same-origin'});if(!r.ok)return;const d=await r.json();ads=(Array.isArray(d.ads)?d.ads:[]).filter(x=>x&&x.active!==false&&typeof x.mediaUrl==='string'&&/^(https:\/\/|\/api\/)/.test(x.mediaUrl)).slice(0,20);try{const published=await fetch('/api/cosmetics/public',{credentials:'same-origin',cache:'no-store'});if(published.ok){const catalog=await published.json();const ownerAds=(catalog.stores||[]).flatMap(store=>(store.offers||[]).filter(offer=>offer.mediaUrl).map(offer=>({title:offer.title,mediaUrl:offer.mediaUrl,mediaType:offer.mediaType,active:true})));ads=[...ads,...ownerAds].slice(0,30)}}catch{}paint()}catch{}}
 function paint(){const el=document.getElementById('cosmeticsManagementAd');if(!el)return;if(!ads.length)return;
  const a=ads[index%ads.length],slot=el.querySelector('.cosmetics-ad-slides');slot.replaceChildren();
  const media=document.createElement(a.mediaType?.startsWith('video/')?'video':'img');media.src=a.mediaUrl;

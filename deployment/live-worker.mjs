@@ -282,6 +282,13 @@ export default {
           const responseHeaders=new Headers(result.headers);for(const name of ['content-length','etag'])responseHeaders.delete(name);responseHeaders.set('Cache-Control','no-store');
           return Response.json(data,{status:result.status,headers:responseHeaders});
         }
+        if(result.ok&&request.method==='GET'&&url.pathname==='/api/catalog/admin/registrations'&&env.IDENTITY_DB){
+          const data=await result.json();
+          const controls=new Map((await env.IDENTITY_DB.prepare("SELECT owner_id,status FROM salonati_admin_account_controls WHERE app='salon'").all()).results.map(r=>[r.owner_id,r.status]));
+          data.registrations=(data.registrations||[]).filter(r=>controls.get(r.ownerId)!=='deleted').map(r=>({...r,managementStatus:controls.get(r.ownerId)||'active'}));
+          const headers=new Headers(result.headers);for(const key of ['content-length','etag'])headers.delete(key);headers.set('Cache-Control','no-store');
+          return Response.json(data,{status:result.status,headers});
+        }
         return await protectOwnerBookingContacts(request,url,result);
       }
       catch { return Response.json({error:'service_unavailable'}, {status:503,headers:{'Cache-Control':'no-store'}}); }
@@ -297,3 +304,4 @@ export default {
     } catch {return Response.json({error:'service_unavailable'},{status:503,headers:{'Cache-Control':'no-store'}});}
   }
 };
+

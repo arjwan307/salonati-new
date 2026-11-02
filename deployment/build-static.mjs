@@ -170,6 +170,8 @@ if (process.argv.includes('--live') || process.argv.includes('--review')) {
     await writeFile(file, js);
   }
   html=html.replace('</head>','<script src="/salonati-offline-db.js" defer></script></head>');
+  await cp(resolve(root,'deployment/support-contacts-ui.js'),resolve(output,'support-contacts-ui.js'));
+  html=html.replace('</body>','<script src="/support-contacts-ui.js" defer></script></body>');
   html=html.replace('</body>','<script src="/legal-consent.js" defer></script></body>');
   await writeFile(resolve(output, 'index.html'), html);
   const liveWorker=await readFile(resolve(root, 'deployment/live-worker.mjs'),'utf8');

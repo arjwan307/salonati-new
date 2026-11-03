@@ -2,10 +2,12 @@
 :root{color-scheme:light;--bg:#fcfaff;--outside:#ecdffc;--card:#ffffff;--line:#d8b4fe;--pink:#7c3aed;--soft:#f3e8ff;--tint:#faf5ff;--text:#1e0338;--muted:#6b21a8}
 *{box-sizing:border-box}
 html{background:var(--outside,#f3e8ff);color-scheme:light}
-body{margin:0;background:linear-gradient(145deg,rgba(139,44,220,0.12),rgba(220,180,255,0.22)), url('/assets/aistudio/image_a5b9d3ec.png');background-size:cover;background-position:center;background-attachment:fixed;color:var(--text);font-family:Tahoma,"Noto Sans Arabic",Arial,sans-serif;line-height:1.7;font-size:14px}
+/* One viewport-fixed original image, without a tint or blur. Zoom crops its black edge bands. */
+body::before{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;background:url('/assets/aistudio/image_a5b9d3ec.png') center/cover no-repeat;transform:scale(1.22)}
+body{margin:0;min-height:100svh;background:transparent;isolation:isolate;color:var(--text);font-family:Tahoma,"Noto Sans Arabic",Arial,sans-serif;line-height:1.7;font-size:14px}
 button,input,select,textarea{font:inherit}
 button{cursor:pointer;border:0;background:none;color:inherit}
-.app{max-width:520px;min-height:100dvh;margin:auto;background:rgba(245,235,255,0.55);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);position:relative;padding:18px 17px 108px;isolation:isolate;overflow-x:clip}
+.app{max-width:520px;min-height:100dvh;margin:auto;background:transparent;position:relative;padding:18px 17px 108px;isolation:isolate;overflow-x:clip}
 header{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:8px 0 24px}
 .brand{font-size:40px;font-weight:900;color:var(--pink)}
 .sub{color:var(--muted);font-size:12px}
@@ -182,7 +184,7 @@ h3{font-size:18px}
 .inline-style-staff .service-worker-option{font-size:13px;align-items:flex-start}
 .inline-style-staff small{display:block;font-size:11px;color:var(--muted)}
 .gallery-continue{display:block;width:100%;margin:18px 0;padding:12px}
-.app::before,.app::after{content:"";position:absolute;z-index:-1;pointer-events:none;width:230px;height:430px;background:var(--pink);opacity:.035;mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 230 430'%3E%3Cg fill='none' stroke='black' stroke-width='1.4'%3E%3Cpath d='M35 420C150 310 25 160 195 10M91 330C25 310 9 265 24 225c48 12 73 46 67 105ZM100 265c71-3 105-37 112-81-52-4-94 24-112 81ZM102 181C42 161 26 120 40 81c49 11 73 47 62 100ZM137 91c44 2 77-19 88-52-41-9-75 10-88 52Z'/%3E%3C/g%3E%3C/svg%3E");mask-size:contain;mask-repeat:no-repeat}
+.app::before,.app::after{display:none;content:"";position:absolute;z-index:-1;pointer-events:none;width:230px;height:430px;background:var(--pink);opacity:.035;mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 230 430'%3E%3Cg fill='none' stroke='black' stroke-width='1.4'%3E%3Cpath d='M35 420C150 310 25 160 195 10M91 330C25 310 9 265 24 225c48 12 73 46 67 105ZM100 265c71-3 105-37 112-81-52-4-94 24-112 81ZM102 181C42 161 26 120 40 81c49 11 73 47 62 100ZM137 91c44 2 77-19 88-52-41-9-75 10-88 52Z'/%3E%3C/g%3E%3C/svg%3E");mask-size:contain;mask-repeat:no-repeat}
 .app::before{top:90px;left:-92px;transform:rotate(-16deg)}
 .app::after{top:790px;right:-100px;transform:rotate(166deg)}
 @keyframes salonati-reveal{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}

@@ -181,6 +181,8 @@ if (process.argv.includes('--live') || process.argv.includes('--review')) {
   await cp(resolve(root,'deployment/support-contacts-ui.js'),resolve(output,'support-contacts-ui.js'));
   html=html.replace('</body>','<script src="/support-contacts-ui.js" defer></script></body>');
   html=html.replace('</body>','<script src="/legal-consent.js" defer></script></body>');
+  await cp(resolve(root,'deployment/swipe-navigation.js'),resolve(output,'swipe-navigation.js'));
+  html=html.replace('</body>','<script src="/swipe-navigation.js" defer></script></body>');
   await writeFile(resolve(output, 'index.html'), html);
   const liveWorker=await readFile(resolve(root, 'deployment/live-worker.mjs'),'utf8');
   let worker = review?await readFile(resolve(root,'deployment/review-worker.mjs'),'utf8'):liveWorker;

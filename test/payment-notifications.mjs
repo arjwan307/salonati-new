@@ -1,0 +1,10 @@
+import './linked-customer-workflow.mjs';
+import {sql,call,a,admin,eq} from './registrations-campaigns.mjs';
+const other=await call('register',{body:{email:'other-notice@example.invalid',password:'password-isolated',salonName:'صالون آخر',area:'بغداد'}});
+const owner=a.data.account.id,key=crypto.randomUUID(),payment={ownerId:owner,amount:1000,reference:'وصل ١٢',requestKey:key};
+eq((await call('finance/payment-notifications')).status,401);eq((await call('finance/payment-notifications',{cookie:admin.cookie})).status,403);eq((await call('finance/payment-notifications',{cookie:a.cookie})).data.unread,0);
+const first=await call('finance/admin-payments',{cookie:admin.cookie,body:payment});eq(first.status,201);eq((await call('finance/admin-payments',{cookie:admin.cookie,body:payment})).data.id,first.data.id);
+let notices=await call('finance/payment-notifications',{cookie:a.cookie});eq(notices.data.unread,1);eq(notices.data.notifications.length,1);eq(notices.data.notifications[0].amount,1000);eq(notices.data.notifications[0].reference,'وصل ١٢');eq((await call('finance/payment-notifications',{cookie:other.cookie})).data.unread,0);
+eq((await call('finance/payment-notifications/read',{cookie:other.cookie,body:{id:first.data.id}})).status,404);eq((await call('finance/payment-notifications/read',{cookie:admin.cookie,body:{id:first.data.id}})).status,403);eq((await call('finance/payment-notifications/read',{cookie:a.cookie,body:{id:first.data.id}})).status,200);eq((await call('finance/payment-notifications/read',{cookie:a.cookie,body:{id:first.data.id}})).status,200);notices=await call('finance/payment-notifications',{cookie:a.cookie});eq(notices.data.unread,0);eq(Boolean(notices.data.notifications[0].read_at),true);
+eq((await call('finance/admin-payments',{cookie:admin.cookie,body:{...payment,requestKey:crypto.randomUUID(),amount:999999}})).status,409);eq(sql.prepare('SELECT count(*) AS n FROM catalog_payment_notifications').get().n,1);
+console.log('PASS: real recorded payment creates one owner-only notification; duplicates and rejected payments do not; read status is scoped and persistent');

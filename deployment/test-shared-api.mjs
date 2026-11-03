@@ -119,3 +119,17 @@ console.log('Shared API regression tests passed');
  assert.equal(count(e,'catalog_accounts'),5);
 }
 console.log('PASS: finance owner options exclude deleted accounts, sample owners and staff; valid owners remain and records are retained');
+{
+ const e=await setup();e.env.LEGACY_DB={prepare(){return {all:async()=>({results:[]})};}};
+ const bookingId='ffffffff-ffff-ffff-ffff-ffffffffffff';
+ e.sqlite.prepare("INSERT INTO catalog_live_bookings(id,owner_id,customer_id,customer_name,phone,services,starts_at,ends_at,total,status,request_key,request_hash,created_at) VALUES(?,?,?,'Synthetic','07700000000','[]','2026-01-01T00:00:00Z','2026-01-01T00:30:00Z',100,'confirmed',?,'test','2026-01-01')").run(bookingId,id.salon,id.customer,crypto.randomUUID());
+ let groups=await send(e,'/api/catalog/admin/bookings',{role:'admin'});assert.equal((await groups.json()).salons.length,1);
+ for(const mode of ['deleted','sample']){
+  if(mode==='deleted')control(e,'deleted');else{e.sqlite.prepare('DELETE FROM salonati_admin_account_controls').run();e.sqlite.prepare('INSERT INTO catalog_sample_owners(owner_id) VALUES(?)').run(id.salon);}
+  groups=await send(e,'/api/catalog/admin/bookings',{role:'admin'});assert.deepEqual((await groups.json()).salons,[]);
+  assert.equal((await send(e,'/api/catalog/admin/bookings/salon?salonId=live:'+id.salon,{role:'admin'})).status,404);
+  assert.equal((await send(e,'/api/catalog/admin/bookings/detail?id='+bookingId,{role:'admin'})).status,404);
+  assert.equal(count(e,'catalog_live_bookings'),1);
+ }
+}
+console.log('PASS: deleted/sample salon booking summaries and direct drilldowns are hidden; active summaries work and booking records remain');

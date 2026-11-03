@@ -22,6 +22,6 @@ async function openCosmeticsAgreement(ownerId,name){
 function mount(){const nav=document.getElementById('adminNav');if(!nav||nav.hidden)return;for(const [id,label,permission,kind] of [['cosmeticsReviewsButton','موافقات الكوزمتك','reviews','reviews'],['cosmeticsOrdersButton','طلبات الكوزمتك','bookings','orders'],['cosmeticsStoresButton','متاجر الكوزمتك','reviews','stores']]){const current=document.getElementById(id);if(current){current.hidden=!canAdmin(permission);continue;}if(!canAdmin(permission))continue;const button=document.createElement('button');button.id=id;button.textContent=label;button.onclick=()=>void (kind==='stores'?openStores():open(kind));nav.append(button);}}
 new MutationObserver(mount).observe(document.getElementById('adminNav'),{attributes:true,childList:true,subtree:true,attributeFilter:['hidden']});mount();
 async function counts(){if(document.hidden||document.getElementById('adminNav')?.hidden)return;try{const d=await request('counts');for(const [id,label,key] of [['cosmeticsReviewsButton','موافقات الكوزمتك','reviews'],['cosmeticsOrdersButton','طلبات الكوزمتك','orders']]){const button=document.getElementById(id);if(button)button.textContent=label+(d[key]?' ('+d[key]+')':'');}}catch{}}
-setInterval(()=>void counts(),8000);void counts();
+window.addEventListener('salonati:resume',()=>void counts());setInterval(()=>void counts(),8000);void counts();
 })();
 

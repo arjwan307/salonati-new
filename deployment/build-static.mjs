@@ -73,6 +73,8 @@ console.log(`Built ${role}: ${entries[role]} -> release/${role}/index.html`);
 if (process.argv.includes('--live') || process.argv.includes('--review')) {
   const review=process.argv.includes('--review');
   let html = await readFile(resolve(output, 'index.html'), 'utf8');
+  await cp(resolve(root,'deployment/app-resume.js'),resolve(output,'app-resume.js'));
+  html=html.replace('</head>','<script src="/app-resume.js"></script></head>');
   html = html.replace(/<script>window\.SALONATI_TRIAL=true<\/script>/g, '');
   if(review)html=html.replace('<head>','<head><script>window.SALONATI_TRIAL=true;window.SALONATI_REVIEW=true</script>');
   if (role === 'admin') {

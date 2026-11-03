@@ -1145,7 +1145,8 @@ async function loadApprovedCatalog(){
 
 render();
 void loadApprovedCatalog();
-window.addEventListener('focus',()=>void loadApprovedCatalog());
+window.addEventListener('salonati:resume',()=>{void loadApprovedCatalog();void refreshCustomerBookings();});
+setInterval(()=>{if(!document.hidden&&state.page==='bookings')void refreshCustomerBookings();},15000);
 setInterval(()=>{if(!document.hidden)void loadApprovedCatalog()},60000);
 if('serviceWorker' in navigator && location.protocol==='https:') window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
 </script><script src="/__salonati_ads.js"></script><script src="/vendor/qrcode.js"></script><script>(function(){function mount(){if(typeof QRCode==="undefined")return;document.querySelectorAll(".salonati-booking-qr:not([data-ready])").forEach(el=>{const payload=decodeURIComponent(el.dataset.qr||"");if(!payload)return;try{new QRCode(el,{text:payload,width:164,height:164,correctLevel:QRCode.CorrectLevel?.M});el.dataset.ready="1"}catch{el.textContent="تعذر عرض الباركود"}})}new MutationObserver(mount).observe(document.getElementById("app"),{childList:true,subtree:true});mount()})();</script></body></html>

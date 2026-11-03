@@ -14,4 +14,18 @@ function resume(){pending=true;clearTimeout(timer);timer=setTimeout(()=>{if(docu
 for(const name of ['pageshow','focus','online'])window.addEventListener(name,resume);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)resume();});
 document.addEventListener('focusout',()=>{if(pending)resume();});
+// Only actual use renews the two-hour deadline; polling merely checks it.
+let activityPending=false,hasSession=false,lastActivityAttempt=-Infinity;
+async function sessionActivity(renew){
+ if(document.hidden||navigator.onLine===false||activityPending)return;
+ if(renew&&Date.now()-lastActivityAttempt<60000)return;
+ if(renew)lastActivityAttempt=Date.now();activityPending=true;
+ const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),15000);
+ try{const r=await original('/api/session/activity',{method:renew?'POST':'GET',credentials:'same-origin',cache:'no-store',signal:controller.signal});if(r.ok)hasSession=true;else if(r.status===401&&hasSession){hasSession=false;document.documentElement.style.visibility='hidden';location.replace('/');}}
+ catch{}finally{clearTimeout(timeout);activityPending=false;}
+}
+for(const name of ['pointerdown','keydown','scroll'])window.addEventListener(name,event=>{if(event.isTrusted)void sessionActivity(true);},{passive:true});
+for(const name of ['pageshow','focus','online'])window.addEventListener(name,()=>void sessionActivity(true));
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)void sessionActivity(true);});
+setInterval(()=>{if(hasSession)void sessionActivity(false);},30000);
 })();

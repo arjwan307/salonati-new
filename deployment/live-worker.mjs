@@ -36,17 +36,17 @@ async function registerPhone(request, env, url) {
     ? db.prepare('INSERT INTO catalog_customer_accounts(id,username,name,phone,salt,digest,created_at) VALUES(?,?,?,?,?,?,?)').bind(id,'phone-'+id,name,phone,salt,digest,new Date().toISOString())
     : db.prepare("INSERT INTO catalog_accounts(id,email,role,salt,digest,salon_name,area,latitude,longitude) VALUES(?,?,'owner',?,?,?,?,?,?)").bind(id,role+'-'+id+'@phone.salonati.invalid',salt,digest,name,account.area,account.latitude,account.longitude);
   const session=customer
-    ? db.prepare("INSERT INTO catalog_customer_sessions(token_hash,customer_id,expires_at) VALUES(?,?,datetime('now','+365 days'))").bind(tokenHash,id)
-    : db.prepare("INSERT INTO catalog_sessions(token_hash,account_id,expires_at) VALUES(?,?,datetime('now','+7 days'))").bind(tokenHash,id);
+    ? db.prepare("INSERT INTO catalog_customer_sessions(token_hash,customer_id,expires_at) VALUES(?,?,datetime('now','+2 hours'))").bind(tokenHash,id)
+    : db.prepare("INSERT INTO catalog_sessions(token_hash,account_id,expires_at) VALUES(?,?,datetime('now','+2 hours'))").bind(tokenHash,id);
   try{await db.batch([create,db.prepare('INSERT INTO salonati_phone_identities(app,phone,account_id) VALUES(?,?,?)').bind(role,phone,id),session]);}
   catch(e){if(/unique|constraint/i.test(String(e.message)))return Response.json({error:'phone_already_registered'},{status:409});return Response.json({error:'registration_unavailable'},{status:503});}
-  return Response.json({account},{status:201,headers:{'Cache-Control':'no-store','Set-Cookie':(customer?'__Host-salonati-customer':'__Host-catalog')+'='+token+'; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age='+(customer?31536000:7200)}});
+  return Response.json({account},{status:201,headers:{'Cache-Control':'no-store','Set-Cookie':(customer?'__Host-salonati-customer':'__Host-catalog')+'='+token+'; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age='+7200}});
 }
 function twoHourLoginCookie(response) {
   if (!response.ok) return response;
   const original=response.headers.get('set-cookie');
   if (!original || !/^__Host-(?:catalog|salonati-customer)=/.test(original)) return response;
-  const cookie=original.replace(/;\s*Max-Age=\d+/i,'').replace(/;\s*Expires=[^;]*/i,'')+'; Max-Age='+(role==='customer'?31536000:7200);
+  const cookie=original.replace(/;\s*Max-Age=\d+/i,'').replace(/;\s*Expires=[^;]*/i,'')+'; Max-Age='+7200;
   const headers=new Headers(response.headers);
   headers.set('Set-Cookie',cookie);
   headers.set('Cache-Control','no-store');
@@ -70,7 +70,7 @@ async function phoneLogin(request, env, url) {
   const headers = new Headers(request.headers);headers.delete('x-salonati-app');headers.delete('content-length');headers.set('content-type','application/json');
   const target=role==='cosmetics'?new URL('/api/catalog/login',request.url):request.url;
   const response=await env.SALONATI_API.fetch(new Request(target,{method:'POST',headers,body:JSON.stringify(body)}));
-  if(customer&&response.ok){const token=/__Host-salonati-customer=([a-f0-9]{64})/.exec(response.headers.get('set-cookie')||'')?.[1];if(token){const hash=asHex(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(token)));await env.IDENTITY_DB.prepare("UPDATE catalog_customer_sessions SET expires_at=datetime('now','+365 days') WHERE token_hash=?").bind(hash).run();}}
+
   return twoHourLoginCookie(response);
 }
 function allowed(path) {
@@ -93,7 +93,7 @@ async function catalogAppSession(request,env){
 async function persistentCustomerSession(request,env){
  if(!env.IDENTITY_DB)return null;const token=/(?:^|;\s*)__Host-salonati-customer=([a-f0-9]{64})(?:;|$)/.exec(request.headers.get('cookie')||'')?.[1];if(!token)return null;
  const hash=asHex(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(token))),row=await env.IDENTITY_DB.prepare("SELECT s.customer_id FROM catalog_customer_sessions s JOIN catalog_customer_accounts a ON a.id=s.customer_id WHERE s.token_hash=? AND julianday(s.expires_at)>julianday('now')").bind(hash).first();if(!row)return null;
- await env.IDENTITY_DB.prepare("UPDATE catalog_customer_sessions SET expires_at=datetime('now','+365 days') WHERE token_hash=? AND julianday(expires_at)<julianday('now','+360 days')").bind(hash).run();return {id:row.customer_id,hash,cookie:'__Host-salonati-customer='+token+'; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=31536000'};
+ return {id:row.customer_id,hash,cookie:'__Host-salonati-customer='+token+'; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=7200'};
 }
 export default {
   async fetch(request, env) {
@@ -104,6 +104,23 @@ export default {
     // Support legacy entrypoint links without changing login or API boundaries.
     if (request.method === 'GET' && (url.pathname === '/تطبيق' || url.pathname === '/%D8%AA%D8%B7%D8%A8%D9%8A%D9%82' || url.pathname === '/تطبيق/')) return Response.redirect(url.origin + '/', 302);
     if (url.hostname !== `salonati-${role}-clean.pages.dev`) return Response.json({error:'live_host_required'}, {status:403});
+    if(url.pathname==='/api/session/activity'){
+      if(!['GET','POST'].includes(request.method))return Response.json({error:'method_not_allowed'},{status:405});
+      if(request.method==='POST'&&request.headers.get('origin')!==url.origin)return Response.json({error:'origin_denied'},{status:403});
+      if(!env.IDENTITY_DB)return Response.json({error:'session_unavailable'},{status:503});
+      const customer=role==='customer',session=customer?remembered:await catalogAppSession(request,env);
+      if(customer?!session:session.status!==200)return Response.json({error:'login_required'},{status:401,headers:{'Cache-Control':'no-store'}});
+      const cookieName=customer?'__Host-salonati-customer':'__Host-catalog',token=new RegExp('(?:^|;\\s*)'+cookieName+'=([a-f0-9]{64})(?:;|$)').exec(request.headers.get('cookie')||'')?.[1];
+      const hash=customer?session.hash:asHex(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(token)));
+      const table=customer?'catalog_customer_sessions':'catalog_sessions';
+      const headers={'Cache-Control':'no-store'};
+      if(request.method==='POST'){
+        const changed=await env.IDENTITY_DB.prepare("UPDATE "+table+" SET expires_at=datetime('now','+2 hours') WHERE token_hash=? AND julianday(expires_at)>julianday('now')").bind(hash).run();
+        if(!changed.meta.changes)return Response.json({error:'login_required'},{status:401,headers});
+        headers['Set-Cookie']=cookieName+'='+token+'; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=7200';
+      }
+      return Response.json({ok:true,idleSeconds:7200},{headers});
+    }
     if (role === 'customer' && ['/', '/index.html'].includes(url.pathname) && ['GET','HEAD'].includes(request.method)) {
       if (!env.SALONATI_API) return Response.json({error:'api_not_configured'},{status:503});
       const me = await env.SALONATI_API.fetch(new Request(url.origin+'/api/link/customer/me',{headers:request.headers}));

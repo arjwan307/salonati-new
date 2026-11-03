@@ -100,6 +100,8 @@ if (process.argv.includes('--live') || process.argv.includes('--review')) {
     html=html.replace(/onclick="notify\('✓ تم إرسال طلب مشتريات الكوزمتك[^\"]*"/,'onclick="salonatiCosmeticsCheckout()"');
     await cp(resolve(root,'deployment/cosmetics-customer-live.js'),resolve(output,'cosmetics-customer-live.js'));
     await cp(resolve(root,'deployment/customer-experience.js'),resolve(output,'customer-experience.js'));
+    await cp(resolve(root,'deployment/customer-session.js'),resolve(output,'customer-session.js'));
+    html=html.replace('</head>','<script src="/customer-session.js" defer></script></head>');
     html=html.replace('</body>','<script src="/customer-experience.js" defer></script></body>');
     html = html.replace('</body>', '<script src="/loyalty-ui.js"></script><script src="/salonati-link.js"></script><script src="/cosmetics-customer-live.js"></script><script>window.salonatiCustomerLogout=async()=>{try{const r=await fetch("/api/link/customer/logout",{method:"POST",credentials:"same-origin",headers:{"Content-Type":"application/json"},body:"{}"});if(!r.ok)throw Error("تعذر تسجيل الخروج");location.reload()}catch(e){notify(e.message)}};</script></body>');
     if(review)html=html.replace('fetch("/api/link/customer/logout",','fetch("/review-logout",');

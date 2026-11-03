@@ -361,6 +361,11 @@ export default {
       catch { return Response.json({error:'service_unavailable'}, {status:503,headers:{'Cache-Control':'no-store'}}); }
     }
     const response = await env.ASSETS.fetch(request);
+    // Assets may resolve legacy paths to the SPA shell; apply authentication there too.
+    if(role==='customer'&&response.ok&&response.headers.get('content-type')?.includes('text/html')&&!['/terms.html','/privacy.html','/delete-account.html'].includes(url.pathname)){
+      if(!remembered)return new Response(request.method==='HEAD'?null:customerEntry,{headers:{'Content-Type':'text/html; charset=utf-8','Cache-Control':'private, no-store','Set-Cookie':'__Host-salonati-customer=; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=0'}});
+      accountId=remembered.id;
+    }
     if (['customer','salon','cosmetics'].includes(role) && response.ok && response.headers.get('content-type')?.includes('text/html')) {
       const headers=new Headers(response.headers);
       for(const name of ['content-length','etag','content-md5','digest','content-digest','repr-digest'])headers.delete(name);

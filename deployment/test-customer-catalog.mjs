@@ -6,10 +6,10 @@ const require=createRequire(process.env.SALONATI_JSDOM_PACKAGE||'/tmp/salonati-u
 const {JSDOM}=require('jsdom');
 const html=await readFile('release/customer/index.html','utf8');
 const ads=await readFile('release/customer/__salonati_ads.js','utf8');
-let catalog={salons:[],services:[],team:[]};
+let catalog={salons:[],services:[],team:[]},campaigns=[],popular=[];
 const dom=new JSDOM(html,{url:'https://salonati-customer-clean.pages.dev',runScripts:'outside-only',pretendToBeVisual:true});
 const w=dom.window,context=dom.getInternalVMContext();
-w.scrollTo=()=>{};w.matchMedia=()=>({matches:false});w.fetch=async input=>{const path=String(input);return Response.json(path.includes('approved-catalog')?catalog:path.includes('cosmetics/public')?{stores:[]}:path.includes('/config')?{ads:[]}:path.includes('bookings')?{bookings:[]}:{ads:[]});};
+w.scrollTo=()=>{};w.matchMedia=()=>({matches:false});w.fetch=async input=>{const path=String(input);return Response.json(path.includes('public-campaigns')?{campaigns}:path.includes('popular-services')?{services:popular}:path.includes('approved-catalog')?catalog:path.includes('cosmetics/public')?{stores:[]}:path.includes('/config')?{ads:[]}:path.includes('bookings')?{bookings:[]}:{ads:[]});};
 w.setInterval=()=>0;w.clearInterval=()=>{};w.MutationObserver=class{observe(){}disconnect(){}};
 try{
  for(const script of w.document.querySelectorAll('script')){
@@ -26,6 +26,14 @@ try{
  catalog={salons:[],services:[],team:[]};await evaluate('loadApprovedCatalog()');assert.match(w.document.getElementById('app').textContent,/لا توجد خدمات معتمدة/);w.salonatiCategorySalon(1);assert.equal(evaluate('state.selectedServices.length'),0);
  catalog={salons:[{ownerId:'owner-1',name:'Approved salon'}],services:[{id:'service-1',ownerId:'owner-1',name:'مكياج معتمد',category:'makeup',price:73500,minutes:55,discountPrice:null}],team:[]};await evaluate('loadApprovedCatalog()');evaluate("state.salon=1;state.page='booking';state.selectedServices=[1]");catalog={salons:[],services:[],team:[]};await evaluate('loadApprovedCatalog()');assert.equal(evaluate('state.page'), 'home');assert.equal(evaluate('services.length'),0);assert.equal(evaluate('state.selectedServices.length'),0);
  console.log('PASS: empty catalog has no invented services/prices/popular cards; only approved owner services appear; one nav; withdrawn selection is cleared');
+ catalog={salons:[{ownerId:'owner-1',name:'Approved salon'}],services:[{id:'service-1',ownerId:'owner-1',name:'Booked service',category:'makeup',price:100,minutes:30,discountPrice:null}],team:[]};await evaluate('loadApprovedCatalog()');w.go('home');assert.equal(w.document.getElementById('popularServices'),null);
+ popular=[{serviceId:'service-1',bookingCount:2}];campaigns=[{id:'campaign-1',title:'Management campaign',copy:'Published copy',mediaType:'image/webp',mediaUrl:'/api/catalog/media/image-1'}];w.dispatchEvent(new w.Event('focus'));await new Promise(resolve=>setImmediate(resolve));
+ const ranked=w.document.getElementById('popularServices');assert.ok(ranked);assert.match(ranked.textContent,/الأكثر طلباً/);assert.equal(w.document.getElementById('cards').nextElementSibling,ranked);
+ assert.match(w.document.getElementById('salonati-advert').textContent,/Management campaign/);assert.equal(w.document.querySelector('#salonati-advert img').getAttribute('src'),'/api/catalog/media/image-1');assert.doesNotMatch(w.document.getElementById('app').textContent,/إطلالتكِ تبدأ من هنا/);
+ campaigns=[{id:'campaign-2',title:'Published video',mediaType:'video/mp4',mediaUrl:'/api/catalog/media/video-1'}];popular=[];w.dispatchEvent(new w.Event('focus'));await new Promise(resolve=>setImmediate(resolve));assert.equal(w.document.getElementById('popularServices'),null);assert.ok(w.document.querySelector('#salonati-advert video'));
+ campaigns=[];w.dispatchEvent(new w.Event('focus'));await new Promise(resolve=>setImmediate(resolve));assert.equal(w.document.getElementById('salonati-advert'),null);
+ console.log('PASS: popular cards require actual booking counts and follow salon results; published image/video campaigns render, empty campaigns disappear');
+
 }finally{w.close();}
 // A restored app must discard personal UI and return to login after server revocation.
 const guard=await readFile('deployment/customer-session.js','utf8');

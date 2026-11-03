@@ -76,7 +76,7 @@ async function phoneLogin(request, env, url) {
 function allowed(path) {
   if (backendAssets.has(path)) return true;
   if (path === '/api/catalog/public' || path === '/api/catalog/public/cosmetics-ads' || path.startsWith('/api/catalog/media/') || path==='/api/cosmetics/public' || path.startsWith('/api/cosmetics/media/')) return true;
-  if (role === 'customer') return path === '/api/customer/public-campaigns' || path === '/api/link/public' || path === '/api/link/session' || path.startsWith('/api/link/customer/') || path.startsWith('/api/catalog/workflow/customer/') || path.startsWith('/api/cosmetics/customer/');
+  if (role === 'customer') return path === '/api/customer/popular-services' || path === '/api/customer/public-campaigns' || path === '/api/link/public' || path === '/api/link/session' || path.startsWith('/api/link/customer/') || path.startsWith('/api/catalog/workflow/customer/') || path.startsWith('/api/cosmetics/customer/');
   if (role === 'cosmetics') return ['/api/cosmetics/me','/api/cosmetics/login','/api/cosmetics/register','/api/cosmetics/logout','/api/cosmetics/state','/api/cosmetics/media','/api/cosmetics/orders','/api/cosmetics/orders/status','/api/cosmetics/agreement'].includes(path);
   if (['/api/catalog/login','/api/catalog/logout','/api/catalog/me'].includes(path)) return true;
   if (role === 'admin') return path.startsWith('/api/catalog/admin/') || path.startsWith('/api/catalog/finance/') || /^\/api\/catalog\/(reviews|product-reviews|ad-reviews)(\/|$)/.test(path) || path === '/api/catalog/workflow/notifications' || path === '/api/catalog/media' || path === '/api/catalog/setup';
@@ -153,6 +153,11 @@ export default {
       const row=await env.IDENTITY_DB.prepare('SELECT a.salon_name,a.area,r.contact_name,r.address,r.status,r.facade_media_id FROM catalog_accounts a LEFT JOIN catalog_registrations r ON r.owner_id=a.id WHERE a.id=?').bind(session.accountId).first();
       const campaigns=(await env.IDENTITY_DB.prepare("SELECT c.id,c.title,c.copy,c.media_id,m.mime FROM catalog_campaigns c JOIN catalog_media m ON m.id=c.media_id WHERE c.active=1 ORDER BY c.created_at DESC,c.id").all()).results;
       return Response.json({profile:row?{salonName:row.salon_name,area:row.area,contactName:row.contact_name||'',address:row.address||'',status:row.status||'unsubmitted',facadeUrl:row.status==='approved'&&row.facade_media_id?'/api/catalog/media/'+row.facade_media_id:''}:null,campaigns:campaigns.map(c=>({id:c.id,title:c.title,copy:c.copy,mediaType:c.mime,mediaUrl:'/api/catalog/media/'+c.media_id}))},{headers:{'Cache-Control':'no-store'}});
+    }
+    if(role==='customer'&&url.pathname==='/api/customer/popular-services'&&request.method==='GET'){
+      if(!env.IDENTITY_DB)return Response.json({error:'catalog_unavailable'},{status:503});
+      const services=(await env.IDENTITY_DB.prepare("SELECT s.id AS serviceId,COUNT(DISTINCT b.id) AS bookingCount FROM catalog_live_bookings b JOIN json_each(b.services) item JOIN catalog_services s ON s.id=json_extract(item.value,'$.id') AND s.owner_id=b.owner_id JOIN catalog_revisions r ON r.id=s.published_revision JOIN catalog_registrations reg ON reg.owner_id=s.owner_id JOIN catalog_accounts a ON a.id=s.owner_id WHERE b.status IN('pending','confirmed','completed') AND reg.status='approved' AND r.status='approved' AND r.active=1 AND NOT EXISTS(SELECT 1 FROM salonati_admin_account_controls c WHERE c.owner_id=s.owner_id AND c.status!='active') AND NOT EXISTS(SELECT 1 FROM catalog_sample_owners sample WHERE sample.owner_id=s.owner_id) GROUP BY s.id ORDER BY bookingCount DESC,s.id LIMIT 30").all()).results;
+      return Response.json({services},{headers:{'Cache-Control':'no-store'}});
     }
     // Public, read-only approved catalog for the customer app. Published services only.
     if (role === 'customer' && url.pathname === '/api/customer/approved-catalog' && request.method === 'GET') {
@@ -307,7 +312,7 @@ export default {
       // Do not depend on the legacy public catalog response including campaigns.
       if(role==='customer'&&request.method==='GET'&&url.pathname==='/api/customer/public-campaigns'){
         if(!env.IDENTITY_DB)return Response.json({campaigns:[]},{headers:{'Cache-Control':'no-store'}});
-        const rows=(await env.IDENTITY_DB.prepare("SELECT c.id,c.title,c.copy,c.media_id,m.mime FROM catalog_campaigns c JOIN catalog_media m ON m.id=c.media_id WHERE c.active=1 AND m.mime LIKE 'image/%' ORDER BY c.created_at DESC,c.id LIMIT 30").all()).results;
+        const rows=(await env.IDENTITY_DB.prepare("SELECT c.id,c.title,c.copy,c.media_id,m.mime FROM catalog_campaigns c JOIN catalog_media m ON m.id=c.media_id WHERE c.active=1 AND (m.mime LIKE 'image/%' OR m.mime LIKE 'video/%') ORDER BY c.created_at DESC,c.id LIMIT 30").all()).results;
         return Response.json({campaigns:rows.map(c=>({id:c.id,title:c.title,copy:c.copy,mediaType:c.mime,mediaUrl:'/api/catalog/media/'+c.media_id}))},{headers:{'Cache-Control':'no-store'}});
       }
       const mediaDenied=await catalogMediaGuard(request,env,url);if(mediaDenied)return mediaDenied;

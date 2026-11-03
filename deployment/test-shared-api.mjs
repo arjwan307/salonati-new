@@ -108,3 +108,40 @@ console.log('PASS: credentials rotated or staff disabled during login cannot min
 }
 console.log('PASS: a real eligible loyalty reward is not inserted when disable wins the booking race');
 console.log('Shared API regression tests passed');
+
+{
+ const e=await setup();
+ e.sqlite.prepare("INSERT INTO salonati_admin_account_controls(app,owner_id,status) VALUES('salon',?,'deleted')").run(id.salon);
+ e.sqlite.prepare('INSERT INTO catalog_sample_owners(owner_id) VALUES(?)').run(id.other);
+ const response=await send(e,'/api/catalog/finance/options',{role:'admin'});assert.equal(response.status,200);const data=await response.json();assert.deepEqual(data.owners.map(o=>o.id),[id.cosmetics]);
+ e.sqlite.prepare("INSERT INTO salonati_admin_account_controls(app,owner_id,status) VALUES('cosmetics',?,'deleted')").run(id.cosmetics);
+ const empty=await send(e,'/api/catalog/finance/options',{role:'admin'});assert.deepEqual((await empty.json()).owners,[]);
+ assert.equal(count(e,'catalog_accounts'),5);
+}
+console.log('PASS: finance owner options exclude deleted accounts, sample owners and staff; valid owners remain and records are retained');
+{
+ const e=await setup();e.env.LEGACY_DB={prepare(){return {all:async()=>({results:[]})};}};
+ const bookingId='ffffffff-ffff-ffff-ffff-ffffffffffff';
+ e.sqlite.prepare("INSERT INTO catalog_live_bookings(id,owner_id,customer_id,customer_name,phone,services,starts_at,ends_at,total,status,request_key,request_hash,created_at) VALUES(?,?,?,'Synthetic','07700000000','[]','2026-01-01T00:00:00Z','2026-01-01T00:30:00Z',100,'confirmed',?,'test','2026-01-01')").run(bookingId,id.salon,id.customer,crypto.randomUUID());
+ let groups=await send(e,'/api/catalog/admin/bookings',{role:'admin'});assert.equal((await groups.json()).salons.length,1);
+ for(const mode of ['deleted','sample']){
+  if(mode==='deleted')control(e,'deleted');else{e.sqlite.prepare('DELETE FROM salonati_admin_account_controls').run();e.sqlite.prepare('INSERT INTO catalog_sample_owners(owner_id) VALUES(?)').run(id.salon);}
+  groups=await send(e,'/api/catalog/admin/bookings',{role:'admin'});assert.deepEqual((await groups.json()).salons,[]);
+  assert.equal((await send(e,'/api/catalog/admin/bookings/salon?salonId=live:'+id.salon,{role:'admin'})).status,404);
+  assert.equal((await send(e,'/api/catalog/admin/bookings/detail?id='+bookingId,{role:'admin'})).status,404);
+  assert.equal(count(e,'catalog_live_bookings'),1);
+ }
+}
+console.log('PASS: deleted/sample salon booking summaries and direct drilldowns are hidden; active summaries work and booking records remain');
+{
+ const e=await setup();
+ for(const [category,name,expectedCategory] of [['hijab','مكياج محجبات','makeup'],['brides','باقة العرائس','hair']]){
+  let r=await send(e,'/api/catalog/services',{role:'salon',method:'POST',body:{name,category,price:200,minutes:45,mediaId:id.facade}});assert.equal(r.status,201,await r.clone().text());const created=await r.json();
+  const stored=e.sqlite.prepare('SELECT category,section,status FROM catalog_revisions WHERE id=?').get(created.revisionId);assert.equal(stored.category,expectedCategory);assert.equal(stored.section,category);assert.equal(stored.status,'pending');
+  const reviews=await (await send(e,'/api/catalog/reviews',{role:'admin'})).json();assert.equal(reviews.reviews.find(v=>v.revisionId===created.revisionId).section,category);
+  r=await send(e,'/api/catalog/reviews/'+created.revisionId,{role:'admin',method:'POST',body:{action:'approve'}});assert.equal(r.status,200,await r.clone().text());
+  const publicData=await (await send(e,'/api/catalog/public')).json();assert.equal(publicData.salons.find(s=>s.id===id.salon).services.find(v=>v.id===created.id).section,category);
+  const own=await (await send(e,'/api/catalog/services',{role:'salon'})).json();assert.equal(own.services.find(v=>v.id===created.id).section,category);
+ }
+}
+console.log('PASS: hijab and brides selections persist, remain pending until admin approval, and retain their section in owner and public reads');

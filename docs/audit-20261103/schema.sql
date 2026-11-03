@@ -90,3 +90,5 @@ CREATE TABLE salonati_offer_notifications(seq INTEGER PRIMARY KEY AUTOINCREMENT,
 CREATE TABLE salonati_phone_identities (app TEXT NOT NULL CHECK(app IN ('admin','salon','cosmetics','customer')),phone TEXT NOT NULL,account_id TEXT NOT NULL,created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,PRIMARY KEY(app,phone),UNIQUE(app,account_id));
 CREATE TABLE salonati_push_subscriptions(id TEXT PRIMARY KEY,customer_id TEXT NOT NULL REFERENCES catalog_customer_accounts(id),token_hash TEXT NOT NULL,endpoint TEXT NOT NULL,last_seq INTEGER NOT NULL DEFAULT 0,updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP);
 CREATE TABLE salonati_support_contacts (id INTEGER PRIMARY KEY CHECK(id=1), phone TEXT NOT NULL DEFAULT '', whatsapp TEXT NOT NULL DEFAULT '', email TEXT NOT NULL DEFAULT '', updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP);
+
+ALTER TABLE catalog_revisions ADD COLUMN section TEXT NOT NULL DEFAULT 'services' CHECK(section IN('services','hijab','brides'));

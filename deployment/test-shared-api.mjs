@@ -27,7 +27,7 @@ async function setup(){
  sqlite.prepare('INSERT INTO catalog_advertisements(id,owner_id,latest_revision,published_revision) VALUES(?,?,?,?)').run(id.ad,id.salon,id.pending,id.approved);
  for(const [revision,media,status] of [[id.approved,id.mediaApproved,'approved'],[id.pending,id.mediaPending,'pending']])sqlite.prepare("INSERT INTO catalog_ad_revisions(id,ad_id,owner_id,title,placement,media_id,status) VALUES(?,?,?,'Synthetic ad','salon',?,?)").run(revision,id.ad,id.salon,media,status);
  sqlite.exec("CREATE TRIGGER catalog_live_no_overlap BEFORE INSERT ON catalog_live_bookings WHEN NEW.status IN('pending','confirmed') AND EXISTS(SELECT 1 FROM catalog_live_bookings b WHERE b.owner_id=NEW.owner_id AND b.status IN('pending','confirmed') AND b.starts_at<NEW.ends_at AND b.ends_at>NEW.starts_at) BEGIN SELECT RAISE(ABORT,'slot_unavailable'); END");
- let reads=0;const env={MODERATION_DB:db,MEDIA:{async get(){reads++;return {body:new Uint8Array([1,2,3])};}},get mediaReads(){return reads;}};
+ let reads=0;const env={MODERATION_DB:db,CONTENT_AI:{run:async()=>({choices:[{message:{content:JSON.stringify({allowed:true,reason:'محتوى تجميلي'})}}]})},MEDIA:{async get(){reads++;return {body:new Uint8Array([1,2,3]),arrayBuffer:async()=>new Uint8Array([1,2,3]).buffer};}},get mediaReads(){return reads;}};
  return {sqlite,db,env};
 }
 function req(path,{role,method='GET',body,origin='https://salonati-api.test',headers={}}={}){
@@ -139,7 +139,7 @@ console.log('PASS: deleted/sample salon booking summaries and direct drilldowns 
   let r=await send(e,'/api/catalog/services',{role:'salon',method:'POST',body:{name,category,price:200,minutes:45,mediaId:id.facade}});assert.equal(r.status,201,await r.clone().text());const created=await r.json();
   const stored=e.sqlite.prepare('SELECT category,section,status FROM catalog_revisions WHERE id=?').get(created.revisionId);assert.equal(stored.category,expectedCategory);assert.equal(stored.section,category);assert.equal(stored.status,'pending');
   const reviews=await (await send(e,'/api/catalog/reviews',{role:'admin'})).json();assert.equal(reviews.reviews.find(v=>v.revisionId===created.revisionId).section,category);
-  r=await send(e,'/api/catalog/reviews/'+created.revisionId,{role:'admin',method:'POST',body:{action:'approve'}});assert.equal(r.status,200,await r.clone().text());
+  r=await send(e,'/api/catalog/reviews/'+created.revisionId,{role:'admin',method:'POST',body:{action:'approve',contentReviewed:true,motionReviewed:true}});assert.equal(r.status,200,await r.clone().text());
   const publicData=await (await send(e,'/api/catalog/public')).json();assert.equal(publicData.salons.find(s=>s.id===id.salon).services.find(v=>v.id===created.id).section,category);
   const own=await (await send(e,'/api/catalog/services',{role:'salon'})).json();assert.equal(own.services.find(v=>v.id===created.id).section,category);
  }

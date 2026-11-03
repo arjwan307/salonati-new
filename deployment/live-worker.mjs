@@ -345,7 +345,7 @@ export default {
       if(role==='customer'&&request.method==='GET'&&url.pathname==='/api/customer/public-campaigns'){
         if(!env.IDENTITY_DB)return Response.json({campaigns:[]},{headers:{'Cache-Control':'no-store'}});
         const rows=(await env.IDENTITY_DB.prepare("SELECT c.id,c.title,c.copy,c.media_id,m.mime FROM catalog_campaigns c JOIN catalog_media m ON m.id=c.media_id WHERE c.active=1 AND (m.mime LIKE 'image/%' OR m.mime LIKE 'video/%') ORDER BY c.created_at DESC,c.id LIMIT 30").all()).results;
-        return Response.json({campaigns:rows.map(c=>({id:c.id,title:c.title,copy:c.copy,mediaType:c.mime,mediaUrl:'/api/catalog/media/'+c.media_id}))},{headers:{'Cache-Control':'no-store'}});
+        return Response.json({campaigns:[...rows.map(c=>({id:c.id,title:c.title,copy:c.copy,mediaType:c.mime,mediaUrl:'/api/catalog/media/'+c.media_id})),...await cosmeticsManagementPromotions(env.IDENTITY_DB)]},{headers:{'Cache-Control':'no-store'}});
       }
       const mediaDenied=await catalogMediaGuard(request,env,url);if(mediaDenied)return mediaDenied;
       const cosmetics=await cosmeticsRoutes(request,env,url);if(cosmetics)return cosmetics;

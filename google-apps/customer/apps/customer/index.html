@@ -709,7 +709,7 @@ function cosmeticsPage(){
   
   if(cosmeticsState.subPage === 'store') return cosmeticsStorePage();
 
-  let products = cosmeticProducts;
+  const publicationView=cosmeticsState.publicationView||'cosmetics';let products = cosmeticProducts.filter(p=>(p.placements||['cosmetics']).includes(publicationView));
   if(cosmeticsState.selectedCategory) {
     products = products.filter(p => p.category === cosmeticsState.selectedCategory);
   }
@@ -726,6 +726,7 @@ function cosmeticsPage(){
   
   <input class="search" placeholder="⌕ ابحثي عن منتج تجميل، عطر أو ماركة..." value="${esc(cosmeticsState.search)}" oninput="cosmeticsState.search=this.value;render()">
   
+  <div class="segments"><button class="${publicationView==='cosmetics'?'on':''}" onclick="cosmeticsState.publicationView='cosmetics';render()">صفحة الكوزمتك</button><button class="${publicationView==='cosmetics-discounts'?'on':''}" onclick="cosmeticsState.publicationView='cosmetics-discounts';render()">العروض والخصومات</button></div>
   <h2>التصنيفات</h2>
   <div class="salonati-cosmetics-categories" aria-label="تصنيفات الكوزمتك">
     <button type="button" class="salonati-cosmetics-category ${!cosmeticsState.selectedCategory?'active':''}" onclick="openCosmeticsCategory('')"><span class="salonati-cosmetics-category-image all-art">✦</span><span>الكل</span></button>

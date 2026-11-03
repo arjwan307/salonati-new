@@ -221,6 +221,7 @@ function renderProducts() {
       </div>
     </div>
     <label>وصف المنتج ومميزاته</label><textarea id="pdesc" placeholder="اكتب تفاصيل المنتج وماركته ومميزاته...">${esc(p?.description || '')}</textarea>
+    <fieldset style="border:1px solid var(--line);border-radius:12px;padding:12px"><legend>أماكن النشر بعد موافقة الإدارة</legend>${[['cosmetics','صفحة الكوزمتك'],['cosmetics-discounts','العروض والخصومات في الكوزمتك'],['management','شاشات إعلانات الإدارة']].map(([key,title])=>`<label style="display:flex;gap:8px;align-items:center"><input type="checkbox" name="productPlacement" value="${key}" style="width:auto" ${(p?.placements||['cosmetics']).includes(key)?'checked':''}>${title}</label>`).join('')}</fieldset><p class="small">تُراجع الصورة والوصف قبل النشر. يُسمح بمواد وأجهزة التجميل والصالونات فقط.</p>
     <label>رفع صورة المنتج (من الجهاز)</label>
     <input type="file" id="pImageFile" accept="image/*" onchange="handleImageUpload(event)">
     ${(uploadedImageTemp || p?.image) ? `<img src="${uploadedImageTemp || p.image}" class="preview-img" alt="معاينة الصورة">` : ''}
@@ -255,6 +256,7 @@ function renderProducts() {
 function renderOffers() {
   return `<h2>✨ إنشاء عرض أو تخفيض خاص</h2>
   <div class="card">
+    <fieldset style="border:1px solid var(--line);border-radius:12px;padding:12px"><legend>أماكن نشر العرض بعد الموافقة</legend>${[['cosmetics','صفحة الكوزمتك'],['cosmetics-discounts','العروض والخصومات في الكوزمتك'],['management','شاشات إعلانات الإدارة']].map(([key,title])=>`<label style="display:flex;gap:8px;align-items:center"><input type="checkbox" name="offerPlacement" value="${key}" style="width:auto" ${key==='cosmetics'?'checked':''}>${title}</label>`).join('')}</fieldset>
     <label>عنوان العرض</label><input id="otitle" placeholder="مثال: عروض نهاية الأسبوع على العطور">
     <label>نسبة أو قيمة الخصم</label><input id="odiscount" placeholder="مثال: خصم 30%">
     <label>تفاصيل العرض والمنتجات المشمولة</label><textarea id="odesc" placeholder="تفاصيل العرض الترويجي للزبونات..."></textarea><label>صورة أو فيديو للعرض (حتى 8 ميغابايت)</label><input id="offerMediaFile" type="file" accept="image/png,image/jpeg,image/webp,image/gif,video/mp4,video/webm" onchange="uploadOfferMedia(event)"><div id="offerMediaPreview"></div>
@@ -376,6 +378,9 @@ async function saveProductData() {
     desc = val('pdesc'),
     cat = document.getElementById('pcat')?.value || 'makeup';
   if (!name || !price) return toast('يرجى إدخال اسم المنتج والسعر');
+  const placements=[...document.querySelectorAll('[name="productPlacement"]:checked')].map(x=>x.value);if(!placements.length)return toast('اختاري مكان نشر واحداً على الأقل');
+  if(!uploadedImageTemp&&!db.products.find(x=>x.id===editingProductId)?.image)return toast('ارفعي صورة حقيقية للمنتج أولاً');
+  if(placements.includes('cosmetics-discounts')&&oldPrice<=price)return toast('حددي سعراً قبل الخصم أعلى من السعر الحالي لنشر المنتج في العروض');
   if (editingProductId) {
     let p = db.products.find(x => x.id === editingProductId);
     if (p) {
@@ -385,6 +390,7 @@ async function saveProductData() {
       p.stock = stock || 1;
       p.description = desc;
       p.category = cat;
+      p.placements=placements;
       if (uploadedImageTemp) p.image = uploadedImageTemp;
     }
     editingProductId = null;
@@ -397,8 +403,9 @@ async function saveProductData() {
       oldPrice,
       stock: stock || 1,
       category: cat,
+      placements,
       description: desc,
-      image: uploadedImageTemp || 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=400&q=80'
+      image: uploadedImageTemp || ''
     });
     toast('✓ تمت إضافة المنتج ونشره في المتجر بنجاح 💄');
   }
@@ -416,9 +423,10 @@ function deleteProduct(id) {
 async function saveOffer() {
   const title=val('otitle'),discount=val('odiscount'),details=val('odesc');
   const media=window.cosmeticsOfferMedia;
+  const placements=[...document.querySelectorAll('[name="offerPlacement"]:checked')].map(x=>x.value);if(!placements.length)return toast('اختاري مكان نشر واحداً على الأقل');
   if(!title)return toast('يرجى إدخال عنوان الإعلان');
   if(!media?.url)return toast('ارفعي صورة أو فيديو أولاً');
-  const offer={id:Date.now(),title,discount:discount||'عرض خاص',details,mediaUrl:media.url,mediaType:media.type};
+  const offer={id:Date.now(),title,placements,discount:discount||'عرض خاص',details,mediaUrl:media.url,mediaType:media.type};
   db.offers.unshift(offer);
   if(typeof persistCosmetics!=='function'){db.offers.shift();return toast('خدمة المراجعة غير متاحة');}
   if(await persistCosmetics()){window.cosmeticsOfferMedia=null;toast('أُرسل الإعلان للإدارة للموافقة');}

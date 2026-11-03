@@ -109,3 +109,8 @@ CREATE TABLE salonati_notification_deliveries(
  notification_id TEXT NOT NULL REFERENCES salonati_customer_notifications(id) ON DELETE CASCADE,
  delivered_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,PRIMARY KEY(subscription_id,notification_id)
 );
+
+CREATE TABLE IF NOT EXISTS salonati_content_checks(
+ content_hash TEXT PRIMARY KEY,policy_version TEXT NOT NULL,allowed INTEGER NOT NULL CHECK(allowed IN(0,1)),
+ reason TEXT NOT NULL,model TEXT NOT NULL,checked_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);

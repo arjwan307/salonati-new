@@ -6,7 +6,7 @@ const cosmetics=await readFile(new URL('./cosmetics-api.mjs',import.meta.url),'u
 async function app(role){return (await import('data:text/javascript;base64,'+Buffer.from(worker.replaceAll('__APP_ROLE__',role)+'\n'+cosmetics+'\nexport {cosmeticsState,cosmeticsOrder};').toString('base64')));}
 const owner='11111111-1111-1111-1111-111111111111',customer='22222222-2222-2222-2222-222222222222';
 const otherOwner='33333333-3333-3333-3333-333333333333';
-const stockState=stock=>({store:{name:'Test store',phone:'07720000000',area:'Test area',address:'Test address',lat:'33.3',lng:'44.4',active:true},products:[{id:1,name:'Test product',price:12500,oldPrice:0,stock,category:'makeup',description:'Test',image:'https://example.invalid/image.png'}],offers:[]});
+const stockState=stock=>({store:{name:'Test store',phone:'07720000000',area:'Test area',address:'Test address',lat:'33.3',lng:'44.4',active:true},products:[{id:1,name:'Test product',price:12500,oldPrice:0,stock,category:'makeup',description:'Test',image:'/api/cosmetics/media/11111111-1111-1111-1111-111111111111'}],offers:[]});
 const modules={};for(const role of ['customer','salon','admin','cosmetics'])modules[role]=await app(role);
 for(const role of Object.keys(modules)){
  let calls=0;const env={SALONATI_API:{fetch:()=>{calls++;return Response.json({error:'login_required'},{status:401});}}};

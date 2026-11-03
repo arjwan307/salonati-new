@@ -7,8 +7,10 @@
   "production_source_utf8_bytes": 703542,
   "embedded_asset_block_sha256": "a4c5b6a4aabf571cde3d3f2afd59799eb5da02e6660e472be66f34f2fb85cf81",
   "embedded_asset_block_utf8_bytes": 602053,
-  "production_settings_changed": false,
+  "production_settings_changed": true,
   "secrets_exported": false,
   "import_commit": "28d1d3baa9f8639a3dc8fdf454d03671ecbe0a5d",
-  "hardened_source_sha256": "a1542b719e76d4924fd6523f9d6995a799c033099e8a1858a0edf0df5c648554"
+  "hardened_source_sha256": "1ed410d3f155713c617bd73ba50407cd70bfc704188685924c0394348d1cf589",
+  "content_policy_binding": "CONTENT_AI",
+  "content_policy_model": "@cf/qwen/qwen3.8-27b"
 }

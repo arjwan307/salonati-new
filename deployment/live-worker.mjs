@@ -146,17 +146,32 @@ export default {
       accountId=owner.id;
       if(!/^[a-zA-Z0-9-]{16,80}$/.test(accountId))return Response.json({error:'invalid_session'},{status:401});
     }
-    if(role==='customer'&&['/api/customer/push','/api/customer/notifications'].includes(url.pathname)){
+    if(role==='customer'&&['/api/customer/push','/api/customer/notifications','/api/customer/notifications/read'].includes(url.pathname)){
       if(!remembered)return Response.json({error:'login_required'},{status:401});
       const db=env.IDENTITY_DB,headers={'Cache-Control':'no-store','Set-Cookie':remembered.cookie};
-      if(url.pathname==='/api/customer/notifications'&&request.method==='GET'){const rows=(await db.prepare('SELECT id,title,body,created_at FROM salonati_offer_notifications ORDER BY created_at DESC LIMIT 50').all()).results;return Response.json({notifications:rows},{headers});}
+      if(url.pathname==='/api/customer/notifications'&&request.method==='GET'){
+        const offers=(await db.prepare("SELECT 'offer:'||id AS id,'offer' AS kind,seq,title,body,created_at FROM salonati_offer_notifications ORDER BY seq DESC LIMIT 50").all()).results;
+        const reminders=(await db.prepare("SELECT n.id,n.kind,n.title,n.body,n.created_at,n.read_at FROM salonati_customer_notifications n JOIN catalog_live_bookings b ON b.id=n.booking_id WHERE n.customer_id=? AND b.status='confirmed' AND b.started_at IS NULL AND b.starts_at=n.starts_at AND julianday(b.starts_at)>julianday('now') AND NOT EXISTS(SELECT 1 FROM salonati_admin_account_controls c WHERE c.app='salon' AND c.owner_id=b.owner_id AND c.status!='active') ORDER BY n.created_at DESC LIMIT 50").bind(remembered.id).all()).results;
+        const seen=(await db.prepare('SELECT offer_seq FROM salonati_notification_reads WHERE customer_id=?').bind(remembered.id).first())?.offer_seq||0;
+        const count=await db.prepare("SELECT (SELECT COUNT(*) FROM salonati_offer_notifications WHERE seq>?)+(SELECT COUNT(*) FROM salonati_customer_notifications n JOIN catalog_live_bookings b ON b.id=n.booking_id WHERE n.customer_id=? AND n.read_at IS NULL AND b.status='confirmed' AND b.started_at IS NULL AND b.starts_at=n.starts_at AND julianday(b.starts_at)>julianday('now') AND NOT EXISTS(SELECT 1 FROM salonati_admin_account_controls c WHERE c.app='salon' AND c.owner_id=b.owner_id AND c.status!='active')) AS unread").bind(seen,remembered.id).first();
+        return Response.json({notifications:[...offers.map(n=>({...n,read:n.seq<=seen})),...reminders.map(n=>({...n,read:!!n.read_at}))].sort((a,b)=>Date.parse(b.created_at)-Date.parse(a.created_at)),unread:count.unread,offerSeq:offers[0]?.seq||0},{headers});
+      }
+      if(url.pathname==='/api/customer/notifications/read'&&request.method==='POST'){
+        if(request.headers.get('origin')!==url.origin)return Response.json({error:'invalid_origin'},{status:403});const d=await readLoginBody(request);
+        if(!Number.isSafeInteger(d?.offerSeq)||d.offerSeq<0||!Array.isArray(d.ids)||d.ids.length>100||d.ids.some(id=>typeof id!=='string'||id.length>128))return Response.json({error:'invalid_request'},{status:400});
+        const writes=[db.prepare('INSERT INTO salonati_notification_reads(customer_id,offer_seq) VALUES(?,MIN(?,(SELECT COALESCE(MAX(seq),0) FROM salonati_offer_notifications))) ON CONFLICT(customer_id) DO UPDATE SET offer_seq=MAX(offer_seq,excluded.offer_seq)').bind(remembered.id,d.offerSeq)];
+        if(d.ids.length)writes.push(db.prepare('UPDATE salonati_customer_notifications SET read_at=CURRENT_TIMESTAMP WHERE customer_id=? AND id IN ('+d.ids.map(()=>'?').join(',')+')').bind(remembered.id,...d.ids));await db.batch(writes);return Response.json({ok:true},{headers});
+      }
       if(url.pathname==='/api/customer/push'&&request.method==='GET'){const key=await db.prepare("SELECT value FROM salonati_notification_settings WHERE key='public_key'").first();return Response.json({publicKey:key?.value||''},{headers});}
       if(url.pathname==='/api/customer/push'&&request.method==='POST'){
         if(request.headers.get('origin')!==url.origin)return Response.json({error:'invalid_origin'},{status:403});const d=await readLoginBody(request);let endpoint;try{endpoint=new URL(d?.endpoint);}catch{return Response.json({error:'invalid_subscription'},{status:400});}
         if(endpoint.protocol!=='https:'||endpoint.username||endpoint.password||endpoint.port||endpoint.href.length>2048||!['fcm.googleapis.com','updates.push.services.mozilla.com','web.push.apple.com','wns2-par02p.notify.windows.com'].some(h=>endpoint.hostname===h||h==='web.push.apple.com'&&endpoint.hostname.endsWith('.push.apple.com')))return Response.json({error:'invalid_subscription'},{status:400});
         const id=asHex(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(endpoint.href)));
         if(d.remove)await db.prepare('DELETE FROM salonati_push_subscriptions WHERE id=? AND customer_id=?').bind(id,remembered.id).run();
-        else await db.prepare("INSERT INTO salonati_push_subscriptions(id,customer_id,token_hash,endpoint,last_seq) VALUES(?,?,?,?,(SELECT COALESCE(MAX(seq),0) FROM salonati_offer_notifications)) ON CONFLICT(id) DO UPDATE SET customer_id=excluded.customer_id,token_hash=excluded.token_hash,endpoint=excluded.endpoint,last_seq=(SELECT COALESCE(MAX(seq),0) FROM salonati_offer_notifications),updated_at=CURRENT_TIMESTAMP").bind(id,remembered.id,remembered.hash,endpoint.href).run();
+        else{
+          try{const decode=value=>Uint8Array.from(atob(String(value).replace(/-/g,'+').replace(/_/g,'/')),c=>c.charCodeAt(0)),key=decode(d.keys?.p256dh),auth=decode(d.keys?.auth);if(key.length!==65||key[0]!==4||auth.length!==16)throw Error();await crypto.subtle.importKey('raw',key,{name:'ECDH',namedCurve:'P-256'},false,[]);}catch{return Response.json({error:'invalid_subscription_keys'},{status:400});}
+          await db.prepare("INSERT INTO salonati_push_subscriptions(id,customer_id,token_hash,endpoint,p256dh,auth,last_seq) VALUES(?,?,?,?,?,?,(SELECT COALESCE(MAX(seq),0) FROM salonati_offer_notifications)) ON CONFLICT(id) DO UPDATE SET last_seq=CASE WHEN customer_id=excluded.customer_id THEN last_seq ELSE excluded.last_seq END,customer_id=excluded.customer_id,token_hash=excluded.token_hash,endpoint=excluded.endpoint,p256dh=excluded.p256dh,auth=excluded.auth,updated_at=CURRENT_TIMESTAMP").bind(id,remembered.id,remembered.hash,endpoint.href,d.keys.p256dh,d.keys.auth).run();
+        }
         return Response.json({ok:true},{headers});
       }
       return Response.json({error:'method_not_allowed'},{status:405});

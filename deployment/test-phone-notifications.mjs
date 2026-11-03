@@ -1,0 +1,12 @@
+import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
+import {runInNewContext} from 'node:vm';
+const events={},shown=[],badges=[],opened=[];let pending;
+const self={location:{origin:'https://salonati-customer-clean.pages.dev'},addEventListener:(name,fn)=>events[name]=fn,skipWaiting(){},navigator:{setAppBadge:async n=>badges.push(n),clearAppBadge:async()=>badges.push(0)},clients:{claim:async()=>{},matchAll:async()=>[],openWindow:async url=>opened.push(url)},registration:{showNotification:async(title,data)=>shown.push({title,...data}),getNotifications:async()=>[]}};
+runInNewContext(await readFile('google-apps/customer/public/sw.js','utf8'),{self,URL,fetch(){throw Error('A closed app must not depend on an authenticated fetch');}});
+events.push({data:{json:()=>({kind:'reminder3',body:'تذكير قبل ٣ ساعات',tag:'reminder-test',unread:3})},waitUntil:p=>pending=p});await pending;
+assert.equal(shown[0].data.url,'/?bookings=1');assert.equal(shown[0].body,'تذكير قبل ٣ ساعات');assert.equal(badges[0],3);
+events.notificationclick({notification:{data:{url:'/?bookings=1'},close(){}},waitUntil:p=>pending=p});await pending;assert.equal(opened[0],'https://salonati-customer-clean.pages.dev/?bookings=1');
+events.message({data:{type:'salonati-badge',count:0},waitUntil:p=>pending=p});await pending;assert.equal(badges.at(-1),0);
+events.push({data:null,waitUntil:p=>pending=p});await pending;assert.equal(shown.length,2);assert.match(shown[1].body,/إشعار جديد/);
+console.log('PASS: closed-app push displays without a login request, updates and clears icon badges, and opens bookings from reminder taps; legacy push remains visible');

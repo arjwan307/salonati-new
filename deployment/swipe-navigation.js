@@ -27,12 +27,12 @@ function settle(surface,transform,done){
  const timer=setTimeout(finish,230);surface.addEventListener('transitionend',end);
 }
 function cancel(){const g=gesture;gesture=null;if(g?.locked){animating=true;settle(g.surface,'translate3d(0,0,0)',()=>{reset(g.surface);animating=false;});}}
-document.addEventListener('input',event=>{if(event.target.matches('input,textarea,[contenteditable="true"]'))event.target.dataset.salonatiSwipeDirty='true';},true);
+document.addEventListener('input',event=>{if(event.target.matches('input,textarea,[contenteditable="true"]')&&!event.target.matches('.search,[type="search"]'))event.target.dataset.salonatiSwipeDirty='true';},true);
 document.addEventListener('change',event=>{if(event.target.matches('select,input[type="file"]'))event.target.dataset.salonatiSwipeDirty='true';},true);
 document.addEventListener('touchstart',event=>{
  if(animating||event.touches.length!==1){cancel();return;}
  const target=event.target,surface=root(),point=event.touches[0];
- if(!surface?.contains(target)||document.querySelector('dialog[open]')||target.closest('button,a,input,textarea,select,label,video,audio,[contenteditable="true"],.sa-banner,.thumbs,[data-no-swipe]')||document.activeElement?.matches('input,textarea,select,[contenteditable="true"]')||surface.querySelector('[data-salonati-swipe-dirty]'))return;
+ if(!surface?.contains(target)||document.querySelector('dialog[open]')||target.closest('a,input,textarea,select,label,video,audio,nav,[contenteditable="true"],.sa-banner,.thumbs,[data-no-swipe]')||document.activeElement?.matches('input,textarea,select,[contenteditable="true"]')||surface.querySelector('[data-salonati-swipe-dirty]'))return;
  // Leave the browser's native edge gesture and horizontal carousels intact.
  if(point.clientX<20||point.clientX>window.innerWidth-20)return;
  for(let node=target;node&&node!==surface;node=node.parentElement)if(node.scrollWidth>node.clientWidth+4&&/auto|scroll/.test(getComputedStyle(node).overflowX))return;
@@ -51,7 +51,7 @@ document.addEventListener('touchend',()=>{
  const g=gesture;if(!g)return;gesture=null;if(!g.locked)return;
  suppressUntil=Date.now()+400;
  const next=destination(g.dx,g.x),distance=Math.abs(g.dx),velocity=distance/Math.max(1,performance.now()-g.started);
- if(!next||next.key!==g.key||!(distance>Math.max(56,window.innerWidth*.18)||(distance>35&&velocity>.5))){animating=true;settle(g.surface,'translate3d(0,0,0)',()=>{reset(g.surface);animating=false;});return;}
+ if(!next||next.key!==g.key||!(distance>Math.min(64,window.innerWidth*.12)||(distance>28&&velocity>.35))){animating=true;settle(g.surface,'translate3d(0,0,0)',()=>{reset(g.surface);animating=false;});return;}
  animating=true;const direction=Math.sign(g.dx);
  settle(g.surface,`translate3d(${direction*window.innerWidth}px,0,0)`,()=>{
   const current=destination(g.dx,g.x);

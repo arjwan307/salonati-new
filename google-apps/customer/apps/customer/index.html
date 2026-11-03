@@ -395,6 +395,17 @@ button:focus-visible,summary:focus-visible,input:focus-visible{outline:2px solid
 
 .hijab-reference-button{position:relative}
 .hijab-reference-name{position:absolute;inset:12% 35% 12% 25%;display:flex;align-items:center;justify-content:center;padding:2px;background:linear-gradient(115deg,#fcf4ff,#faf0fc);color:#38261f;font-size:clamp(13px,3.7vw,21px);font-weight:800;line-height:1.5;text-align:center;border-radius:8px}
+
+/* Keep campaign media, captions and navigation within one stable card. */
+#salonati-advert.sa-management{position:relative;height:300px;min-height:300px;max-height:300px;padding:0;overflow:hidden;isolation:isolate;background:#f3ebfa;border-radius:20px}
+#salonati-advert.sa-management [data-campaign-media]{position:absolute;inset:0;margin:0}
+#salonati-advert.sa-management .sa-management-media{display:block;width:100%;height:100%;object-fit:cover;border-radius:0;background:#fff}
+#salonati-advert.sa-management .sa-management-label{position:absolute;top:12px;inset-inline-start:12px;z-index:3;background:#ffffffed;color:#4b0c9b;font-size:11px;padding:4px 10px}
+#salonati-advert.sa-management .sa-management-copy{position:absolute;inset: auto 0 0;z-index:2;padding:48px 14px 54px;background:linear-gradient(transparent,#25123399 38%,#251233c7);pointer-events:none}
+#salonati-advert.sa-management .sa-title{font-size:21px;line-height:1.45;margin:0 0 5px;color:#fff;text-shadow:0 1px 4px #25123380;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;overflow-wrap:anywhere}
+#salonati-advert.sa-management .sa-copy{font-size:13px;line-height:1.65;margin:0;color:#fff;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;overflow-wrap:anywhere}
+#salonati-advert.sa-management .sa-controls{position:absolute;bottom:10px;inset-inline:12px;z-index:4;margin:0;color:#fff}
+#salonati-advert.sa-management .sa-controls>button{background:#fffffff2;color:#623b7a;border-color:#ffffff90}
 </style></head><body><div class="customer-page-background" aria-hidden="true"></div><div id="gmpQuotaBanner" style="display:none;background:#fef3c7;border-bottom:1px solid #fde68a;color:#78350f;padding:10px 16px;font-size:12px;text-align:center;position:sticky;top:0;z-index:99;box-shadow:0 1px 3px rgba(0,0,0,0.05);">
   <span>Google Maps Platform quota reached. If you are the app owner, visit <a href="https://developers.google.com/maps/ai/ai-studio?utm_campaign=gmp_mcp_codeassist_v1_aistudio#quota_exceeded_errors" target="_blank" rel="noopener noreferrer" style="text-decoration:underline;font-weight:600;color:#451a03;">maps developer site</a> for instructions to update your account.</span>
 </div>

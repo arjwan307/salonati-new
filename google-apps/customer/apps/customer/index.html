@@ -2,9 +2,10 @@
 :root{color-scheme:light;--bg:#fcfaff;--outside:#ecdffc;--card:#ffffff;--line:#d8b4fe;--pink:#7c3aed;--soft:#f3e8ff;--tint:#faf5ff;--text:#1e0338;--muted:#6b21a8}
 *{box-sizing:border-box}
 html{background:var(--outside,#f3e8ff);color-scheme:light}
-/* One viewport-fixed original image, without a tint or blur. Zoom crops its black edge bands. */
-body::before{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;background:url('/assets/aistudio/image_a5b9d3ec.png') center/cover no-repeat;transform:scale(1.22)}
-body{margin:0;min-height:100svh;background:transparent;isolation:isolate;color:var(--text);font-family:Tahoma,"Noto Sans Arabic",Arial,sans-serif;line-height:1.7;font-size:14px}
+/* A single softly blended background scrolls with the document; the wrapper crops image edge bands. */
+.customer-page-background{position:absolute;inset:0;overflow:hidden;z-index:-1;pointer-events:none;opacity:.86}
+.customer-page-background::before{content:'';position:absolute;inset:-11%;background:url('/assets/aistudio/image_a5b9d3ec.png') center/cover no-repeat}
+body{position:relative;margin:0;min-height:100svh;background:#f3ebfa;isolation:isolate;color:var(--text);font-family:Tahoma,"Noto Sans Arabic",Arial,sans-serif;line-height:1.7;font-size:14px}
 button,input,select,textarea{font:inherit}
 button{cursor:pointer;border:0;background:none;color:inherit}
 .app{max-width:520px;min-height:100dvh;margin:auto;background:transparent;position:relative;padding:18px 17px 108px;isolation:isolate;overflow-x:clip}
@@ -394,7 +395,7 @@ button:focus-visible,summary:focus-visible,input:focus-visible{outline:2px solid
 
 .hijab-reference-button{position:relative}
 .hijab-reference-name{position:absolute;inset:12% 35% 12% 25%;display:flex;align-items:center;justify-content:center;padding:2px;background:linear-gradient(115deg,#fcf4ff,#faf0fc);color:#38261f;font-size:clamp(13px,3.7vw,21px);font-weight:800;line-height:1.5;text-align:center;border-radius:8px}
-</style></head><body><div id="gmpQuotaBanner" style="display:none;background:#fef3c7;border-bottom:1px solid #fde68a;color:#78350f;padding:10px 16px;font-size:12px;text-align:center;position:sticky;top:0;z-index:99;box-shadow:0 1px 3px rgba(0,0,0,0.05);">
+</style></head><body><div class="customer-page-background" aria-hidden="true"></div><div id="gmpQuotaBanner" style="display:none;background:#fef3c7;border-bottom:1px solid #fde68a;color:#78350f;padding:10px 16px;font-size:12px;text-align:center;position:sticky;top:0;z-index:99;box-shadow:0 1px 3px rgba(0,0,0,0.05);">
   <span>Google Maps Platform quota reached. If you are the app owner, visit <a href="https://developers.google.com/maps/ai/ai-studio?utm_campaign=gmp_mcp_codeassist_v1_aistudio#quota_exceeded_errors" target="_blank" rel="noopener noreferrer" style="text-decoration:underline;font-weight:600;color:#451a03;">maps developer site</a> for instructions to update your account.</span>
 </div>
 <div class="app" id="app"></div><script>

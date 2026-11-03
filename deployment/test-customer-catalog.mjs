@@ -6,10 +6,10 @@ const require=createRequire(process.env.SALONATI_JSDOM_PACKAGE||'/tmp/salonati-u
 const {JSDOM}=require('jsdom');
 const html=await readFile('release/customer/index.html','utf8');
 const ads=await readFile('release/customer/__salonati_ads.js','utf8');
-let catalog={salons:[],services:[],team:[]},campaigns=[],popular=[];
+let catalog={salons:[],services:[],team:[]},campaigns=[],popular=[],cosmeticAds=[];
 const dom=new JSDOM(html,{url:'https://salonati-customer-clean.pages.dev',runScripts:'outside-only',pretendToBeVisual:true});
 const w=dom.window,context=dom.getInternalVMContext();
-w.scrollTo=()=>{};w.matchMedia=()=>({matches:false});w.fetch=async input=>{const path=String(input);return Response.json(path.includes('public-campaigns')?{campaigns}:path.includes('popular-services')?{services:popular}:path.includes('approved-catalog')?catalog:path.includes('cosmetics/public')?{stores:[]}:path.includes('/config')?{ads:[]}:path.includes('bookings')?{bookings:[]}:{ads:[]});};
+w.scrollTo=()=>{};w.matchMedia=()=>({matches:false});w.fetch=async input=>{const path=String(input);return Response.json(path.includes('public/cosmetics-ads')?{ads:cosmeticAds}:path.includes('public-campaigns')?{campaigns}:path.includes('popular-services')?{services:popular}:path.includes('approved-catalog')?catalog:path.includes('cosmetics/public')?{stores:[]}:path.includes('/config')?{ads:[]}:path.includes('bookings')?{bookings:[]}:{ads:[]});};
 w.setInterval=()=>0;w.clearInterval=()=>{};w.MutationObserver=class{observe(){}disconnect(){}};
 try{
  for(const script of w.document.querySelectorAll('script')){
@@ -29,6 +29,8 @@ try{
  catalog={salons:[{ownerId:'owner-1',name:'Approved salon'}],services:[{id:'service-1',ownerId:'owner-1',name:'Booked service',category:'makeup',price:100,minutes:30,discountPrice:null}],team:[]};await evaluate('loadApprovedCatalog()');w.go('home');assert.equal(w.document.getElementById('popularServices'),null);
  popular=[{serviceId:'service-1',bookingCount:2}];campaigns=[{id:'campaign-1',title:'Management campaign',copy:'Published copy',mediaType:'image/webp',mediaUrl:'/api/catalog/media/image-1'}];w.dispatchEvent(new w.Event('focus'));await new Promise(resolve=>setImmediate(resolve));
  const ranked=w.document.getElementById('popularServices');assert.ok(ranked);assert.match(ranked.textContent,/الأكثر طلباً/);assert.equal(w.document.getElementById('cards').nextElementSibling,ranked);
+ assert.match(w.document.getElementById('cosmeticsManagementAd').textContent,/Management campaign/);assert.equal(w.getComputedStyle(w.document.getElementById('cosmeticsManagementAd')).height,w.getComputedStyle(w.document.getElementById('salonati-advert')).height);
+ cosmeticAds=[{id:'cosmetic-1',title:'Approved cosmetics ad',mediaType:'image/webp',mediaUrl:'/api/cosmetics/media/cosmetic-1',active:true}];w.dispatchEvent(new w.Event('focus'));await new Promise(resolve=>setImmediate(resolve));const mixed=w.document.getElementById('cosmeticsManagementAd');assert.match(mixed.textContent,/Approved cosmetics ad/);mixed.querySelector('.sa-next').click();assert.match(mixed.textContent,/Management campaign/);assert.ok(mixed.querySelector('.sa-shop-link'));cosmeticAds=[];
  assert.match(w.document.getElementById('salonati-advert').textContent,/Management campaign/);assert.equal(w.document.querySelector('#salonati-advert img').getAttribute('src'),'/api/catalog/media/image-1');assert.doesNotMatch(w.document.getElementById('app').textContent,/إطلالتكِ تبدأ من هنا/);
  campaigns=[{id:'campaign-2',title:'Published video',mediaType:'video/mp4',mediaUrl:'/api/catalog/media/video-1'}];popular=[];w.dispatchEvent(new w.Event('focus'));await new Promise(resolve=>setImmediate(resolve));assert.equal(w.document.getElementById('popularServices'),null);assert.ok(w.document.querySelector('#salonati-advert video'));
  campaigns=[];w.dispatchEvent(new w.Event('focus'));await new Promise(resolve=>setImmediate(resolve));assert.equal(w.document.getElementById('salonati-advert'),null);

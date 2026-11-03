@@ -108,3 +108,14 @@ console.log('PASS: credentials rotated or staff disabled during login cannot min
 }
 console.log('PASS: a real eligible loyalty reward is not inserted when disable wins the booking race');
 console.log('Shared API regression tests passed');
+
+{
+ const e=await setup();
+ e.sqlite.prepare("INSERT INTO salonati_admin_account_controls(app,owner_id,status) VALUES('salon',?,'deleted')").run(id.salon);
+ e.sqlite.prepare('INSERT INTO catalog_sample_owners(owner_id) VALUES(?)').run(id.other);
+ const response=await send(e,'/api/catalog/finance/options',{role:'admin'});assert.equal(response.status,200);const data=await response.json();assert.deepEqual(data.owners.map(o=>o.id),[id.cosmetics]);
+ e.sqlite.prepare("INSERT INTO salonati_admin_account_controls(app,owner_id,status) VALUES('cosmetics',?,'deleted')").run(id.cosmetics);
+ const empty=await send(e,'/api/catalog/finance/options',{role:'admin'});assert.deepEqual((await empty.json()).owners,[]);
+ assert.equal(count(e,'catalog_accounts'),5);
+}
+console.log('PASS: finance owner options exclude deleted accounts, sample owners and staff; valid owners remain and records are retained');

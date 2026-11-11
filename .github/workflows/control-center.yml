@@ -1,0 +1,24 @@
+name: Control center worker integration
+on:
+  push:
+    branches: [feature/control-center-worker-20261111]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --check workers/salonati-api/control-wrapper.mjs
+      - run: node --test workers/control-center/control.test.mjs
+      - name: Install isolated Worker test runtime
+        run: npm install --prefix /tmp/salonati-control-test --no-audit --no-fund miniflare@4
+      - name: Run original API scenarios through control wrapper
+        run: |
+          MF_PATH="$(node -p "require.resolve('miniflare', {paths:['/tmp/salonati-control-test']})")"
+          SALONATI_MINIFLARE_MODULE="$MF_PATH" node deployment/test-control-runtime.mjs
